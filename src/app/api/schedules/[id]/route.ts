@@ -1,4 +1,4 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, count } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { channels, db, runs, schedules } from "@/lib/db";
 import { decryptJson } from "@/lib/encrypt";
@@ -40,25 +40,37 @@ export async function GET(
       return NextResponse.json({ error: "Schedule not found" }, { status: 404 });
     }
 
-    const scheduleRuns = await db
-      .select({
-        id: runs.id,
-        query: runs.query,
-        topic: runs.topic,
-        status: runs.status,
-        playerUrl: runs.playerUrl,
-        thumbnailUrl: runs.thumbnailUrl,
-        events: runs.events,
-        summary: runs.summary,
-        selectedVideo: runs.selectedVideo,
-        errorMessage: runs.errorMessage,
-        createdAt: runs.createdAt,
-        completedAt: runs.completedAt,
-      })
-      .from(runs)
-      .where(eq(runs.scheduleId, id))
-      .orderBy(desc(runs.createdAt))
-      .limit(50);
+    const page = Math.max(1, parseInt(request.nextUrl.searchParams.get("page") || "1", 10) || 1);
+    const limit = Math.min(50, Math.max(1, parseInt(request.nextUrl.searchParams.get("limit") || "15", 10) || 15));
+    const offset = (page - 1) * limit;
+
+    const where = eq(runs.scheduleId, id);
+
+    const [totalResult, scheduleRuns] = await Promise.all([
+      db.select({ count: count() }).from(runs).where(where),
+      db
+        .select({
+          id: runs.id,
+          query: runs.query,
+          topic: runs.topic,
+          status: runs.status,
+          playerUrl: runs.playerUrl,
+          thumbnailUrl: runs.thumbnailUrl,
+          events: runs.events,
+          summary: runs.summary,
+          selectedVideo: runs.selectedVideo,
+          errorMessage: runs.errorMessage,
+          createdAt: runs.createdAt,
+          completedAt: runs.completedAt,
+        })
+        .from(runs)
+        .where(where)
+        .orderBy(desc(runs.createdAt))
+        .limit(limit)
+        .offset(offset),
+    ]);
+
+    const total = totalResult[0]?.count ?? 0;
 
     return NextResponse.json({
       schedule: {
@@ -86,6 +98,9 @@ export async function GET(
         created_at: row.createdAt?.toISOString() ?? null,
         completed_at: row.completedAt?.toISOString() ?? null,
       })),
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
     });
   } catch (error) {
     logger.error({ err: error }, "Schedule GET error");

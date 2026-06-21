@@ -4,6 +4,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import BriefingCard from "@/components/BriefingCard";
+import { Pagination } from "@/components/Pagination";
 
 type RunItem = {
   id: string;
@@ -24,6 +25,9 @@ function MyBriefingsContent() {
   const [loading, setLoading] = useState(true);
   const [hasKeys, setHasKeys] = useState(false);
   const [search, setSearch] = useState(searchParams.get("search") ?? "");
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -45,6 +49,7 @@ function MyBriefingsContent() {
 
   function onSearch(text: string) {
     setSearch(text);
+    setPage(1);
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => pushSearch(text), 300);
   }
@@ -66,6 +71,8 @@ function MyBriefingsContent() {
       if (!sessionToken) return;
       const url = new URL("/api/my-runs", window.location.origin);
       if (searchParam) url.searchParams.set("search", searchParam);
+      url.searchParams.set("page", String(page));
+      url.searchParams.set("limit", "15");
       const res = await fetch(url.toString(), {
         headers: { "x-session-token": sessionToken },
       });
@@ -73,6 +80,8 @@ function MyBriefingsContent() {
       if (cancelled) return;
       const next = (data.runs || []) as RunItem[];
       setRuns(next);
+      setTotal(data.total || 0);
+      setTotalPages(data.totalPages || 0);
 
       if (next.some((r) => r.status === "processing")) {
         if (!pollRef.current) {
@@ -101,7 +110,11 @@ function MyBriefingsContent() {
         pollRef.current = null;
       }
     };
-  }, [hasKeys, searchParam]);
+  }, [hasKeys, searchParam, page]);
+
+  const handlePageChange = useCallback((p: number) => {
+    setPage(p);
+  }, []);
 
   if (!hasKeys) {
     return (
@@ -139,7 +152,7 @@ function MyBriefingsContent() {
             <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">My briefings</h1>
             {!loading ? (
               <p className="mt-1.5 text-[14px] text-[#a8a399]">
-                Every reel you&apos;ve generated · {runs.length} {searchParam ? "matched" : "total"}
+                Every reel you&apos;ve generated · {total} {searchParam ? "matched" : "total"}
               </p>
             ) : null}
           </div>
@@ -168,7 +181,7 @@ function MyBriefingsContent() {
             className="mt-[22px] grid gap-[18px]"
             style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}
           >
-            {Array.from({ length: 4 }).map((_, i) => (
+            {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
                 className="animate-pulse rounded-[16px] border border-[#ece9e1] bg-white"
@@ -192,14 +205,17 @@ function MyBriefingsContent() {
             </Link>
           </div>
         ) : (
-          <div
-            className="mt-[22px] grid gap-[18px]"
-            style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}
-          >
-            {runs.map((run) => (
-              <BriefingCard key={run.id} run={run} />
-            ))}
-          </div>
+          <>
+            <div
+              className="mt-[22px] grid gap-[18px]"
+              style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}
+            >
+              {runs.map((run) => (
+                <BriefingCard key={run.id} run={run} />
+              ))}
+            </div>
+            <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
+          </>
         )}
       </div>
     </div>
@@ -212,7 +228,7 @@ export default function MyBriefings() {
       <div className="flex-1">
         <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
           <div className="mt-[22px] grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
-            {Array.from({ length: 4 }).map((_, i) => (
+            {Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="animate-pulse rounded-[16px] border border-[#ece9e1] bg-white">
                 <div className="aspect-video rounded-t-[15px] bg-[#e9e9dc]" />
                 <div className="p-4 space-y-3">

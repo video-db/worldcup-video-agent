@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { and, desc, eq, or, sql, type SQL } from "drizzle-orm";
+import { and, desc, eq, or, sql, count, type SQL } from "drizzle-orm";
 import { db, runs } from "@/lib/db";
 import type { BriefingEvent, VideoCandidate } from "@/lib/demo-data";
 import { SearchField } from "./_components/SearchField";
+import { GalleryTabs } from "./_components/GalleryTabs";
 
 export type GalleryRun = {
   id: string;
@@ -17,7 +18,14 @@ export type GalleryRun = {
   status?: string | null;
 };
 
-async function getGalleryRuns(search: string): Promise<GalleryRun[]> {
+const PAGE_SIZE = 15;
+
+async function getGalleryRuns(search: string, page: number): Promise<{
+  runs: GalleryRun[];
+  total: number;
+  page: number;
+  totalPages: number;
+}> {
   const conditions: SQL[] = [eq(runs.isPublic, true), eq(runs.status, "completed")];
   if (search) {
     conditions.push(or(
@@ -27,45 +35,59 @@ async function getGalleryRuns(search: string): Promise<GalleryRun[]> {
     ) as SQL);
   }
 
-  const rows = await db
-    .select({
-      id: runs.id,
-      query: runs.query,
-      topic: runs.topic,
-      playerUrl: runs.playerUrl,
-      thumbnailUrl: runs.thumbnailUrl,
-      summary: runs.summary,
-      events: runs.events,
-      selectedVideo: runs.selectedVideo,
-      createdAt: runs.createdAt,
-    })
-    .from(runs)
-    .where(and(...conditions))
-    .orderBy(desc(runs.createdAt))
-    .limit(50);
+  const where = and(...conditions);
+  const offset = (page - 1) * PAGE_SIZE;
 
-  return rows.map((row) => ({
-    id: row.id,
-    query: row.query,
-    topic: row.topic,
-    playerUrl: row.playerUrl,
-    thumbnailUrl: row.thumbnailUrl,
-    summary: row.summary,
-    events: (row.events as BriefingEvent[]) ?? [],
-    selectedVideo: row.selectedVideo as VideoCandidate,
-    createdAt: row.createdAt?.toISOString() ?? "",
-  }));
+  const [totalResult, rows] = await Promise.all([
+    db.select({ count: count() }).from(runs).where(where),
+    db
+      .select({
+        id: runs.id,
+        query: runs.query,
+        topic: runs.topic,
+        playerUrl: runs.playerUrl,
+        thumbnailUrl: runs.thumbnailUrl,
+        summary: runs.summary,
+        events: runs.events,
+        selectedVideo: runs.selectedVideo,
+        createdAt: runs.createdAt,
+      })
+      .from(runs)
+      .where(where)
+      .orderBy(desc(runs.createdAt))
+      .limit(PAGE_SIZE)
+      .offset(offset),
+  ]);
+
+  const total = totalResult[0]?.count ?? 0;
+
+  return {
+    runs: rows.map((row) => ({
+      id: row.id,
+      query: row.query,
+      topic: row.topic,
+      playerUrl: row.playerUrl,
+      thumbnailUrl: row.thumbnailUrl,
+      summary: row.summary,
+      events: (row.events as BriefingEvent[]) ?? [],
+      selectedVideo: row.selectedVideo as VideoCandidate,
+      createdAt: row.createdAt?.toISOString() ?? "",
+    })),
+    total,
+    page,
+    totalPages: Math.ceil(total / PAGE_SIZE),
+  };
 }
 
 export default async function GalleryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ search?: string }>;
+  searchParams: Promise<{ search?: string; page?: string }>;
 }) {
   const params = await searchParams;
   const search = params.search ?? "";
-  const runs = await getGalleryRuns(search);
-  const GalleryClient = (await import("./_components/GalleryGrid")).default;
+  const page = Math.max(1, parseInt(params.page || "1", 10) || 1);
+  const { runs: galleryRuns, total, totalPages } = await getGalleryRuns(search, page);
 
   return (
     <div className="flex-1">
@@ -80,13 +102,13 @@ export default async function GalleryPage({
         <div className="mt-[18px] flex items-end justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">Public gallery</h1>
-            <p className="mt-1.5 text-[14px] text-[#a8a399]">Curated World Cup match moments · {runs.length} reels</p>
+            <p className="mt-1.5 text-[14px] text-[#a8a399]">Curated World Cup match moments · {total} reels</p>
           </div>
           <SearchField initialSearch={search} />
         </div>
 
         <div className="mt-[22px]">
-          <GalleryClient runs={runs} />
+          <GalleryTabs publicRuns={galleryRuns} total={total} page={page} totalPages={totalPages} />
         </div>
       </div>
     </div>

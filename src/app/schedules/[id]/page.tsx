@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { GalleryRun } from "@/app/gallery/page";
 import ConfirmModal from "@/components/ConfirmModal";
+import { Pagination } from "@/components/Pagination";
 
 type ScheduleDetail = {
   id: string;
@@ -77,23 +78,29 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
   const [error, setError] = useState("");
   const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [confirmToggle, setConfirmToggle] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     async function load() {
       const sessionToken = localStorage.getItem("session_token");
       if (!sessionToken) { setError("Add your API keys to view schedule details."); setLoading(false); return; }
       try {
-        const res = await fetch(`/api/schedules/${id}`, { headers: { "x-session-token": sessionToken } });
+        const url = new URL(`/api/schedules/${id}`, window.location.origin);
+        url.searchParams.set("page", String(page));
+        url.searchParams.set("limit", "15");
+        const res = await fetch(url.toString(), { headers: { "x-session-token": sessionToken } });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error || "Failed to load schedule");
         setSchedule(data.schedule);
         setRuns(data.runs || []);
+        setTotalPages(data.totalPages || 0);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load");
       } finally { setLoading(false); }
     }
     load();
-  }, [id]);
+  }, [id, page]);
 
   async function toggleActive() {
     if (!schedule) return;
@@ -244,6 +251,7 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
             })}
           </div>
         )}
+        <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
 
       <ConfirmModal open={confirmToggle} title={schedule?.isActive ? "Resume this schedule?" : "Pause this schedule?"} confirmLabel={schedule?.isActive ? "Resume" : "Pause"} onConfirm={toggleActive} onClose={() => setConfirmToggle(false)}>

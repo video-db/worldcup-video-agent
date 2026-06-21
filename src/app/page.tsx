@@ -72,7 +72,7 @@ export default function Home() {
       const sessionToken = localStorage.getItem("session_token");
       if (!sessionToken) return [];
       try {
-        const res = await fetch("/api/my-runs", { headers: { "x-session-token": sessionToken } });
+        const res = await fetch("/api/my-runs?limit=6", { headers: { "x-session-token": sessionToken } });
         const data = await res.json();
         return (data.runs || []) as PreviewRun[];
       } catch {
@@ -107,7 +107,7 @@ export default function Home() {
       }
 
       try {
-        const res = await fetch("/api/gallery");
+        const res = await fetch("/api/gallery?limit=6");
         const data = await res.json();
         setPreviewRuns((data.runs || []).slice(0, 6));
         setPreviewType("public");

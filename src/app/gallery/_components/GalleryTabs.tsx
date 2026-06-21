@@ -1,73 +1,109 @@
 "use client";
 /* eslint-disable react-hooks/set-state-in-effect */
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import type { GalleryRun } from "../page";
 import GalleryGrid from "./GalleryGrid";
+import { Pagination } from "@/components/Pagination";
+
+type MyRunsMeta = {
+  runs: GalleryRun[];
+  total: number;
+  page: number;
+  totalPages: number;
+};
 
 export function GalleryTabs({
   publicRuns,
+  total: initialTotal,
+  page: initialPage,
+  totalPages: initialTotalPages,
 }: {
   publicRuns: GalleryRun[];
+  total: number;
+  page: number;
+  totalPages: number;
 }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [tab, setTab] = useState<"public" | "mine">("public");
-  const [myRuns, setMyRuns] = useState<GalleryRun[]>([]);
+  const [myData, setMyData] = useState<MyRunsMeta>({ runs: [], total: 0, page: 1, totalPages: 0 });
   const [myRunsLoading, setMyRunsLoading] = useState(false);
   const [myRunsError, setMyRunsError] = useState("");
   const [noKeys, setNoKeys] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
+  const pushPublicPage = useCallback(
+    (page: number) => {
+      const params = new URLSearchParams(searchParams.toString());
+      const search = params.get("search");
+      params.forEach((_, key) => params.delete(key));
+      if (search) params.set("search", search);
+      if (page > 1) params.set("page", String(page));
+      const q = params.toString();
+      router.push(q ? `/gallery?${q}` : "/gallery", { scroll: false });
+    },
+    [router, searchParams],
+  );
+
+  const fetchMyRuns = useCallback(async (page: number, poll = false) => {
+    const token = localStorage.getItem("session_token");
+    if (!token) {
+      if (!poll) setNoKeys(true);
+      return;
+    }
+    const sessionToken = token;
+
+    if (!poll) setMyRunsLoading(true);
+    setMyRunsError("");
+
+    try {
+      const url = new URL("/api/my-runs", window.location.origin);
+      url.searchParams.set("page", String(page));
+      url.searchParams.set("limit", "15");
+      const res = await fetch(url.toString(), { headers: { "x-session-token": sessionToken } });
+      const data = await res.json();
+      const runs = (data.runs || []).map(
+        (row: Record<string, unknown>): GalleryRun => ({
+          id: row.id as string,
+          query: row.query as string,
+          topic: (row.topic as string) ?? null,
+          playerUrl: (row.player_url as string) ?? "",
+          thumbnailUrl: (row.thumbnail_url as string) ?? null,
+          summary: (row.summary as string) ?? null,
+          events: (row.events ?? []) as GalleryRun["events"],
+          selectedVideo: (row.selected_video ?? {}) as GalleryRun["selectedVideo"],
+          createdAt: (row.created_at as string) ?? "",
+          status: row.status as string | undefined,
+        }),
+      );
+      setMyData({ runs, total: data.total || 0, page: data.page || 1, totalPages: data.totalPages || 0 });
+
+      if (runs.some((r: GalleryRun) => r.status === "processing")) {
+        if (!pollRef.current) {
+          pollRef.current = setInterval(() => fetchMyRuns(myData.page, true), 10000);
+        }
+      } else if (pollRef.current && !poll) {
+        clearInterval(pollRef.current);
+        pollRef.current = null;
+      }
+    } catch (error) {
+      if (!poll) setMyRunsError(error instanceof Error ? error.message : "Failed to load runs");
+    } finally {
+      if (!poll) setMyRunsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    if (tab !== "mine" || myRuns.length > 0) return;
+    if (tab !== "mine" || myData.runs.length > 0) return;
 
     const token = localStorage.getItem("session_token");
     if (!token) {
       setNoKeys(true);
       return;
     }
-    const sessionToken = token;
-
-    setMyRunsLoading(true);
-    setMyRunsError("");
-
-    async function fetchMyRuns() {
-      try {
-        const res = await fetch("/api/my-runs", {
-          headers: { "x-session-token": sessionToken },
-        });
-        const data = await res.json();
-        const runs = (data.runs || []).map(
-          (row: Record<string, unknown>): GalleryRun => ({
-            id: row.id as string,
-            query: row.query as string,
-            topic: (row.topic as string) ?? null,
-            playerUrl: (row.player_url as string) ?? "",
-            thumbnailUrl: (row.thumbnail_url as string) ?? null,
-            summary: (row.summary as string) ?? null,
-            events: (row.events ?? []) as GalleryRun["events"],
-            selectedVideo: (row.selected_video ?? {}) as GalleryRun["selectedVideo"],
-            createdAt: (row.created_at as string) ?? "",
-            status: row.status as string | undefined,
-          }),
-        );
-        setMyRuns(runs);
-
-        if (runs.some((r: GalleryRun) => r.status === "processing")) {
-          if (!pollRef.current) {
-            pollRef.current = setInterval(fetchMyRuns, 10000);
-          }
-        } else if (pollRef.current) {
-          clearInterval(pollRef.current);
-          pollRef.current = null;
-        }
-      } catch (error) {
-        setMyRunsError(error instanceof Error ? error.message : "Failed to load runs");
-      }
-    }
-
-    fetchMyRuns().finally(() => {
-      setMyRunsLoading(false);
-    });
+    fetchMyRuns(1);
 
     return () => {
       if (pollRef.current) {
@@ -75,7 +111,7 @@ export function GalleryTabs({
         pollRef.current = null;
       }
     };
-  }, [tab, myRuns.length]);
+  }, [tab, myData.runs.length]);
 
   return (
     <div>
@@ -105,7 +141,10 @@ export function GalleryTabs({
       </div>
 
       {tab === "public" ? (
-        <GalleryGrid runs={publicRuns} />
+        <>
+          <GalleryGrid runs={publicRuns} />
+          <Pagination page={initialPage} totalPages={initialTotalPages} onPageChange={pushPublicPage} />
+        </>
       ) : noKeys ? (
         <div className="flex flex-col items-center justify-center py-24">
           <p className="text-[15px] text-[#8a857c]">Add your API keys to see your personal run history</p>
@@ -125,7 +164,10 @@ export function GalleryTabs({
           <p className="text-[15px] text-[#8a857c]">{myRunsError}</p>
         </div>
       ) : (
-        <GalleryGrid runs={myRuns} />
+        <>
+          <GalleryGrid runs={myData.runs} />
+          <Pagination page={myData.page} totalPages={myData.totalPages} onPageChange={(p) => fetchMyRuns(p)} />
+        </>
       )}
     </div>
   );

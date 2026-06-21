@@ -19,6 +19,7 @@ export function SearchField({ initialSearch }: { initialSearch: string }) {
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(() => {
       const params = new URLSearchParams(searchParams.toString());
+      params.delete("page");
       if (text) {
         params.set("search", text);
       } else {

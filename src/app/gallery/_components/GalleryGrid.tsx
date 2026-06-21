@@ -132,7 +132,6 @@ export default function GalleryGrid({ runs }: { runs: GalleryRun[] }) {
                   FAILED
                 </span>
               )}
-              <span className="absolute bottom-[10px] right-[10px] rounded-[7px] bg-[rgba(20,20,19,0.78)] px-2 py-[3px] font-mono text-[11px] text-white">—</span>
             </div>
             <div className="px-[15px] pt-[13px] pb-[15px]">
               <p className="text-[14.5px] font-bold text-[#1f1f1e] line-clamp-1">{title}</p>

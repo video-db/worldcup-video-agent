@@ -51,6 +51,8 @@ export default function BriefingPage() {
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const prevStatusRef = useRef<string | undefined>(undefined);
 
   const fetchRun = useCallback(async () => {
     try {
@@ -81,6 +83,20 @@ export default function BriefingPage() {
     });
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
   }, [fetchRun]);
+
+  useEffect(() => {
+    if (!run) return;
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = run.status;
+
+    if (run.status === "processing") {
+      if (scrollRef.current) {
+        scrollRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      }
+    } else if (prev === "processing") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [run]);
 
   function copyUrl() {
     navigator.clipboard.writeText(window.location.href).then(() => {
@@ -195,6 +211,7 @@ export default function BriefingPage() {
                 ) : (
                   <StatusHistory cards={run.statusHistory} fallback={run.statusMessage} />
                 )}
+                <div ref={scrollRef} />
               </div>
             </div>
           </>
@@ -246,12 +263,12 @@ export default function BriefingPage() {
                 <h3 className="mb-1 text-[16px] font-bold text-[#1f1f1e]">Moments</h3>
                 {run.events && run.events.length > 0 ? (
                   <>
-                    <p className="mb-3 text-[13px] text-[#a8a399]">{run.events.length} moments · click to jump to that clip</p>
+                    <p className="mb-3 text-[13px] text-[#a8a399]">{run.events.length} moments</p>
                     <div className="flex flex-col">
                       {run.events.map((ev, i) => (
                         <div
                           key={i}
-                          className="grid cursor-pointer grid-cols-[30px_70px_1fr] items-center gap-3 border-b border-[#f0ede5] px-3 py-3 transition-colors hover:bg-[#f4f2ec] rounded-[10px]"
+                          className="grid grid-cols-[30px_70px_1fr] items-center gap-3 border-b border-[#f0ede5] px-3 py-3 rounded-[10px]"
                         >
                           <span className="font-mono text-[12px] text-[#c4bdb0]">{i + 1}</span>
                           <span className="font-mono text-[13px] font-medium text-[#ff6700]">{ev.timestamp || "—"}</span>

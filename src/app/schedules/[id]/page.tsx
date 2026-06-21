@@ -228,7 +228,6 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
                         <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-[5px] rounded-full bg-[rgba(27,112,100,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white backdrop-blur">
                           <span className="size-1.5 rounded-full bg-[#9fe6d6]" />READY
                         </span>
-                        <span className="absolute bottom-[10px] right-[10px] rounded-[7px] bg-[rgba(20,20,19,0.78)] px-2 py-[3px] font-mono text-[11px] text-white">—</span>
                       </>
                     ) : run.status === "processing" ? (
                       <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-1.5 rounded-full bg-[rgba(185,119,42,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white">

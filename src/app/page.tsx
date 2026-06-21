@@ -249,7 +249,7 @@ export default function Home() {
                 type={hasSession ? "submit" : "button"}
                 onClick={hasSession ? undefined : openKeysModal}
                 disabled={hasSession ? (!prompt.trim() || isRunning) : isRunning}
-                className="flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-[11px] text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#E9E9DC] disabled:text-[#a8a399] disabled:shadow-none"
+                className="flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-[11px] text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#FF6700] disabled:text-white disabled:shadow-[0_2px_10px_rgba(255,103,0,0.26)]"
               >
                 {hasSession ? "Run" : "Add keys"}<span className="text-[14px]">↵</span>
               </button>
@@ -277,10 +277,7 @@ export default function Home() {
                     <span className="flex size-6 flex-none items-center justify-center rounded-[7px] bg-[#f3f1ea] text-[12px] text-[#a8a399]">
                       {selectedSuggestionRunId === ex.runId ? "→" : "⌕"}
                     </span>
-                    <span className="text-[14px] text-[#3f3a32]">
-                      {ex.text}
-                      {selectedSuggestionRunId === ex.runId ? <span className="ml-2 text-[#ff6700]">Opening replay...</span> : null}
-                    </span>
+                  <span className="text-[14px] text-[#3f3a32]">{ex.text}</span>
                   </button>
                 ))}
               </div>

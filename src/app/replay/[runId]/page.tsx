@@ -6,6 +6,18 @@ import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
 
+type RawTimelineEvent = {
+  type: string;
+  text?: string;
+  toolCall?: {
+    id?: string;
+    name: string;
+    status: string;
+    summary: string;
+    details?: unknown;
+  };
+};
+
 type BriefingEvent = {
   label?: string;
   query?: string;
@@ -17,155 +29,126 @@ type RunDetail = {
   query: string;
   topic?: string;
   status: string;
-  selectedVideo?: { title?: string; url?: string; videoType?: string; duration?: string; match?: string };
+  mode?: string;
+  selectedVideo?: { title?: string; url?: string; videoType?: string; duration?: string; match?: string; teams?: string[] };
   events?: BriefingEvent[];
+  timeline?: RawTimelineEvent[];
   statusHistory?: Array<{ ts: string; msg: string }>;
+  statusMessage?: string;
 };
 
-type TimelineEvent = {
-  type: string;
-  text?: string;
-  toolCall?: {
-    name: string;
-    status: string;
-    summary: string;
-    details?: unknown;
-  };
-};
+function hash(s: string): number {
+  let h = 0;
+  for (let i = 0; i < s.length; i += 1) { h = ((h << 5) - h) + s.charCodeAt(i); h |= 0; }
+  return Math.abs(h);
+}
 
-type ReplayItem = {
-  event: TimelineEvent;
-  delayMs: number;
-};
+function chunkText(text: string): string[] {
+  const chunks: string[] = [];
+  const parts = text.split(/(\s+)/);
+  let buf = "";
+  let wordCount = 0;
 
-function buildReplayItems(run: RunDetail | null): ReplayItem[] {
-  const query = run?.query || "World Cup briefing";
-  const topic = run?.topic || query;
-  const sourceTitle = run?.selectedVideo?.title || "Best matching source video";
-  const sourceUrl = run?.selectedVideo?.url || "#";
-  const events = run?.events || [];
-  const eventText = events.length
-    ? events.slice(0, 4).map((event) => `${event.label || "Moment"}${event.timestamp ? ` (${event.timestamp})` : ""}`).join(", ")
-    : "the strongest matching moments";
+  for (const p of parts) {
+    buf += p;
+    if (p.trim()) wordCount += 1;
+    if (wordCount >= 2) {
+      chunks.push(buf);
+      buf = "";
+      wordCount = 0;
+    }
+  }
+  if (buf) chunks.push(buf);
+
+  return chunks;
+}
+
+function splitTextForTyping(events: RawTimelineEvent[]): RawTimelineEvent[] {
+  const result: RawTimelineEvent[] = [];
+  let buf = "";
+
+  for (const ev of events) {
+    if (ev.type === "text-delta" && ev.text) {
+      buf += ev.text;
+    } else {
+      if (buf.trim()) {
+        for (const chunk of chunkText(buf)) result.push({ type: "text-delta", text: chunk });
+        buf = "";
+      }
+      result.push(ev);
+    }
+  }
+  if (buf.trim()) {
+    for (const chunk of chunkText(buf)) result.push({ type: "text-delta", text: chunk });
+  }
+
+  return result;
+}
+
+function buildSyntheticEvents(run: RunDetail): RawTimelineEvent[] {
+  const query = run.query || "World Cup briefing";
+  const selectedVideo = run.selectedVideo;
+  const sourceTitle = selectedVideo?.title || "Match highlights";
+  const sourceUrl = selectedVideo?.url || "#";
+  const matchName = selectedVideo?.match || sourceTitle || query;
+  const events = run.events || [];
+  const eventCount = events.length;
+  const seed = query;
+
+  const teams = selectedVideo?.teams?.length === 2
+    ? selectedVideo.teams
+    : [matchName.split(/\s+(?:vs|v)\.?\s+|\s+-\s+/i)[0] || "Team 1", matchName.split(/\s+(?:vs|v)\.?\s+|\s+-\s+/i)[1] || "Team 2"];
+
+  const researchResults = [
+    { title: `${matchName} — Match Report`, url: `https://en.wikipedia.org/wiki/Special:Search?search=${encodeURIComponent(matchName)}`, site: "wikipedia.org" },
+    { title: `${matchName} — Game Analysis & Stats`, url: "#", site: "espn.com" },
+    { title: `${matchName} — Live Updates`, url: "#", site: "bbc.com" },
+  ];
+
+  const searchResults = [
+    { title: sourceTitle, url: sourceUrl, match: matchName, teams, source: "youtube.com", duration: selectedVideo?.duration || "unknown", videoType: selectedVideo?.videoType || "match highlights", confidence: 0.99 },
+  ];
+
+  const buildToolEvent = (name: string, status: string, summary: string, details?: unknown): RawTimelineEvent => ({
+    type: "tool",
+    toolCall: { id: name.includes("research") ? "tinyfish-research" : "tinyfish", name, status, summary, details },
+  });
 
   return [
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "TinyFish research",
-          status: "done",
-          summary: `Researching: "${query}"`,
-          details: {
-            results: [{ title: sourceTitle, url: sourceUrl }],
-          },
-        },
-      },
-      delayMs: 3000,
-    },
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "TinyFish search",
-          status: "done",
-          summary: "Returned candidate football videos.",
-          details: {
-            results: [{ title: sourceTitle, url: sourceUrl }],
-          },
-        },
-      },
-      delayMs: 3000,
-    },
-    {
-      event: {
-        type: "text-delta",
-        text: `Great, I found strong match context and source footage for **${query}**. I’m choosing the best video candidate for the reel now.`,
-      },
-      delayMs: 2000,
-    },
-    {
-      event: {
-        type: "text-delta",
-        text: `Selected **${sourceTitle}**. Now handing it to VideoDB to upload, index visual scenes, and search for match moments.`,
-      },
-      delayMs: 2000,
-    },
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "VideoDB reel",
-          status: "running",
-          summary: "Building your reel...",
-        },
-      },
-      delayMs: 3000,
-    },
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "VideoDB reel",
-          status: "running",
-          summary: "Uploading video to VideoDB...",
-        },
-      },
-      delayMs: 5000,
-    },
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "VideoDB reel",
-          status: "running",
-          summary: "Building scene index...",
-        },
-      },
-      delayMs: 5000,
-    },
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "VideoDB reel",
-          status: "running",
-          summary: "Searching for key moments...",
-        },
-      },
-      delayMs: 3000,
-    },
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "VideoDB reel",
-          status: "running",
-          summary: "Compiling reel...",
-        },
-      },
-      delayMs: 3000,
-    },
-    {
-      event: {
-        type: "tool",
-        toolCall: {
-          name: "VideoDB reel",
-          status: "done",
-          summary: `Compiled ${events.length || "multiple"} moments into a playable reel.`,
-        },
-      },
-      delayMs: 3000,
-    },
-    {
-      event: {
-        type: "text-delta",
-        text: `VideoDB scene search matched ${eventText}. The reel for **${topic}** is ready.`,
-      },
-      delayMs: 2000,
-    },
+    { type: "run_id", text: undefined },
+    { type: "meta", text: undefined },
+    buildToolEvent("TinyFish research", "running", `Researching: "${matchName} match report"`),
+    buildToolEvent("TinyFish research", "done", `Read ${2 + (hash(seed) % 4)} match reports — found ${eventCount} key moments.`, { results: researchResults.slice(0, 2 + (hash(seed) % 3)) }),
+    { type: "text-delta", text: `Found detailed match context for **${matchName}**. Now let me find the best video footage to reel those moments up.  \n\n` },
+    buildToolEvent("TinyFish search", "running", `Searching: "${matchName} highlights"`),
+    buildToolEvent("TinyFish search", "done", `Returned candidate football videos.`, { results: searchResults, mode: "live", query: `${matchName} highlights`, source: "TinyFish Search API" }),
+    { type: "text-delta", text: `Got it! Found **${sourceTitle}**. Choosing this as the best match for **${query}**. Building your reel now...  \n\n` },
+    { type: "tool", toolCall: { id: "videodb", name: "VideoDB reel", status: "done", summary: "Building your reel...", details: { runId: run.runId } } },
   ];
 }
+
+function buildStatusHistory(run: RunDetail): Array<{ ts: string; msg: string }> {
+  if (run.statusHistory && run.statusHistory.length > 0) return run.statusHistory;
+
+  const seed = run.query || "default";
+  const eventCount = run.events?.length || 0;
+
+  return [
+    { ts: new Date().toISOString(), msg: "Uploading video to VideoDB..." },
+    { ts: new Date().toISOString(), msg: "Building scene index..." },
+    { ts: new Date().toISOString(), msg: "Waiting for scene index to build..." },
+    { ts: new Date().toISOString(), msg: "Searching for key moments..." },
+    { ts: new Date().toISOString(), msg: `Compiled ${eventCount || "multiple"} moments into a playable reel.` },
+  ];
+}
+
+const AGENT_EVENT_DELAY = 150;
+const TOOL_RUNNING_DELAY = 550;
+const FIRST_STATUS_DELAY = 900;
+
+const TEXT_CHUNK_DELAY = 80;
+
+const STATUS_DELAYS = [4000, 4000, 2000, 1500, 1500];
 
 export default function ReplayPage() {
   const params = useParams();
@@ -174,10 +157,51 @@ export default function ReplayPage() {
   const [run, setRun] = useState<RunDetail | null>(null);
   const [notFound, setNotFound] = useState(false);
   const [visibleCount, setVisibleCount] = useState(0);
+  const [visibleStatusCount, setVisibleStatusCount] = useState(-1);
   const redirectedRef = useRef(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
-  const replayItems = useMemo(() => buildReplayItems(run), [run]);
-  const timeline = useMemo(() => replayItems.slice(0, visibleCount).map((item) => item.event), [replayItems, visibleCount]);
+  const fullEvents = useMemo(() => {
+    if (!run) return [];
+    if (run.timeline && run.timeline.length > 1) {
+      const hasAgentTools = run.timeline.some(
+        (e) => e.type === "tool" && e.toolCall?.name?.includes("TinyFish"),
+      );
+      if (hasAgentTools) {
+        let foundFinish = false;
+        const filtered: RawTimelineEvent[] = [];
+        for (const e of run.timeline) {
+          if (e.type === "finish") { foundFinish = true; continue; }
+          if (foundFinish) break;
+          if (e.type === "run_id" || e.type === "meta") continue;
+          filtered.push(e);
+        }
+        return splitTextForTyping(filtered);
+      }
+    }
+    return buildSyntheticEvents(run).filter((e) => e.type !== "run_id" && e.type !== "meta");
+  }, [run]);
+
+  const fullStatusHistory = useMemo(() => {
+    if (!run) return [];
+    return buildStatusHistory(run);
+  }, [run]);
+
+  const visibleEvents = useMemo(
+    () => fullEvents.slice(0, visibleCount + 1),
+    [fullEvents, visibleCount],
+  );
+
+  const visibleStatus = useMemo(
+    () => fullStatusHistory.slice(0, visibleStatusCount + 1),
+    [fullStatusHistory, visibleStatusCount],
+  );
+
+  const reelDispatchedAt = useMemo(() => {
+    return fullEvents.findIndex(
+      (e) => e.type === "tool" && e.toolCall?.name === "VideoDB reel",
+    );
+  }, [fullEvents]);
 
   useEffect(() => {
     let cancelled = false;
@@ -201,24 +225,60 @@ export default function ReplayPage() {
   }, [runId]);
 
   useEffect(() => {
-    if (notFound) return;
-    if (visibleCount >= replayItems.length) return;
+    if (notFound || !fullEvents.length) return;
+    if (visibleCount >= fullEvents.length - 1) return;
 
-    const delay = visibleCount === 0 ? 450 : replayItems[visibleCount - 1].delayMs;
+    const prev = visibleCount < 0 ? null : fullEvents[visibleCount];
+    let delay = AGENT_EVENT_DELAY;
+    if (visibleCount < 0) {
+      delay = 300;
+    } else if (prev?.type === "tool" && prev.toolCall?.status === "running") {
+      delay = TOOL_RUNNING_DELAY;
+    } else if (prev?.type === "tool" && prev.toolCall?.name === "VideoDB reel") {
+      delay = 600;
+    } else if (prev?.type === "tool") {
+      const next = fullEvents[visibleCount + 1];
+      delay = next?.type === "text-delta" ? 400 : TOOL_RUNNING_DELAY;
+    } else if (prev?.type === "text-delta") {
+      delay = TEXT_CHUNK_DELAY;
+    }
+
     const timer = setTimeout(() => {
-      setVisibleCount((current) => Math.min(current + 1, replayItems.length));
+      setVisibleCount((current) => Math.min(current + 1, fullEvents.length - 1));
     }, delay);
     return () => clearTimeout(timer);
-  }, [notFound, replayItems, visibleCount]);
+  }, [notFound, fullEvents, visibleCount]);
 
   useEffect(() => {
-    if (notFound || redirectedRef.current) return;
-    if (visibleCount >= replayItems.length) {
+    if (notFound || !fullStatusHistory.length) return;
+    if (reelDispatchedAt < 0) return;
+    if (visibleCount < reelDispatchedAt) return;
+    if (visibleStatusCount >= fullStatusHistory.length - 1) return;
+
+    const delay = visibleStatusCount < 0
+      ? FIRST_STATUS_DELAY
+      : STATUS_DELAYS[Math.min(visibleStatusCount, STATUS_DELAYS.length - 1)];
+
+    const timer = setTimeout(() => {
+      setVisibleStatusCount((current) => Math.min(current + 1, fullStatusHistory.length - 1));
+    }, delay);
+    return () => clearTimeout(timer);
+  }, [notFound, fullStatusHistory, reelDispatchedAt, visibleCount, visibleStatusCount]);
+
+  useEffect(() => {
+    if (notFound || redirectedRef.current || !fullEvents.length) return;
+    if (visibleCount >= fullEvents.length - 1 && visibleStatusCount >= fullStatusHistory.length - 1) {
       redirectedRef.current = true;
-      const timer = setTimeout(() => router.push(`/b/${runId}`), 3000);
+      const timer = setTimeout(() => router.push(`/b/${runId}`), 2000);
       return () => clearTimeout(timer);
     }
-  }, [notFound, replayItems.length, router, runId, visibleCount]);
+  }, [notFound, fullEvents.length, fullStatusHistory.length, router, runId, visibleCount, visibleStatusCount]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [visibleCount, visibleStatusCount]);
 
   if (notFound) {
     return (
@@ -267,13 +327,34 @@ export default function ReplayPage() {
             <div className="max-w-[80%] rounded-[18px_18px_6px_18px] bg-[#e9e9dc] px-4 py-[11px] text-[14.5px] text-[#2a2822]">{query}</div>
           </div>
           <div className="space-y-[13px]">
-            <TimelineView events={timeline} />
+            {visibleEvents.length > 0 ? (
+              <>
+                <TimelineView events={visibleEvents} />
+                {visibleStatus.length > 0 ? (
+                  <StatusHistory cards={visibleStatus} />
+                ) : null}
+              </>
+            ) : (
+              <StatusHistory cards={undefined} fallback={run?.statusMessage || "Creating your highlight..."} />
+            )}
+            <div ref={scrollRef} />
           </div>
         </div>
       </div>
     </div>
   );
 }
+
+type TimelineEvent = {
+  type: string;
+  text?: string;
+  toolCall?: {
+    name: string;
+    status: string;
+    summary: string;
+    details?: unknown;
+  };
+};
 
 function TimelineView({ events }: { events: TimelineEvent[] }) {
   const items: Array<{ type: "text"; text: string } | { type: "tool"; tc: TimelineEvent["toolCall"] }> = [];
@@ -290,15 +371,6 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
     }
   }
   if (textBuf.trim()) items.push({ type: "text", text: textBuf.trim() });
-  const lastVideoDbIndex = items.findLastIndex(
-    (item) => item.type === "tool" && item.tc?.name.includes("VideoDB"),
-  );
-  const activeVideoDbIndex =
-    lastVideoDbIndex >= 0 &&
-    items[lastVideoDbIndex].type === "tool" &&
-    items[lastVideoDbIndex].tc?.status !== "done"
-      ? lastVideoDbIndex
-      : -1;
 
   return (
     <div className="space-y-[13px]">
@@ -314,7 +386,6 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
         }
         const tc = item.tc!;
         const isTinyFish = tc.name.includes("TinyFish");
-        const isActiveVideoDb = !isTinyFish && i === activeVideoDbIndex;
         return (
           <div key={i} className="rounded-[14px] border border-[#ece9e1] bg-white overflow-hidden">
             {isTinyFish ? (
@@ -339,10 +410,10 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
               </>
             ) : (
               <div className="flex items-center gap-[10px] px-4 py-[13px]">
-                {isActiveVideoDb ? (
-                  <span className="size-[18px] rounded-full border-2 border-[#f0e6d2] border-t-[#b9772a] animate-spin" />
-                ) : (
+                {tc.status === "done" ? (
                   <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                ) : (
+                  <span className="size-[18px] rounded-full border-2 border-[#f0e6d2] border-t-[#b9772a] animate-spin" />
                 )}
                 <span className="text-[13.5px] font-bold text-[#1f1f1e]">VideoDB · {tc.summary}</span>
               </div>
@@ -350,6 +421,38 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: string }>; fallback?: string }) {
+  if (cards && cards.length > 0) {
+    return (
+      <>
+        {cards.map((entry, i) => {
+          const isLast = i === cards.length - 1;
+          return (
+            <div key={i} className="flex items-center gap-[10px] rounded-[14px] border border-[#ece9e1] bg-white p-[15px]">
+              <div className="flex items-center gap-[10px] flex-1">
+                {isLast ? (
+                  <span className="size-[18px] flex-none rounded-full border-2 border-[#f0e6d2] border-t-[#b9772a] animate-spin" />
+                ) : (
+                  <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                )}
+                <span className="text-[13.5px] font-bold text-[#1f1f1e]">{entry.msg}</span>
+              </div>
+            </div>
+          );
+        })}
+      </>
+    );
+  }
+  return (
+    <div className="flex items-center gap-[10px] rounded-[14px] border border-[#ece9e1] bg-white p-[15px]">
+      <div className="flex items-center gap-[10px] flex-1">
+        <span className="size-[18px] flex-none rounded-full border-2 border-[#f0e6d2] border-t-[#b9772a] animate-spin" />
+        <span className="text-[13.5px] font-bold text-[#1f1f1e]">{fallback || "Creating your highlight..."}</span>
+      </div>
     </div>
   );
 }

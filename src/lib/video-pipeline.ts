@@ -335,7 +335,7 @@ export async function discoverVideo(topic: string) {
 async function waitForSceneIndex(video: Video, sceneIndexId: string) {
   // Indexing a full highlight video can take a couple of minutes; the index
   // may also not appear in listSceneIndex immediately after creation.
-  const maxAttempts = 30;
+  const maxAttempts = 40;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const indexes = await video.listSceneIndex();
     const index = indexes.find((item) => item.sceneIndexId === sceneIndexId);

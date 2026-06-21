@@ -285,7 +285,7 @@ export const createReel = inngest.createFunction(
     await setStatus(`Waiting for scene index to build...`);
 
     let indexReady = false;
-    const maxAttempts = 30;
+    const maxAttempts = 40;
     for (let attempt = 0; attempt < maxAttempts && !indexReady; attempt += 1) {
       const checkResult = await step.run(`check-index-${attempt}`, async () => {
         const conn = connect(vdbApiKey);
@@ -316,12 +316,12 @@ export const createReel = inngest.createFunction(
         break;
       }
 
-      await step.sleep(`poll-wait-${attempt}`, 10);
+      await step.sleep(`poll-wait-${attempt}`, 15);
     }
 
     if (!indexReady) {
       throw new NonRetriableError(
-        `VideoDB scene index ${sceneIndexId} did not finish in time (waited ${maxAttempts * 10}s)`,
+        `VideoDB scene index ${sceneIndexId} did not finish in time (waited ${maxAttempts * 15}s)`,
       );
     }
 

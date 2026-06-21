@@ -2,7 +2,7 @@
 /* eslint-disable react-hooks/set-state-in-effect */
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 export function SearchField({ initialSearch }: { initialSearch: string }) {
   const router = useRouter();
@@ -10,14 +10,8 @@ export function SearchField({ initialSearch }: { initialSearch: string }) {
   const [value, setValue] = useState(initialSearch);
   const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
 
-  useEffect(() => {
-    setValue(searchParams.get("search") ?? "");
-  }, [searchParams]);
-
-  function onChange(text: string) {
-    setValue(text);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
+  const pushSearch = useCallback(
+    (text: string) => {
       const params = new URLSearchParams(searchParams.toString());
       params.delete("page");
       if (text) {
@@ -27,11 +21,22 @@ export function SearchField({ initialSearch }: { initialSearch: string }) {
       }
       const query = params.toString();
       router.push(query ? `/gallery?${query}` : "/gallery", { scroll: false });
-    }, 300);
+    },
+    [router, searchParams],
+  );
+
+  useEffect(() => {
+    setValue(searchParams.get("search") ?? "");
+  }, [searchParams]);
+
+  function onChange(text: string) {
+    setValue(text);
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => pushSearch(text), 300);
   }
 
   return (
-    <div className="mx-auto max-w-lg">
+    <div className="w-[280px]">
       <input
         value={value}
         onChange={(e) => onChange(e.target.value)}

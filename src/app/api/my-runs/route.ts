@@ -1,4 +1,4 @@
-import { and, desc, eq, isNull, or, sql, count, type SQL } from "drizzle-orm";
+import { and, desc, eq, isNull, ne, or, sql, count, type SQL } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { db, runs } from "@/lib/db";
 import { resolveApiKeyHash } from "@/lib/session";
@@ -19,6 +19,7 @@ export async function GET(request: NextRequest) {
   }
 
   const search = request.nextUrl.searchParams.get("search")?.trim() || "";
+  const status = request.nextUrl.searchParams.get("status")?.trim() || "";
   const page = Math.max(1, parseInt(request.nextUrl.searchParams.get("page") || "1", 10) || 1);
   const limit = Math.min(50, Math.max(1, parseInt(request.nextUrl.searchParams.get("limit") || "15", 10) || 15));
   const offset = (page - 1) * limit;
@@ -28,6 +29,13 @@ export async function GET(request: NextRequest) {
       eq(runs.apiKeyHash, apiKeyHash),
       isNull(runs.scheduleId),
     ];
+
+    if (status === "failed") {
+      conditions.push(eq(runs.status, "failed"));
+    } else {
+      conditions.push(ne(runs.status, "failed"));
+    }
+
     if (search) {
       conditions.push(or(
         sql`${runs.query} ILIKE ${`%${search}%`}`,

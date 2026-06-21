@@ -405,6 +405,7 @@ Return only valid JSON, no markdown fences.`;
         .update(runs)
         .set({
           status: "completed",
+          isPublic: true,
           mode: result.mode,
           topic: summaryResult.title,
           selectedVideo: result.selectedVideo ?? null,

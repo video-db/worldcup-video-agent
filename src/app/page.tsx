@@ -7,10 +7,10 @@ import Link from "next/link";
 import BriefingCard from "@/components/BriefingCard";
 
 const suggestions = [
-  "highlights of fouls from USA vs Paraguay",
-  "all yellow cards from Brazil vs Morocco",
-  "penalty moments from Mexico vs South Africa",
-  "every goal from France vs Portugal",
+  { text: "Manchester United Women Goals 2024", runId: "fec0a34a-d0df-410d-885f-cd4ed1bc82d1" },
+  { text: "Barcelona vs Manchester United foul moments", runId: "11f29b6c-46c0-4963-9934-324bf4aa0e88" },
+  { text: "Real Madrid vs Barcelona Fouls", runId: "c95eee60-701f-4cca-a63f-4c0ea92e6b41" },
+  { text: "France vs Portugal Goals 2024-25", runId: "655b89b4-14f6-455a-9b07-fb57680008ec" },
 ];
 
 type PreviewRun = {
@@ -35,6 +35,8 @@ export default function Home() {
   const [previewType, setPreviewType] = useState<"personal" | "public">("public");
   const [previewLoading, setPreviewLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [hasSession, setHasSession] = useState(false);
+  const [selectedSuggestionRunId, setSelectedSuggestionRunId] = useState<string | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -42,11 +44,15 @@ export default function Home() {
   const [trigger, setTrigger] = useState(0);
 
   useEffect(() => {
+    setHasSession(!!localStorage.getItem("session_token"));
     setKeysLoaded(true);
   }, []);
 
   useEffect(() => {
-    function onSessionChange() { setTrigger((t) => t + 1); }
+    function onSessionChange() {
+      setHasSession(!!localStorage.getItem("session_token"));
+      setTrigger((t) => t + 1);
+    }
     window.addEventListener("session_changed", onSessionChange);
     return () => window.removeEventListener("session_changed", onSessionChange);
   }, []);
@@ -193,10 +199,21 @@ export default function Home() {
     }
   }
 
-  function selectSuggestion(text: string) {
-    setPrompt(text);
+  function selectSuggestion(text: string, runId: string) {
+    if (!hasSession) {
+      setSelectedSuggestionRunId(runId);
+      setTimeout(() => setShowSuggestions(false), 260);
+      setTimeout(() => router.push(`/replay/${runId}`), 320);
+      return;
+    }
     setShowSuggestions(false);
+    setPrompt(text);
     inputRef.current?.focus();
+  }
+
+  function openKeysModal() {
+    const addKeysBtn = document.querySelector<HTMLButtonElement>('[data-header-add-keys]');
+    addKeysBtn?.click();
   }
 
   return (
@@ -216,18 +233,25 @@ export default function Home() {
                 ref={inputRef}
                 type="text"
                 value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
+                onChange={(e) => {
+                  if (hasSession) setPrompt(e.target.value);
+                }}
                 onFocus={() => setShowSuggestions(true)}
-                placeholder="Ask for any match moment…"
+                onKeyDown={(e) => {
+                  if (!hasSession && e.key.length === 1) e.preventDefault();
+                }}
+                placeholder={hasSession ? "Ask for any match moment…" : "Choose a briefing below, or add API keys to run your own"}
+                readOnly={!hasSession}
                 disabled={isRunning}
                 className="flex-1 border-none bg-transparent py-2 text-[15.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] disabled:opacity-50"
               />
               <button
-                type="submit"
-                disabled={!prompt.trim() || isRunning}
+                type={hasSession ? "submit" : "button"}
+                onClick={hasSession ? undefined : openKeysModal}
+                disabled={hasSession ? (!prompt.trim() || isRunning) : isRunning}
                 className="flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-[11px] text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#E9E9DC] disabled:text-[#a8a399] disabled:shadow-none"
               >
-                Run<span className="text-[14px]">↵</span>
+                {hasSession ? "Run" : "Add keys"}<span className="text-[14px]">↵</span>
               </button>
             </form>
 
@@ -241,15 +265,22 @@ export default function Home() {
                 </p>
                 {suggestions.map((ex) => (
                   <button
-                    key={ex}
+                    key={ex.runId}
                     type="button"
-                    onMouseDown={() => selectSuggestion(ex)}
-                    className="flex w-full items-center gap-[11px] rounded-[11px] px-3 py-2.5 text-left hover:bg-[#f3f1ea]"
+                    onMouseDown={() => selectSuggestion(ex.text, ex.runId)}
+                    className={`flex w-full items-center gap-[11px] rounded-[11px] px-3 py-2.5 text-left transition-all duration-200 hover:bg-[#f3f1ea] ${
+                      selectedSuggestionRunId === ex.runId
+                        ? "scale-[0.99] bg-[#fff3e7] shadow-[0_0_0_2px_rgba(255,103,0,0.18),0_10px_24px_rgba(255,103,0,0.12)]"
+                        : ""
+                    }`}
                   >
                     <span className="flex size-6 flex-none items-center justify-center rounded-[7px] bg-[#f3f1ea] text-[12px] text-[#a8a399]">
-                      ⌕
+                      {selectedSuggestionRunId === ex.runId ? "→" : "⌕"}
                     </span>
-                    <span className="text-[14px] text-[#3f3a32]">{ex}</span>
+                    <span className="text-[14px] text-[#3f3a32]">
+                      {ex.text}
+                      {selectedSuggestionRunId === ex.runId ? <span className="ml-2 text-[#ff6700]">Opening replay...</span> : null}
+                    </span>
                   </button>
                 ))}
               </div>

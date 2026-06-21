@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import { useRouter } from "next/navigation";
 
 type BriefingCardRun = {
@@ -51,25 +52,70 @@ function StatusBadge({ status }: { status?: string }) {
   );
 }
 
-function PitchPoster({ label }: { label: string }) {
+function FallbackThumbnail({ label }: { label: string }) {
+  const colors = [
+    "from-[#1b2838] via-[#1e3048] to-[#162230]",
+    "from-[#4a1e2a] via-[#5a2633] to-[#3d1822]",
+    "from-[#1e3a2a] via-[#264d35] to-[#182e21]",
+    "from-[#2d1a3a] via-[#3a224a] to-[#24142e]",
+    "from-[#1a2e33] via-[#223d45] to-[#14252a]",
+    "from-[#3a2a1e] via-[#4d3828] to-[#2e1e14]",
+  ];
+  let hash = 0;
+  for (let i = 0; i < label.length; i += 1) { hash = ((hash << 5) - hash) + label.charCodeAt(i); hash |= 0; }
+  const h = Math.abs(hash);
+  const bg = colors[h % colors.length];
+  const pattern = ["stripes-h", "circles", "stripes-v", "dots", "crosshatch"][(h >> 3) % 5];
+  const accent = patterns[pattern].accent;
+
   return (
-    <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[#2d5a1e] via-[#3a7a2a] to-[#2d5a1e]">
-      <svg viewBox="0 0 400 225" className="absolute inset-0 size-full opacity-20">
-        <rect x="0" y="0" width="400" height="225" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="2" />
-        <line x1="200" y1="0" x2="200" y2="225" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-        <circle cx="200" cy="112.5" r="40" fill="none" stroke="rgba(255,255,255,0.15)" strokeWidth="1" />
-        <circle cx="200" cy="112.5" r="2" fill="rgba(255,255,255,0.2)" />
-        <rect x="0" y="40" width="60" height="145" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-        <rect x="340" y="40" width="60" height="145" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-        <rect x="0" y="75" width="25" height="75" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
-        <rect x="375" y="75" width="25" height="75" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" />
+    <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-b ${bg}`}>
+      <svg viewBox="0 0 400 225" className="absolute inset-0 size-full">
+        {patterns[pattern].draw()}
       </svg>
-      <span className="relative z-10 text-center text-[13px] font-semibold text-white/70 max-w-[80%] truncate px-3">
+      <span className="relative z-10 text-center text-[13px] font-semibold text-white/60 max-w-[80%] truncate px-3">
         {label}
       </span>
     </div>
   );
 }
+
+const patterns: Record<string, { accent: string; draw: () => React.ReactElement[] }> = {
+  "stripes-h": {
+    accent: "rgba(255,255,255,0.08)",
+    draw: () => Array.from({ length: 8 }).map((_, i) => (
+      <line key={i} x1="0" y1={i * 32 + 8} x2="400" y2={i * 32 + 8} stroke="rgba(255,255,255,0.08)" strokeWidth="12" />
+    )),
+  },
+  circles: {
+    accent: "rgba(255,255,255,0.08)",
+    draw: () => {
+      const els: React.ReactElement[] = [];
+      for (let row = 0; row < 5; row++) for (let col = 0; col < 6; col++) els.push(<circle key={`${row}-${col}`} cx={40 + col * 72} cy={20 + row * 56} r="18" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="8" />);
+      return els;
+    },
+  },
+  "stripes-v": {
+    accent: "rgba(255,255,255,0.08)",
+    draw: () => Array.from({ length: 10 }).map((_, i) => (
+      <line key={i} x1={i * 44 + 10} y1="0" x2={i * 44 + 10} y2="225" stroke="rgba(255,255,255,0.08)" strokeWidth="12" />
+    )),
+  },
+  dots: {
+    accent: "rgba(255,255,255,0.08)",
+    draw: () => {
+      const els: React.ReactElement[] = [];
+      for (let row = 0; row < 5; row++) for (let col = 0; col < 8; col++) els.push(<circle key={`${row}-${col}`} cx={30 + col * 50} cy={20 + row * 52} r="6" fill="rgba(255,255,255,0.08)" />);
+      return els;
+    },
+  },
+  crosshatch: {
+    accent: "rgba(255,255,255,0.08)",
+    draw: () => Array.from({ length: 10 }).map((_, i) => (
+      <line key={i} x1={i * 48} y1="0" x2={i * 48 + 225} y2="225" stroke="rgba(255,255,255,0.08)" strokeWidth="5" />
+    )),
+  },
+};
 
 export default function BriefingCard({ run }: { run: BriefingCardRun }) {
   const router = useRouter();
@@ -96,7 +142,7 @@ export default function BriefingCard({ run }: { run: BriefingCardRun }) {
             loading="lazy"
           />
         ) : (
-          <PitchPoster label={title} />
+          <FallbackThumbnail label={title} />
         )}
         <div className="absolute top-[10px] left-[10px]">
           <StatusBadge status={run.status} />

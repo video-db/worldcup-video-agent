@@ -1,4 +1,4 @@
-import { and, desc, eq, sql, count } from "drizzle-orm";
+import { and, desc, eq, or, sql, count, type SQL } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { db, runs } from "@/lib/db";
 import { logger } from "@/lib/logger";
@@ -12,7 +12,11 @@ export async function GET(request: NextRequest) {
   try {
     const conditions = [eq(runs.isPublic, true), eq(runs.status, "completed")];
     if (search) {
-      conditions.push(sql`${runs.query} ILIKE ${`%${search}%`}`);
+      conditions.push(or(
+        sql`${runs.query} ILIKE ${`%${search}%`}`,
+        sql`${runs.topic} ILIKE ${`%${search}%`}`,
+        sql`${runs.summary} ILIKE ${`%${search}%`}`,
+      ) as SQL);
     }
 
     const where = and(...conditions);

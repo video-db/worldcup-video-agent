@@ -117,6 +117,7 @@ async function saveRunToDb(
       query,
       topic: briefing?.topic ?? null,
       status: isError ? "failed" : "completed",
+      isPublic: !isError,
       mode: briefing?.mode ?? null,
       selectedVideo: briefing?.selectedVideo ?? null,
       streamUrl: briefing?.streamUrl ?? null,
@@ -125,7 +126,6 @@ async function saveRunToDb(
       events: briefing?.events ?? null,
       summary: briefing?.summary ?? null,
       errorMessage: error ?? briefing?.error ?? null,
-      isPublic: false,
       apiKeyHash: apiKeyHash ?? null,
       completedAt: new Date(),
     });

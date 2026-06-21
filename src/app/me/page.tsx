@@ -32,6 +32,11 @@ function MyBriefingsContent() {
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const searchParam = searchParams.get("search") ?? "";
+  const showingFailed = searchParams.get("status") === "failed";
+
+  useEffect(() => {
+    setSearch(searchParam);
+  }, [searchParam]);
 
   const pushSearch = useCallback(
     (text: string) => {
@@ -71,6 +76,7 @@ function MyBriefingsContent() {
       if (!sessionToken) return;
       const url = new URL("/api/my-runs", window.location.origin);
       if (searchParam) url.searchParams.set("search", searchParam);
+      if (showingFailed) url.searchParams.set("status", "failed");
       url.searchParams.set("page", String(page));
       url.searchParams.set("limit", "15");
       const res = await fetch(url.toString(), {
@@ -110,11 +116,24 @@ function MyBriefingsContent() {
         pollRef.current = null;
       }
     };
-  }, [hasKeys, searchParam, page]);
+  }, [hasKeys, searchParam, page, showingFailed]);
 
   const handlePageChange = useCallback((p: number) => {
     setPage(p);
   }, []);
+
+  const toggleFailedRuns = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("page");
+    if (showingFailed) {
+      params.delete("status");
+    } else {
+      params.set("status", "failed");
+    }
+    setPage(1);
+    const query = params.toString();
+    router.push(query ? `/me?${query}` : "/me");
+  }, [router, searchParams, showingFailed]);
 
   if (!hasKeys) {
     return (
@@ -149,10 +168,12 @@ function MyBriefingsContent() {
 
         <div className="mt-[18px] flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">My briefings</h1>
+            <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
+              {showingFailed ? "Failed runs" : "My briefings"}
+            </h1>
             {!loading ? (
               <p className="mt-1.5 text-[14px] text-[#a8a399]">
-                Every reel you&apos;ve generated · {total} {searchParam ? "matched" : "total"}
+                {showingFailed ? "Runs that did not complete" : "Every reel you&apos;ve generated"} · {total} {searchParam ? "matched" : "total"}
               </p>
             ) : null}
           </div>
@@ -198,11 +219,17 @@ function MyBriefingsContent() {
         ) : runs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <p className="text-[15px] text-[#625d55]">
-              {searchParam ? "No briefings match your search." : "No briefings yet."}
+              {searchParam
+                ? "No briefings match your search."
+                : showingFailed
+                  ? "No failed runs."
+                  : "No briefings yet."}
             </p>
-            <Link href="/" className="mt-3 text-[13px] font-bold text-[#ff6700] hover:underline">
-              Create your first briefing →
-            </Link>
+            {!showingFailed ? (
+              <Link href="/" className="mt-3 text-[13px] font-bold text-[#ff6700] hover:underline">
+                Create your first briefing →
+              </Link>
+            ) : null}
           </div>
         ) : (
           <>
@@ -217,6 +244,19 @@ function MyBriefingsContent() {
             <Pagination page={page} totalPages={totalPages} onPageChange={handlePageChange} />
           </>
         )}
+
+        {!loading ? (
+          <div className="mt-8 flex justify-center border-t border-[#ece9e1] pt-5">
+            <button
+              type="button"
+              onClick={toggleFailedRuns}
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium text-[#b8b0a3] transition-colors hover:bg-white hover:text-[#7a756b]"
+            >
+              {showingFailed ? "Show completed runs" : "Show failed runs"}
+              <span aria-hidden="true">{showingFailed ? "↑" : "↓"}</span>
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

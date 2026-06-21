@@ -1,0 +1,258 @@
+"use client";
+
+import { useEffect, useState, use } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import type { GalleryRun } from "@/app/gallery/page";
+import ConfirmModal from "@/components/ConfirmModal";
+
+type ScheduleDetail = {
+  id: string;
+  query: string;
+  runTime: string;
+  timezone: string;
+  channel: string;
+  isActive: boolean;
+  nextRunAt: string | null;
+  lastRunAt: string | null;
+  createdAt: string | null;
+};
+
+type RunItem = {
+  id: string;
+  query: string;
+  topic: string | null;
+  status: string;
+  player_url: string | null;
+  thumbnail_url: string | null;
+  events: GalleryRun["events"];
+  summary: string | null;
+  selected_video: GalleryRun["selectedVideo"];
+  error_message: string | null;
+  created_at: string | null;
+  completed_at: string | null;
+};
+
+function relativeTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return "";
+  const now = new Date();
+  const diffMs = date.getTime() - now.getTime();
+  if (diffMs > 0) {
+    const diffSec = Math.floor(diffMs / 1000);
+    const diffMin = Math.floor(diffSec / 60);
+    const diffHr = Math.floor(diffMin / 60);
+    const diffDay = Math.floor(diffHr / 24);
+    if (diffDay > 30) { const months = Math.floor(diffDay / 30); return `in ${months} month${months === 1 ? "" : "s"}`; }
+    if (diffDay > 0) return `in ${diffDay} day${diffDay === 1 ? "" : "s"}`;
+    if (diffHr > 0) return `in ${diffHr} hour${diffHr === 1 ? "" : "s"}`;
+    if (diffMin > 0) return `in ${diffMin} minute${diffMin === 1 ? "" : "s"}`;
+    return "in a moment";
+  }
+  const pastMs = now.getTime() - date.getTime();
+  const pastSec = Math.floor(pastMs / 1000);
+  const pastMin = Math.floor(pastSec / 60);
+  const pastHr = Math.floor(pastMin / 60);
+  const pastDay = Math.floor(pastHr / 24);
+  if (pastDay > 30) { const months = Math.floor(pastDay / 30); return months === 1 ? "1 month ago" : `${months} months ago`; }
+  if (pastDay > 0) return pastDay === 1 ? "1 day ago" : `${pastDay} days ago`;
+  if (pastHr > 0) return pastHr === 1 ? "1 hour ago" : `${pastHr} hours ago`;
+  if (pastMin > 0) return pastMin === 1 ? "1 minute ago" : `${pastMin} minutes ago`;
+  return "just now";
+}
+
+function formatTime(time: string): string {
+  const [h, m] = time.split(":").map(Number);
+  const hour = h % 12 || 12;
+  const ampm = h < 12 ? "AM" : "PM";
+  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
+}
+
+export default function ScheduleDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const router = useRouter();
+  const [schedule, setSchedule] = useState<ScheduleDetail | null>(null);
+  const [runs, setRuns] = useState<RunItem[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
+  const [confirmToggle, setConfirmToggle] = useState(false);
+
+  useEffect(() => {
+    async function load() {
+      const sessionToken = localStorage.getItem("session_token");
+      if (!sessionToken) { setError("Add your API keys to view schedule details."); setLoading(false); return; }
+      try {
+        const res = await fetch(`/api/schedules/${id}`, { headers: { "x-session-token": sessionToken } });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Failed to load schedule");
+        setSchedule(data.schedule);
+        setRuns(data.runs || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to load");
+      } finally { setLoading(false); }
+    }
+    load();
+  }, [id]);
+
+  async function toggleActive() {
+    if (!schedule) return;
+    const sessionToken = localStorage.getItem("session_token");
+    if (!sessionToken) return;
+    try {
+      const res = await fetch(`/api/schedules/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "x-session-token": sessionToken },
+        body: JSON.stringify({ isActive: !schedule.isActive }),
+      });
+      if (res.ok) setSchedule((prev) => prev ? { ...prev, isActive: !prev.isActive } : prev);
+    } catch {}
+    setConfirmToggle(false);
+  }
+
+  async function handleDelete() {
+    const sessionToken = localStorage.getItem("session_token");
+    if (!sessionToken) return;
+    try {
+      const res = await fetch(`/api/schedules/${id}`, {
+        method: "DELETE",
+        headers: { "x-session-token": sessionToken },
+      });
+      if (res.ok) router.push("/schedules");
+    } catch {}
+  }
+
+  function handleEdit() {
+    if (!schedule) return;
+    localStorage.setItem("editing_schedule", JSON.stringify(schedule));
+    router.push("/schedules");
+  }
+
+  if (loading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#fbfbf7]">
+        <svg viewBox="0 0 16 16" className="size-5 shrink-0 animate-spin text-[#FF6700]" fill="none">
+          <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
+          <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+        </svg>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex-1 bg-[#fbfbf7] text-[#1f1f1e]">
+        <div className="mx-auto max-w-[1000px] px-[22px] pt-5 pb-24">
+          <Link href="/schedules" className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]">
+            ← Schedules
+          </Link>
+          <div className="flex flex-col items-center justify-center py-24">
+            <p className="text-[15px] text-[#8a857c]">{error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 bg-[#fbfbf7] text-[#1f1f1e]">
+      <div className="mx-auto max-w-[1000px] px-[22px] pt-5 pb-24">
+        <div className="flex items-center justify-between gap-3">
+          <Link href="/schedules" className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]">
+            ← Schedules
+          </Link>
+          {schedule ? (
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={handleEdit} className="rounded-[10px] border border-[#ece9e1] bg-white px-[14px] py-2 text-[12.5px] font-semibold text-[#5c574e] hover:border-[#fecb8b]">Edit</button>
+              <button type="button" onClick={() => setDeleteConfirm(true)} className="rounded-[10px] border border-[#ece9e1] bg-white px-[14px] py-2 text-[12.5px] font-semibold text-[#b14a3e] hover:border-[#fecaca]">Delete</button>
+            </div>
+          ) : null}
+        </div>
+
+        <div className="mt-[18px] flex items-start justify-between gap-4 flex-wrap rounded-[16px] border border-[#ece9e1] bg-white p-6">
+          <div className="min-w-[240px]">
+            <h1 className="text-[21px] font-extrabold leading-[1.3] tracking-[-0.015em] text-[#1f1f1e]">{schedule?.query}</h1>
+            <p className="mt-2 text-[14px] text-[#7a756b]">Daily at {schedule ? formatTime(schedule.runTime) : ""} ({schedule?.timezone})</p>
+            <p className="mt-1 text-[13.5px] text-[#a8a399]">
+              via {schedule?.channel?.split(",").map((c: string) => c.charAt(0).toUpperCase() + c.slice(1)).join(" & ")}
+              {schedule?.nextRunAt ? ` · next run ${relativeTime(schedule.nextRunAt)}` : ""}
+            </p>
+          </div>
+          {schedule ? (
+            <button
+              type="button"
+              onClick={() => setConfirmToggle(true)}
+              className={`flex items-center gap-[7px] rounded-full px-[15px] py-2 text-[13px] font-bold ${schedule.isActive ? "border border-[#d3e6e1] bg-[#e8f0ee] text-[#1b7064]" : "border border-[#e4e0d7] bg-[#f3f1ea] text-[#a8a399]"}`}
+            >
+              {schedule.isActive ? <><span className="size-2 rounded-full bg-[#1b7064]" />Active</> : "Paused"}
+            </button>
+          ) : null}
+        </div>
+
+        <h2 className="mb-3 mt-7 text-[14px] font-bold text-[#5c574e]">Run history</h2>
+        {runs.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-16">
+            <p className="text-[15px] text-[#8a857c]">No runs yet</p>
+            <p className="mt-1 text-[13px] text-[#a8a399]">Runs will appear here when the schedule executes.</p>
+          </div>
+        ) : (
+          <div className="grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
+            {runs.map((run) => {
+              const title = run.topic || run.query;
+              const eventCount = Array.isArray(run.events) ? run.events.length : 0;
+              const momentsText = eventCount ? `${eventCount} moments` : "";
+              return (
+                <button
+                  key={run.id}
+                  type="button"
+                  onClick={(e) => { e.preventDefault(); router.push(`/b/${run.id}`); }}
+                  className="group block w-full text-left rounded-[16px] border border-[#ece9e1] bg-white shadow-[0_1px_2px_rgba(31,31,30,0.04)] transition-all duration-[180ms] hover:-translate-y-[3px] hover:border-[#fecb8b] hover:shadow-[0_10px_26px_rgba(255,103,0,0.12)] overflow-hidden"
+                >
+                  <div className="relative aspect-video bg-[#1f1f1e] overflow-hidden">
+                    {run.thumbnail_url ? (
+                      <img src={run.thumbnail_url} alt={title ?? ""} className="absolute inset-0 size-full object-cover" />
+                    ) : (
+                      <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-[#2d5a1e] via-[#3a7a2a] to-[#2d5a1e]">
+                        <span className="relative z-10 text-center text-[13px] font-semibold text-white/70 max-w-[80%] truncate px-3">{title}</span>
+                      </div>
+                    )}
+                    {run.status === "completed" ? (
+                      <>
+                        <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-[5px] rounded-full bg-[rgba(27,112,100,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white backdrop-blur">
+                          <span className="size-1.5 rounded-full bg-[#9fe6d6]" />READY
+                        </span>
+                        <span className="absolute bottom-[10px] right-[10px] rounded-[7px] bg-[rgba(20,20,19,0.78)] px-2 py-[3px] font-mono text-[11px] text-white">—</span>
+                      </>
+                    ) : run.status === "processing" ? (
+                      <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-1.5 rounded-full bg-[rgba(185,119,42,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white">
+                        <span className="status-dot-running size-1.5 rounded-full bg-[#f6d9aa]" />PROCESSING
+                      </span>
+                    ) : (
+                      <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-[5px] rounded-full bg-[rgba(177,74,62,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white">FAILED</span>
+                    )}
+                  </div>
+                  <div className="px-[15px] pt-[13px] pb-[15px]">
+                    <p className="text-[14.5px] font-bold text-[#1f1f1e] line-clamp-1">{title}</p>
+                    <div className="mt-[9px] flex items-center gap-2 text-[12px] text-[#a8a399]">
+                      {momentsText ? <span>{momentsText}</span> : null}
+                      {momentsText ? <span className="size-[3px] rounded-full bg-[#d8d3c8]" /> : null}
+                      <span>{relativeTime(run.created_at || "")}</span>
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <ConfirmModal open={confirmToggle} title={schedule?.isActive ? "Resume this schedule?" : "Pause this schedule?"} confirmLabel={schedule?.isActive ? "Resume" : "Pause"} onConfirm={toggleActive} onClose={() => setConfirmToggle(false)}>
+        {schedule ? <><p>This will {schedule.isActive ? "resume" : "pause"} daily briefings for:</p><p className="mt-2 rounded-[10px] bg-[#f4f2ec] px-3 py-2.5 text-[14px] font-semibold text-[#1f1f1e]">&ldquo;{schedule.query}&rdquo;</p></> : null}
+      </ConfirmModal>
+
+      <ConfirmModal open={deleteConfirm} title="Delete schedule?" confirmLabel="Delete" danger onConfirm={handleDelete} onClose={() => setDeleteConfirm(false)}>
+        <p>This will permanently remove the schedule. Past runs are not affected.</p>
+      </ConfirmModal>
+    </div>
+  );
+}

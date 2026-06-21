@@ -1,0 +1,111 @@
+import { and, desc, eq, isNull, or, sql, type SQL } from "drizzle-orm";
+import { NextRequest, NextResponse } from "next/server";
+import { db, runs } from "@/lib/db";
+import { resolveApiKeyHash } from "@/lib/session";
+import { logger } from "@/lib/logger";
+
+function getApiKeyHash(request: NextRequest): string | null {
+  const hash = request.headers.get("x-vdb-key-hash");
+  if (hash) return hash;
+  const token = request.headers.get("x-session-token");
+  if (token) return resolveApiKeyHash(token);
+  return null;
+}
+
+export async function GET(request: NextRequest) {
+  const apiKeyHash = getApiKeyHash(request);
+  if (!apiKeyHash) {
+    return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
+  }
+
+  const search = request.nextUrl.searchParams.get("search")?.trim() || "";
+
+  try {
+    const conditions: SQL[] = [
+      eq(runs.apiKeyHash, apiKeyHash),
+      isNull(runs.scheduleId),
+    ];
+    if (search) {
+      conditions.push(or(
+        sql`${runs.query} ILIKE ${`%${search}%`}`,
+        sql`${runs.topic} ILIKE ${`%${search}%`}`,
+        sql`${runs.summary} ILIKE ${`%${search}%`}`,
+      ) as SQL);
+    }
+
+    const rows = await db
+      .select({
+        id: runs.id,
+        query: runs.query,
+        topic: runs.topic,
+        status: runs.status,
+        playerUrl: runs.playerUrl,
+        thumbnailUrl: runs.thumbnailUrl,
+        summary: runs.summary,
+        events: runs.events,
+        selectedVideo: runs.selectedVideo,
+        errorMessage: runs.errorMessage,
+        createdAt: runs.createdAt,
+      })
+      .from(runs)
+      .where(and(...conditions))
+      .orderBy(desc(runs.createdAt))
+      .limit(100);
+
+    const result = {
+      runs: rows.map((row) => ({
+        id: row.id,
+        query: row.query,
+        topic: row.topic,
+        status: row.status,
+        player_url: row.playerUrl,
+        thumbnail_url: row.thumbnailUrl,
+        summary: row.summary,
+        events: row.events,
+        selected_video: row.selectedVideo,
+        error_message: row.errorMessage,
+        created_at: row.createdAt?.toISOString() ?? null,
+      })),
+      total: rows.length,
+    };
+
+    return NextResponse.json(result);
+  } catch (error) {
+    logger.error({ err: error }, "My runs API error");
+    return NextResponse.json({ runs: [], total: 0 }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const apiKeyHash = getApiKeyHash(request);
+  if (!apiKeyHash) {
+    return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
+  }
+
+  const runId = request.nextUrl.searchParams.get("runId");
+  if (!runId) {
+    return NextResponse.json({ error: "Missing runId query parameter" }, { status: 400 });
+  }
+
+  try {
+    const found = await db
+      .select({ id: runs.id, apiKeyHash: runs.apiKeyHash })
+      .from(runs)
+      .where(eq(runs.id, runId))
+      .limit(1);
+
+    if (!found.length) {
+      return NextResponse.json({ error: "Run not found" }, { status: 404 });
+    }
+
+    if (found[0].apiKeyHash !== apiKeyHash) {
+      return NextResponse.json({ error: "Not authorized to delete this run" }, { status: 403 });
+    }
+
+    await db.delete(runs).where(eq(runs.id, runId));
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    logger.error({ err: error }, "My runs DELETE error");
+    return NextResponse.json({ error: "Failed to delete run" }, { status: 500 });
+  }
+}

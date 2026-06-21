@@ -335,7 +335,7 @@ export async function discoverVideo(topic: string) {
 async function waitForSceneIndex(video: Video, sceneIndexId: string) {
   // Indexing a full highlight video can take a couple of minutes; the index
   // may also not appear in listSceneIndex immediately after creation.
-  const maxAttempts = 36;
+  const maxAttempts = 30;
   for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
     const indexes = await video.listSceneIndex();
     const index = indexes.find((item) => item.sceneIndexId === sceneIndexId);
@@ -355,7 +355,7 @@ async function waitForSceneIndex(video: Video, sceneIndexId: string) {
       throw new Error(`VideoDB scene index ${sceneIndexId} was never listed for video ${video.id}`);
     }
 
-    await sleep(5000);
+    await sleep(10000);
   }
 
   throw new Error(`VideoDB scene index ${sceneIndexId} did not finish in time`);

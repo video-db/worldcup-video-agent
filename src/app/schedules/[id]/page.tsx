@@ -137,8 +137,8 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
 
   if (loading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#fbfbf7]">
-        <svg viewBox="0 0 16 16" className="size-5 shrink-0 animate-spin text-[#FF6700]" fill="none">
+      <div className="flex min-h-screen items-center justify-center bg-[#0A0A0A]">
+        <svg viewBox="0 0 16 16" className="size-5 shrink-0 animate-spin text-[#F24E1E]" fill="none">
           <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
           <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
@@ -148,13 +148,13 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
 
   if (error) {
     return (
-      <div className="flex-1 bg-[#fbfbf7] text-[#1f1f1e]">
+      <div className="flex-1 bg-[#0A0A0A] text-white">
         <div className="mx-auto max-w-[1000px] px-[22px] pt-5 pb-24">
-          <Link href="/schedules" className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]">
+          <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
             ← Schedules
           </Link>
           <div className="flex flex-col items-center justify-center py-24">
-            <p className="text-[15px] text-[#8a857c]">{error}</p>
+            <p className="text-[15px] text-white/55">{error}</p>
           </div>
         </div>
       </div>
@@ -162,25 +162,25 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
   }
 
   return (
-    <div className="flex-1 bg-[#fbfbf7] text-[#1f1f1e]">
+    <div className="flex-1 bg-[#0A0A0A] text-white">
       <div className="mx-auto max-w-[1000px] px-[22px] pt-5 pb-24">
         <div className="flex items-center justify-between gap-3">
-          <Link href="/schedules" className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]">
+          <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
             ← Schedules
           </Link>
           {schedule ? (
             <div className="flex items-center gap-2">
-              <button type="button" onClick={handleEdit} className="rounded-[10px] border border-[#ece9e1] bg-white px-[14px] py-2 text-[12.5px] font-semibold text-[#5c574e] hover:border-[#fecb8b]">Edit</button>
-              <button type="button" onClick={() => setDeleteConfirm(true)} className="rounded-[10px] border border-[#ece9e1] bg-white px-[14px] py-2 text-[12.5px] font-semibold text-[#b14a3e] hover:border-[#fecaca]">Delete</button>
+              <button type="button" onClick={handleEdit} className="ds-btn ds-btn--ghost-dark ds-btn--sm">Edit</button>
+              <button type="button" onClick={() => setDeleteConfirm(true)} className="rounded-[10px] border border-white/10 bg-transparent px-[14px] py-2 text-[12.5px] font-semibold text-[#E5484D] transition-colors hover:border-[#E5484D]/40">Delete</button>
             </div>
           ) : null}
         </div>
 
-        <div className="mt-[18px] flex items-start justify-between gap-4 flex-wrap rounded-[16px] border border-[#ece9e1] bg-white p-6">
+        <div className="mt-[18px] flex items-start justify-between gap-4 flex-wrap ds-card ds-card--dark p-6">
           <div className="min-w-[240px]">
-            <h1 className="text-[21px] font-extrabold leading-[1.3] tracking-[-0.015em] text-[#1f1f1e]">{schedule?.query}</h1>
-            <p className="mt-2 text-[14px] text-[#7a756b]">Daily at {schedule ? formatTime(schedule.runTime) : ""} ({schedule?.timezone})</p>
-            <p className="mt-1 text-[13.5px] text-[#a8a399]">
+            <h1 className="text-[21px] font-extrabold leading-[1.3] tracking-[-0.015em] text-white">{schedule?.query}</h1>
+            <p className="mt-2 text-[14px] text-white/70">Daily at {schedule ? formatTime(schedule.runTime) : ""} ({schedule?.timezone})</p>
+            <p className="mt-1 text-[13.5px] text-white/55">
               via {schedule?.channel?.split(",").map((c: string) => c.charAt(0).toUpperCase() + c.slice(1)).join(" & ")}
               {schedule?.nextRunAt ? ` · next run ${relativeTime(schedule.nextRunAt)}` : ""}
             </p>
@@ -189,18 +189,18 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
             <button
               type="button"
               onClick={() => setConfirmToggle(true)}
-              className={`flex items-center gap-[7px] rounded-full px-[15px] py-2 text-[13px] font-bold ${schedule.isActive ? "border border-[#d3e6e1] bg-[#e8f0ee] text-[#1b7064]" : "border border-[#e4e0d7] bg-[#f3f1ea] text-[#a8a399]"}`}
+              className={schedule.isActive ? "ds-pill-status ds-pill-status--orange" : "ds-pill-status ds-pill-status--muted-dark"}
             >
-              {schedule.isActive ? <><span className="size-2 rounded-full bg-[#1b7064]" />Active</> : "Paused"}
+              {schedule.isActive ? <><span className="size-2 rounded-full bg-current" />Active</> : "Paused"}
             </button>
           ) : null}
         </div>
 
-        <h2 className="mb-3 mt-7 text-[14px] font-bold text-[#5c574e]">Run history</h2>
+        <h2 className="mb-3 mt-7 text-[14px] font-bold text-white/70">Run history</h2>
         {runs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16">
-            <p className="text-[15px] text-[#8a857c]">No runs yet</p>
-            <p className="mt-1 text-[13px] text-[#a8a399]">Runs will appear here when the schedule executes.</p>
+            <p className="text-[15px] text-white/55">No runs yet</p>
+            <p className="mt-1 text-[13px] text-white/55">Runs will appear here when the schedule executes.</p>
           </div>
         ) : (
           <div className="grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
@@ -213,9 +213,9 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
                   key={run.id}
                   type="button"
                   onClick={(e) => { e.preventDefault(); router.push(`/b/${run.id}`); }}
-                  className="group block w-full text-left rounded-[16px] border border-[#ece9e1] bg-white shadow-[0_1px_2px_rgba(31,31,30,0.04)] transition-all duration-[180ms] hover:-translate-y-[3px] hover:border-[#fecb8b] hover:shadow-[0_10px_26px_rgba(255,103,0,0.12)] overflow-hidden"
+                  className="ds-card ds-card--dark is-interactive group block w-full text-left overflow-hidden"
                 >
-                  <div className="relative aspect-video bg-[#1f1f1e] overflow-hidden">
+                  <div className="relative aspect-video bg-black overflow-hidden">
                     {run.thumbnail_url ? (
                       <img src={run.thumbnail_url} alt={title ?? ""} className="absolute inset-0 size-full object-cover" />
                     ) : (
@@ -225,8 +225,8 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
                     )}
                     {run.status === "completed" ? (
                       <>
-                        <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-[5px] rounded-full bg-[rgba(27,112,100,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white backdrop-blur">
-                          <span className="size-1.5 rounded-full bg-[#9fe6d6]" />READY
+                        <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-[5px] rounded-full bg-[rgba(242,78,30,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white backdrop-blur">
+                          <span className="size-1.5 rounded-full bg-white/80" />READY
                         </span>
                       </>
                     ) : run.status === "processing" ? (
@@ -238,10 +238,10 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
                     )}
                   </div>
                   <div className="px-[15px] pt-[13px] pb-[15px]">
-                    <p className="text-[14.5px] font-bold text-[#1f1f1e] line-clamp-1">{title}</p>
-                    <div className="mt-[9px] flex items-center gap-2 text-[12px] text-[#a8a399]">
+                    <p className="text-[14.5px] font-bold text-white line-clamp-1">{title}</p>
+                    <div className="mt-[9px] flex items-center gap-2 text-[12px] text-white/55">
                       {momentsText ? <span>{momentsText}</span> : null}
-                      {momentsText ? <span className="size-[3px] rounded-full bg-[#d8d3c8]" /> : null}
+                      {momentsText ? <span className="size-[3px] rounded-full bg-white/30" /> : null}
                       <span>{relativeTime(run.created_at || "")}</span>
                     </div>
                   </div>
@@ -254,7 +254,7 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
       </div>
 
       <ConfirmModal open={confirmToggle} title={schedule?.isActive ? "Resume this schedule?" : "Pause this schedule?"} confirmLabel={schedule?.isActive ? "Resume" : "Pause"} onConfirm={toggleActive} onClose={() => setConfirmToggle(false)}>
-        {schedule ? <><p>This will {schedule.isActive ? "resume" : "pause"} daily briefings for:</p><p className="mt-2 rounded-[10px] bg-[#f4f2ec] px-3 py-2.5 text-[14px] font-semibold text-[#1f1f1e]">&ldquo;{schedule.query}&rdquo;</p></> : null}
+        {schedule ? <><p>This will {schedule.isActive ? "resume" : "pause"} daily briefings for:</p><p className="mt-2 rounded-[10px] bg-white/[0.04] px-3 py-2.5 text-[14px] font-semibold text-white">&ldquo;{schedule.query}&rdquo;</p></> : null}
       </ConfirmModal>
 
       <ConfirmModal open={deleteConfirm} title="Delete schedule?" confirmLabel="Delete" danger onConfirm={handleDelete} onClose={() => setDeleteConfirm(false)}>

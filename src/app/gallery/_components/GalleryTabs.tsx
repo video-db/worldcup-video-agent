@@ -53,16 +53,16 @@ export function GalleryTabs({
       {hasSession ? (
         <Link
           href="/me"
-          className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-[#ece9e1] bg-[#f4f2ec] px-5 py-4 hover:border-[#fecb8b]"
+          className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-white/10 bg-white/[0.04] px-5 py-4 hover:border-[#F24E1E]"
         >
           <span className="flex items-center gap-3">
-            <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-[#ece9e1] bg-white text-[#ff6700]">◎</span>
+            <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-white/10 bg-[#161616] text-[#F24E1E]">◎</span>
             <span>
-              <span className="block text-[14px] font-bold text-[#1f1f1e]">Go to your briefings</span>
-              <span className="mt-px block text-[12.5px] text-[#a8a399]">View reels you generated with your API keys</span>
+              <span className="block text-[14px] font-bold text-white">Go to your briefings</span>
+              <span className="mt-px block text-[12.5px] text-white/55">View reels you generated with your API keys</span>
             </span>
           </span>
-          <span className="text-[#c4bdb0]">→</span>
+          <span className="text-white/40">→</span>
         </Link>
       ) : null}
     </div>

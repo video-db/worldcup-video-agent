@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { getCommonTimezones } from "@/lib/timezone";
 import ConfirmModal from "@/components/ConfirmModal";
+import { DeliveryLoopIllustration, SchedulerStepStrip, PanelAskOnce, PanelPickTime, PanelAgentWorks, PanelDelivered } from "@/components/scheduler-illustrations";
 
 type ChannelItem = { id: string; name: string; type: string; isValidated: boolean };
 type ScheduleItem = {
@@ -222,8 +223,8 @@ export default function SchedulesPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-[#fbfbf7] flex items-center justify-center">
-        <svg viewBox="0 0 16 16" className="size-5 animate-spin text-[#FF6700]" fill="none">
+      <main className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <svg viewBox="0 0 16 16" className="size-5 animate-spin text-[#F24E1E]" fill="none">
           <circle cx="8" cy="8" r="6" stroke="currentColor" strokeOpacity="0.25" strokeWidth="2" />
           <path d="M14 8a6 6 0 00-6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
@@ -232,44 +233,36 @@ export default function SchedulesPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[#fbfbf7] text-[#1f1f1e]">
+    <main className="min-h-screen bg-[#0A0A0A] text-white">
       <div className="mx-auto w-full max-w-6xl px-4 pb-24">
-        <header className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-[#fbfbf7]/85 px-4 backdrop-blur-md">
-          <Link href="/" className="rounded-full border border-[#e5e1d8] bg-white px-3.5 py-1.5 text-[13px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f] hover:shadow-[0_4px_14px_rgba(255,103,0,0.12)] active:translate-y-0">
+        <header className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-[#0A0A0A]/85 px-4 backdrop-blur-md">
+          <Link href="/" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
             ← Back
           </Link>
         </header>
 
         {error ? (
-          <div className="flex flex-col items-center justify-center py-16 max-w-[720px] mx-auto text-center">
-            <span className="inline-flex size-[56px] items-center justify-center rounded-[14px] border border-[#ece9e1] bg-white text-[#ff6700] shadow-[0_1px_2px_rgba(31,31,30,0.04)]">
-              <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
-              </svg>
-            </span>
-            <h1 className="mt-5 text-[22px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
-              Daily AI briefings on autopilot
+          <div className="flex flex-col items-center justify-center py-16 max-w-[760px] mx-auto text-center">
+            <div className="w-[180px] text-white/85">
+              <DeliveryLoopIllustration className="h-auto w-full" />
+            </div>
+            <span className="ds-eyebrow ds-eyebrow--orange mt-2 block">The game-changer</span>
+            <h1 className="mt-4 text-[26px] font-medium tracking-[-0.02em] text-white">
+              An agent that delivers — while you do nothing
             </h1>
-            <p className="mt-3 text-[14px] leading-relaxed text-[#7a756b] max-w-[400px]">
-              Set a match query, pick a time, and get curated moment reels delivered straight to Telegram or Discord every day.
+            <p className="mt-3 text-[14px] leading-relaxed text-white/65 max-w-[440px]">
+              Set a match query, a time and a channel <span className="font-semibold text-white">once</span>. Every day the agent
+              finds the match, cuts your reel and drops it straight into Telegram or Discord. No app to open.
             </p>
 
-            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left w-full">
-              {[
-                { step: 1, title: "Add API keys", desc: "Connect TinyFish and VideoDB to power your daily briefings." },
-                { step: 2, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
-                { step: 3, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
-                { step: 4, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
-              ].map((s) => (
-                <div key={s.step} className="flex flex-col items-start gap-3 rounded-[14px] border border-[#ece9e1] bg-white p-4">
-                  <span className="inline-flex size-[28px] shrink-0 items-center justify-center rounded-full bg-[#f4f2ec] text-[12px] font-bold text-[#ff6700]">{s.step}</span>
-                  <div>
-                    <p className="text-[14px] font-semibold text-[#1f1f1e]">{s.title}</p>
-                    <p className="mt-1 text-[12.5px] leading-relaxed text-[#8a857c]">{s.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <SchedulerStepStrip
+              steps={[
+                { Panel: PanelAskOnce, title: "Add API keys", desc: "Connect TinyFish + VideoDB to power the agent." },
+                { Panel: PanelPickTime, title: "Pick time & channel", desc: "Choose when it runs and where it lands." },
+                { Panel: PanelAgentWorks, title: "It works alone", desc: "Finds, watches, cuts and captions the reel." },
+                { Panel: PanelDelivered, title: "Delivered daily", desc: "A ready reel arrives in your chat." },
+              ]}
+            />
 
             <button
               type="button"
@@ -277,7 +270,7 @@ export default function SchedulesPage() {
                 const btn = document.querySelector<HTMLButtonElement>("[data-header-add-keys]");
                 btn?.click();
               }}
-              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+              className="ds-btn ds-btn--primary mt-9"
             >
               Add API keys to start →
             </button>
@@ -287,14 +280,14 @@ export default function SchedulesPage() {
             <section className="pt-10 pb-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h1 className="text-3xl tracking-tight text-[#1f1f1e]">Your Schedules</h1>
-                  <p className="mt-1 text-[14px] text-[#8a857c]">Manage daily briefings and notification channels</p>
+                  <h1 className="text-3xl tracking-tight text-white">Your Schedules</h1>
+                  <p className="mt-1 text-[14px] text-white/55">Manage daily briefings and notification channels</p>
                 </div>
                 <button
                   type="button"
                   onClick={openNewSchedule}
                   disabled={channels.length === 0}
-                  className="rounded-full bg-[#FF6700] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:bg-[#E9E9DC] disabled:text-[#a8a399] disabled:cursor-not-allowed"
+                  className="ds-btn ds-btn--primary ds-btn--sm"
                 >
                   + New Schedule
                 </button>
@@ -302,35 +295,31 @@ export default function SchedulesPage() {
             </section>
 
             {!loading && schedules.length === 0 ? (
-              <section className="mb-10 max-w-[720px] mx-auto text-center">
-                <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
-                  Daily AI briefings on autopilot
+              <section className="mb-10 max-w-[760px] mx-auto text-center">
+                <div className="mx-auto w-[150px] text-white/85">
+                  <DeliveryLoopIllustration className="h-auto w-full" />
+                </div>
+                <span className="ds-eyebrow ds-eyebrow--orange mt-2 block">Set it once</span>
+                <h2 className="mt-4 text-[22px] font-medium tracking-[-0.02em] text-white">
+                  Your keys are ready. Now teach the agent your routine.
                 </h2>
-                <p className="mt-2 text-[14px] leading-relaxed text-[#7a756b] max-w-[480px] mx-auto">
-                  Your API keys are ready. Now add a channel, then create a schedule for automatic daily reels.
+                <p className="mt-2 text-[14px] leading-relaxed text-white/65 max-w-[480px] mx-auto">
+                  Add a channel, then create a schedule. From then on the reel comes to you — every day, automatically.
                 </p>
 
-                <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
-                  {[
-                    { step: 1, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
-                    { step: 2, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
-                    { step: 3, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
-                  ].map((s) => (
-                    <div key={s.step} className="flex flex-col items-start gap-3 rounded-[14px] border border-[#ece9e1] bg-white p-4">
-                      <span className="inline-flex size-[28px] shrink-0 items-center justify-center rounded-full bg-[#f4f2ec] text-[12px] font-bold text-[#ff6700]">{s.step}</span>
-                      <div>
-                        <p className="text-[14px] font-semibold text-[#1f1f1e]">{s.title}</p>
-                        <p className="mt-1 text-[12.5px] leading-relaxed text-[#8a857c]">{s.desc}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <SchedulerStepStrip
+                  steps={[
+                    { Panel: PanelPickTime, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
+                    { Panel: PanelAgentWorks, title: "Create a schedule", desc: "Pick a match query and a daily run time." },
+                    { Panel: PanelDelivered, title: "Get daily reels", desc: "Curated moment reels land in your channel." },
+                  ]}
+                />
 
                 {channels.length === 0 ? (
                   <button
                     type="button"
                     onClick={() => { setAddPanel(true); setAddError(""); }}
-                    className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+                    className="ds-btn ds-btn--primary mt-7"
                   >
                     Add a channel first →
                   </button>
@@ -338,7 +327,7 @@ export default function SchedulesPage() {
                   <button
                     type="button"
                     onClick={openNewSchedule}
-                    className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+                    className="ds-btn ds-btn--primary mt-7"
                   >
                     Create your first schedule →
                   </button>
@@ -349,27 +338,27 @@ export default function SchedulesPage() {
             {/* Channels Section */}
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[14px] font-medium text-[#625d55]">Channels ({channels.length})</h2>
+                <h2 className="text-[14px] font-medium text-white/70">Channels ({channels.length})</h2>
                 <button
                   type="button"
                   onClick={() => { setAddPanel(true); setAddError(""); }}
-                  className="rounded-full border border-[#e5e1d8] bg-white px-3 py-1 text-[12px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f]"
+                  className="ds-btn ds-btn--ghost-dark ds-btn--sm"
                 >
                   + Add Channel
                 </button>
               </div>
               {channels.length === 0 ? (
-                <div className="rounded-2xl border border-[#eceae3] bg-white p-6 text-center">
-                  <p className="text-[14px] text-[#8a857c]">No channels yet. Add one to start scheduling.</p>
+                <div className="ds-card ds-card--dark p-6 text-center">
+                  <p className="text-[14px] text-white/55">No channels yet. Add one to start scheduling.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
                   {channels.map((ch) => (
-                    <div key={ch.id} className="rounded-2xl border border-[#eceae3] bg-white p-4">
+                    <div key={ch.id} className="ds-card ds-card--dark p-4">
                       <div className="flex items-center justify-between">
                         <div className="min-w-0 flex-1">
-                          <p className="text-[14px] font-medium text-[#20201f] truncate">{ch.name}</p>
-                          <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${ch.type === "discord" ? "bg-[#eeebf7] text-[#5865F2]" : ch.type === "telegram" ? "bg-[#e8f0fe] text-[#1a73e8]" : "bg-[#f3f1ea] text-[#8a857c]"} ${ch.isValidated ? "" : "opacity-70"}`}>
+                          <p className="text-[14px] font-medium text-white truncate">{ch.name}</p>
+                          <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${ch.type === "discord" ? "bg-white/[0.06] text-[#5865F2]" : ch.type === "telegram" ? "bg-white/[0.06] text-[#229ED9]" : "bg-white/[0.06] text-white/55"} ${ch.isValidated ? "" : "opacity-70"}`}>
                             {ch.type} {ch.isValidated ? "" : "(not tested)"}
                           </span>
                         </div>
@@ -377,7 +366,7 @@ export default function SchedulesPage() {
                           type="button"
                           aria-label="Delete channel"
                           onClick={() => handleDeleteChannelClick(ch.id)}
-                          className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#fef2f2] hover:text-[#dc2626]"
+                          className="rounded-full p-1 text-white/55 transition-colors hover:bg-[#E5484D]/10 hover:text-[#E5484D]"
                         >
                           <svg viewBox="0 0 16 16" className="size-3.5" fill="none">
                             <path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -392,10 +381,10 @@ export default function SchedulesPage() {
 
             {/* Schedules List */}
             <section>
-              <h2 className="text-[14px] font-medium text-[#625d55] mb-4">Schedules ({schedules.length})</h2>
+              <h2 className="text-[14px] font-medium text-white/70 mb-4">Schedules ({schedules.length})</h2>
               {schedules.length === 0 ? (
-                <div className="rounded-2xl border border-[#eceae3] bg-white p-6 text-center">
-                  <p className="text-[14px] text-[#8a857c]">No schedules yet.</p>
+                <div className="ds-card ds-card--dark p-6 text-center">
+                  <p className="text-[14px] text-white/55">No schedules yet.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -403,17 +392,17 @@ export default function SchedulesPage() {
                     <Link
                       key={s.id}
                       href={`/schedules/${s.id}`}
-                      className="block rounded-2xl border border-[#eceae3] bg-white p-4 transition-all duration-200 hover:shadow-[0_4px_24px_rgba(32,32,31,0.1)] hover:-translate-y-0.5"
+                      className="ds-card ds-card--dark is-interactive block p-4"
                     >
                       <div className="flex items-start justify-between">
                         <div className="min-w-0 flex-1">
-                          <span className="text-[15px] font-medium text-[#20201f] line-clamp-2">
+                          <span className="text-[15px] font-medium text-white line-clamp-2">
                             {s.query}
                           </span>
-                          <p className="mt-1 text-[13px] text-[#8a857c]">
+                          <p className="mt-1 text-[13px] text-white/55">
                             Daily at {formatHourMinute(s.runTime)} {s.timezone}
                           </p>
-                          <p className="mt-0.5 text-[12px] text-[#a8a399]">
+                          <p className="mt-0.5 text-[12px] text-white/55">
                             via {s.channel.split(",").map((c: string) => c.charAt(0).toUpperCase() + c.slice(1)).join(" & ")}
                             {s.nextRunAt ? ` · ${relativeTime(s.nextRunAt)}` : ""}
                           </p>
@@ -423,7 +412,7 @@ export default function SchedulesPage() {
                             type="button"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmToggle(s); }}
                             aria-pressed={s.isActive}
-                            className={`rounded-full px-3 py-1 text-[11px] font-medium transition-all duration-200 ${s.isActive ? "bg-[#1B7064] text-white" : "border border-[#e5e1d8] bg-white text-[#625d55] hover:border-[#FECB8B]"}`}
+                            className={s.isActive ? "ds-pill-status ds-pill-status--orange" : "ds-pill-status ds-pill-status--muted-dark"}
                           >
                             {s.isActive ? "Active" : "Paused"}
                           </button>
@@ -431,7 +420,7 @@ export default function SchedulesPage() {
                             type="button"
                             aria-label="Delete schedule"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteScheduleId(s.id); }}
-                            className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#fef2f2] hover:text-[#dc2626]"
+                            className="rounded-full p-1 text-white/55 transition-colors hover:bg-[#E5484D]/10 hover:text-[#E5484D]"
                           >
                             <svg viewBox="0 0 16 16" className="size-3.5" fill="none">
                               <path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
@@ -449,71 +438,71 @@ export default function SchedulesPage() {
 
         {/* Add Channel Panel */}
         {addPanel ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => { if (!addTesting) closeAddPanel(); }}>
-            <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="add-channel-title" onClick={(e) => e.stopPropagation()}>
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => { if (!addTesting) closeAddPanel(); }}>
+            <div className="animate-rise w-full max-w-md rounded-t-2xl border border-white/10 bg-[#161616] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="add-channel-title" onClick={(e) => e.stopPropagation()}>
               <div className="mb-5 flex items-center justify-between">
-                <h2 id="add-channel-title" className="text-[16px] font-semibold text-[#1f1f1e]">Add Channel</h2>
-                <button type="button" aria-label="Close" onClick={() => { if (!addTesting) closeAddPanel(); }} disabled={addTesting} className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#f3f1ea] hover:text-[#625d55] disabled:opacity-50">
+                <h2 id="add-channel-title" className="text-[16px] font-semibold text-white">Add Channel</h2>
+                <button type="button" aria-label="Close" onClick={() => { if (!addTesting) closeAddPanel(); }} disabled={addTesting} className="rounded-full p-1 text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white/70 disabled:opacity-50">
                   <svg viewBox="0 0 16 16" className="size-4" fill="none"><path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
                 </button>
               </div>
               {addError ? (
-                <div className="mb-5 rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-[13px] text-[#dc2626]">{addError}</div>
+                <div className="mb-5 rounded-xl border border-[#E5484D]/40 bg-[#E5484D]/10 px-4 py-3 text-[13px] text-[#E5484D]">{addError}</div>
               ) : null}
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="channel-name" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Channel name</label>
-                   <input id="channel-name" type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addType === "telegram" ? "Personal Telegram" : "My Discord server"} disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
+                  <label htmlFor="channel-name" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Channel name</label>
+                   <input id="channel-name" type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addType === "telegram" ? "Personal Telegram" : "My Discord server"} disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                 </div>
                 <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Type</label>
-                  <div className="flex gap-1 rounded-full border border-[#eceae3] bg-white p-1">
-                    <button type="button" onClick={() => { setAddType("telegram"); setAddTgToken(""); setAddTgChatId(""); setAddError(""); }} className={`flex-1 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "telegram" ? "bg-[#FF6700] text-white" : "text-[#625d55] hover:text-[#20201f]"}`}>Telegram</button>
-                    <button type="button" onClick={() => { setAddType("discord"); setAddDcWebhook(""); setAddError(""); }} className={`flex-1 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "discord" ? "bg-[#FF6700] text-white" : "text-[#625d55] hover:text-[#20201f]"}`}>Discord</button>
+                  <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Type</label>
+                  <div className="flex gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
+                    <button type="button" onClick={() => { setAddType("telegram"); setAddTgToken(""); setAddTgChatId(""); setAddError(""); }} className={`flex-1 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "telegram" ? "bg-[#F24E1E] text-white" : "text-white/55 hover:text-white"}`}>Telegram</button>
+                    <button type="button" onClick={() => { setAddType("discord"); setAddDcWebhook(""); setAddError(""); }} className={`flex-1 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "discord" ? "bg-[#F24E1E] text-white" : "text-white/55 hover:text-white"}`}>Discord</button>
                   </div>
                 </div>
                 {addType === "telegram" ? (
                   <>
                     <div className="mb-2 flex items-center justify-between">
-                      <label className="text-[12px] font-medium text-[#625d55]">Credentials</label>
+                      <label className="ds-field-label ds-field-label--on-dark">Credentials</label>
                       <a
                         href="https://core.telegram.org/bots/tutorial"
                         target="_blank"
                         rel="noreferrer"
-                        className="text-[12px] font-semibold text-[#ff6700] no-underline hover:underline"
+                        className="text-[12px] font-semibold text-[#F24E1E] no-underline hover:underline"
                       >
                         Get credentials →
                       </a>
                     </div>
                     <div>
-                      <label htmlFor="tg-token" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Bot Token</label>
-                      <input id="tg-token" type="password" value={addTgToken} onChange={(e) => setAddTgToken(e.target.value)} placeholder="0000000000:XXXXX..." disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
+                      <label htmlFor="tg-token" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Bot Token</label>
+                      <input id="tg-token" type="password" value={addTgToken} onChange={(e) => setAddTgToken(e.target.value)} placeholder="0000000000:XXXXX..." disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                     </div>
                     <div>
-                      <label htmlFor="tg-chat-id" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Chat ID</label>
-                      <input id="tg-chat-id" type="text" value={addTgChatId} onChange={(e) => setAddTgChatId(e.target.value)} placeholder="123456789" disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
+                      <label htmlFor="tg-chat-id" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Chat ID</label>
+                      <input id="tg-chat-id" type="text" value={addTgChatId} onChange={(e) => setAddTgChatId(e.target.value)} placeholder="123456789" disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                     </div>
                   </>
                 ) : (
                   <div>
                     <div className="mb-2 flex items-center justify-between">
-                      <label className="text-[12px] font-medium text-[#625d55]">Webhook URL</label>
+                      <label className="ds-field-label ds-field-label--on-dark">Webhook URL</label>
                       <a
                         href="https://support.discord.com/hc/en-us/articles/228383668-Intro-to-Webhooks"
                         target="_blank"
                         rel="noreferrer"
-                        className="text-[12px] font-semibold text-[#ff6700] no-underline hover:underline"
+                        className="text-[12px] font-semibold text-[#F24E1E] no-underline hover:underline"
                       >
                         Get webhook URL →
                       </a>
                     </div>
-                    <input type="text" value={addDcWebhook} onChange={(e) => setAddDcWebhook(e.target.value)} placeholder="https://discord.com/api/webhooks/..." disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
+                    <input type="text" value={addDcWebhook} onChange={(e) => setAddDcWebhook(e.target.value)} placeholder="https://discord.com/api/webhooks/..." disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                   </div>
                 )}
               </div>
               <div className="mt-6 flex items-center gap-3">
-                <button type="button" onClick={() => { closeAddPanel(); }} disabled={addTesting} className="rounded-full border border-[#e5e1d8] bg-white px-4 py-2 text-[13px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f] disabled:opacity-50">Cancel</button>
-                <button type="button" onClick={handleAddChannel} disabled={addTesting || !addName.trim() || (addType === "telegram" ? !addTgToken.trim() || !addTgChatId.trim() : !addDcWebhook.trim())} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#FF6700] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#E9E9DC] disabled:text-[#a8a399]">
+                <button type="button" onClick={() => { closeAddPanel(); }} disabled={addTesting} className="ds-btn ds-btn--ghost-dark ds-btn--sm disabled:opacity-50">Cancel</button>
+                <button type="button" onClick={handleAddChannel} disabled={addTesting || !addName.trim() || (addType === "telegram" ? !addTgToken.trim() || !addTgChatId.trim() : !addDcWebhook.trim())} className="ds-btn ds-btn--primary ds-btn--sm flex-1">
                   {addTesting ? "Testing..." : "Add & Test"}
                 </button>
               </div>
@@ -524,45 +513,45 @@ export default function SchedulesPage() {
         {/* New Schedule Panel */}
         {schedulePanel ? (
           scheduleOk ? (
-            <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
-              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="schedule-ok-title" onClick={(e) => e.stopPropagation()}>
-                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[#1f1f1e] mb-4">Schedule Created</h2>
-                <p className="text-[14px] text-[#8a857c]">Your daily briefing has been scheduled.</p>
+            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
+              <div className="animate-rise w-full max-w-md rounded-t-2xl border border-white/10 bg-[#161616] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="schedule-ok-title" onClick={(e) => e.stopPropagation()}>
+                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-white mb-4">Schedule Created</h2>
+                <p className="text-[14px] text-white/55">Your daily briefing has been scheduled.</p>
                 <div className="mt-5">
-                  <button type="button" onClick={() => setSchedulePanel(false)} className="w-full rounded-full bg-[#FF6700] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#e35c00]">Done</button>
+                  <button type="button" onClick={() => setSchedulePanel(false)} className="ds-btn ds-btn--primary ds-btn--sm w-full">Done</button>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
-              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="schedule-panel-title" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
+              <div className="animate-rise w-full max-w-md rounded-t-2xl border border-white/10 bg-[#161616] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="schedule-panel-title" onClick={(e) => e.stopPropagation()}>
                 <div className="mb-5 flex items-center justify-between">
-                  <h2 id="schedule-panel-title" className="text-[16px] font-semibold text-[#1f1f1e]">{scheduleEditingId ? "Edit Schedule" : "New Schedule"}</h2>
-                  <button type="button" aria-label="Close" onClick={() => { setSchedulePanel(false); setScheduleEditingId(null); }} disabled={isBusy} className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#f3f1ea] hover:text-[#625d55] disabled:opacity-50">
+                  <h2 id="schedule-panel-title" className="text-[16px] font-semibold text-white">{scheduleEditingId ? "Edit Schedule" : "New Schedule"}</h2>
+                  <button type="button" aria-label="Close" onClick={() => { setSchedulePanel(false); setScheduleEditingId(null); }} disabled={isBusy} className="rounded-full p-1 text-white/55 transition-colors hover:bg-white/[0.06] hover:text-white/70 disabled:opacity-50">
                     <svg viewBox="0 0 16 16" className="size-4" fill="none"><path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
                   </button>
                 </div>
-                <div className="mb-5 flex items-center gap-1 rounded-full border border-[#eceae3] bg-white p-1">
+                <div className="mb-5 flex items-center gap-1 rounded-full border border-white/10 bg-white/[0.04] p-1">
                   {["Query & Time", "Channel", "Confirm"].map((label, i) => (
-                    <button key={label} disabled={isBusy} className={`flex-1 rounded-full px-2 py-1 text-[12px] font-medium transition-all duration-200 ${scheduleStep === i + 1 ? "bg-[#FF6700] text-white shadow-[0_2px_8px_rgba(255,103,0,0.25)]" : "text-[#a8a399]"}`}>{label}</button>
+                    <button key={label} disabled={isBusy} className={`flex-1 rounded-full px-2 py-1 text-[12px] font-medium transition-all duration-200 ${scheduleStep === i + 1 ? "bg-[#F24E1E] text-white" : "text-white/55"}`}>{label}</button>
                   ))}
                 </div>
                 {scheduleError ? (
-                  <div className="animate-rise mb-5 rounded-xl border border-[#fecaca] bg-[#fef2f2] px-4 py-3 text-[13px] text-[#dc2626]">{scheduleError}</div>
+                  <div className="animate-rise mb-5 rounded-xl border border-[#E5484D]/40 bg-[#E5484D]/10 px-4 py-3 text-[13px] text-[#E5484D]">{scheduleError}</div>
                 ) : null}
                 {scheduleStep === 1 ? (
                   <div className="space-y-4">
                     <div>
-                      <label htmlFor="schedule-query" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Search query</label>
-                      <input id="schedule-query" type="text" value={scheduleQuery} onChange={(e) => setScheduleQuery(e.target.value)} placeholder="e.g. highlights of fouls from USA vs Paraguay" disabled={isBusy} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
+                      <label htmlFor="schedule-query" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Search query</label>
+                      <input id="schedule-query" type="text" value={scheduleQuery} onChange={(e) => setScheduleQuery(e.target.value)} placeholder="e.g. highlights of fouls from USA vs Paraguay" disabled={isBusy} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                     </div>
                     <div className="flex gap-3">
                       <div className="flex-1">
-                        <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Time</label>
+                        <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Time</label>
                         {scheduleTimeConfirmed ? (
                           <div className="flex items-center gap-2">
-                            <span className="rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] text-[#20201f] flex-1">{formatHourMinute(scheduleTime)}</span>
-                            <button type="button" onClick={() => setScheduleTimeConfirmed(false)} disabled={isBusy} className="text-[12px] text-[#a8a399] underline-offset-2 hover:text-[#625d55] hover:underline shrink-0">Edit</button>
+                            <span className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-2.5 text-[14px] text-white flex-1">{formatHourMinute(scheduleTime)}</span>
+                            <button type="button" onClick={() => setScheduleTimeConfirmed(false)} disabled={isBusy} className="text-[12px] text-white/55 underline-offset-2 hover:text-white/70 hover:underline shrink-0">Edit</button>
                           </div>
                         ) : (
                           (() => {
@@ -581,35 +570,35 @@ export default function SchedulesPage() {
                                   value={h12}
                                   onChange={(e) => setTime(Number(e.target.value), m, ampm)}
                                   disabled={isBusy}
-                                  className="w-[64px] rounded-xl border border-[#e8e4db] bg-white px-2.5 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
+                                  className="ds-select ds-select--dark w-[64px] px-2.5 disabled:opacity-50"
                                 >
                                   {Array.from({ length: 12 }, (_, i) => i + 1).map((v) => (
                                     <option key={v} value={v}>{v}</option>
                                   ))}
                                 </select>
-                                <span className="text-[14px] text-[#a8a399]">:</span>
+                                <span className="text-[14px] text-white/55">:</span>
                                 <select
                                   value={m}
                                   onChange={(e) => setTime(h12, Number(e.target.value), ampm)}
                                   disabled={isBusy}
-                                  className="w-[64px] rounded-xl border border-[#e8e4db] bg-white px-2.5 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
+                                  className="ds-select ds-select--dark w-[64px] px-2.5 disabled:opacity-50"
                                 >
                                   {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((v) => (
                                     <option key={v} value={v}>{v.toString().padStart(2, "0")}</option>
                                   ))}
                                 </select>
-                                <div className="flex rounded-full border border-[#eceae3] bg-white p-0.5">
+                                <div className="flex rounded-full border border-white/10 bg-white/[0.04] p-0.5">
                                   <button
                                     type="button"
                                     onClick={() => setTime(h12, m, "AM")}
                                     disabled={isBusy}
-                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200 ${ampm === "AM" ? "bg-[#FF6700] text-white" : "text-[#625d55] hover:text-[#20201f]"}`}
+                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200 ${ampm === "AM" ? "bg-[#F24E1E] text-white" : "text-white/55 hover:text-white"}`}
                                   >AM</button>
                                   <button
                                     type="button"
                                     onClick={() => setTime(h12, m, "PM")}
                                     disabled={isBusy}
-                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200 ${ampm === "PM" ? "bg-[#FF6700] text-white" : "text-[#625d55] hover:text-[#20201f]"}`}
+                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200 ${ampm === "PM" ? "bg-[#F24E1E] text-white" : "text-white/55 hover:text-white"}`}
                                   >PM</button>
                                 </div>
                               </div>
@@ -618,8 +607,8 @@ export default function SchedulesPage() {
                         )}
                       </div>
                       <div className="flex-[2]">
-                        <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Timezone</label>
-                        <select value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} disabled={isBusy} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50">
+                        <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Timezone</label>
+                        <select value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} disabled={isBusy} className="ds-select ds-select--dark w-full disabled:opacity-50">
                           {timezones.map((tz) => (<option key={tz.value} value={tz.value}>{tz.label}</option>))}
                         </select>
                       </div>
@@ -627,22 +616,22 @@ export default function SchedulesPage() {
                   </div>
                 ) : scheduleStep === 2 ? (
                   <div className="space-y-4">
-                    <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Pick channels</label>
+                    <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Pick channels</label>
                     {channels.length === 0 ? (
-                      <p className="text-[13px] text-[#8a857c]">No channels. Add one above first.</p>
+                      <p className="text-[13px] text-white/55">No channels. Add one above first.</p>
                     ) : (
                       <div className="space-y-2">
                         {channels.map((ch) => (
-                          <label key={ch.id} className="flex items-center gap-2.5 cursor-pointer rounded-xl border border-[#eceae3] bg-white px-4 py-3 transition-all duration-200 hover:border-[#FECB8B]">
+                          <label key={ch.id} className="flex items-center gap-2.5 cursor-pointer rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 transition-all duration-200 hover:border-[#F24E1E]">
                             <input type="checkbox" checked={selectedChannelIds.includes(ch.id)} onChange={() => {
                               if (selectedChannelIds.includes(ch.id)) {
                                 setSelectedChannelIds(selectedChannelIds.filter((id) => id !== ch.id));
                               } else {
                                 setSelectedChannelIds([...selectedChannelIds, ch.id]);
                               }
-                            }} disabled={isBusy} className="size-4 rounded accent-[#FF6700]" />
-                            <span className="flex-1 text-[14px] text-[#20201f]">{ch.name}</span>
-                            <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${ch.type === "discord" ? "bg-[#eeebf7] text-[#5865F2]" : ch.type === "telegram" ? "bg-[#e8f0fe] text-[#1a73e8]" : "bg-[#f3f1ea] text-[#8a857c]"}`}>{ch.type}</span>
+                            }} disabled={isBusy} className="size-4 rounded accent-[#F24E1E]" />
+                            <span className="flex-1 text-[14px] text-white">{ch.name}</span>
+                            <span className={`text-[11px] px-1.5 py-0.5 rounded-full ${ch.type === "discord" ? "bg-white/[0.06] text-[#5865F2]" : ch.type === "telegram" ? "bg-white/[0.06] text-[#229ED9]" : "bg-white/[0.06] text-white/55"}`}>{ch.type}</span>
                           </label>
                         ))}
                       </div>
@@ -650,25 +639,25 @@ export default function SchedulesPage() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    <h3 className="text-[13px] font-medium text-[#1f1f1e]">Review your schedule</h3>
-                    <div className="rounded-2xl border border-[#eceae3] bg-white p-4 space-y-2">
-                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#a8a399]">Query</span><p className="text-[14px] text-[#20201f]">{scheduleQuery}</p></div>
-                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#a8a399]">Schedule</span><p className="text-[14px] text-[#20201f]">Daily at {formatHourMinute(scheduleTime)} ({tzLabel})</p></div>
-                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[#a8a399]">Channels</span><p className="text-[14px] text-[#20201f]">{selectedChannelIds.length ? channels.filter(c => selectedChannelIds.includes(c.id)).map(c => c.name).join(", ") : "None"}</p></div>
+                    <h3 className="text-[13px] font-medium text-white">Review your schedule</h3>
+                    <div className="ds-card ds-card--dark p-4 space-y-2">
+                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-white/55">Query</span><p className="text-[14px] text-white">{scheduleQuery}</p></div>
+                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-white/55">Schedule</span><p className="text-[14px] text-white">Daily at {formatHourMinute(scheduleTime)} ({tzLabel})</p></div>
+                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-white/55">Channels</span><p className="text-[14px] text-white">{selectedChannelIds.length ? channels.filter(c => selectedChannelIds.includes(c.id)).map(c => c.name).join(", ") : "None"}</p></div>
                     </div>
-                    <button type="button" onClick={handleCreateSchedule} disabled={isBusy || !scheduleQuery.trim() || !scheduleTimeConfirmed || selectedChannelIds.length === 0} className="flex w-full items-center justify-center gap-2 rounded-full bg-[#FF6700] px-4 py-2.5 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#E9E9DC] disabled:text-[#a8a399]">
+                    <button type="button" onClick={handleCreateSchedule} disabled={isBusy || !scheduleQuery.trim() || !scheduleTimeConfirmed || selectedChannelIds.length === 0} className="ds-btn ds-btn--primary w-full">
                       {scheduleSubmitting ? "Saving..." : scheduleEditingId ? "Save changes" : "Schedule daily briefing"}
                     </button>
                   </div>
                 )}
                 <div className="mt-6 flex items-center gap-3">
                   {scheduleStep > 1 ? (
-                    <button type="button" onClick={() => setScheduleStep((s) => s - 1)} disabled={isBusy} className="rounded-full border border-[#e5e1d8] bg-white px-4 py-2 text-[13px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f] disabled:opacity-50">Back</button>
+                    <button type="button" onClick={() => setScheduleStep((s) => s - 1)} disabled={isBusy} className="ds-btn ds-btn--ghost-dark ds-btn--sm disabled:opacity-50">Back</button>
                   ) : (
-                    <button type="button" onClick={() => setSchedulePanel(false)} disabled={isBusy} className="rounded-full border border-[#e5e1d8] bg-white px-4 py-2 text-[13px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f] disabled:opacity-50">Cancel</button>
+                    <button type="button" onClick={() => setSchedulePanel(false)} disabled={isBusy} className="ds-btn ds-btn--ghost-dark ds-btn--sm disabled:opacity-50">Cancel</button>
                   )}
                   {scheduleStep < 3 ? (
-                    <button type="button" onClick={() => { if (scheduleStep === 1) setScheduleTimeConfirmed(true); setScheduleStep((s) => s + 1); }} disabled={scheduleStep === 1 ? !scheduleQuery.trim() || !scheduleTime : selectedChannelIds.length === 0} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#FF6700] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#E9E9DC] disabled:text-[#a8a399]">Next</button>
+                    <button type="button" onClick={() => { if (scheduleStep === 1) setScheduleTimeConfirmed(true); setScheduleStep((s) => s + 1); }} disabled={scheduleStep === 1 ? !scheduleQuery.trim() || !scheduleTime : selectedChannelIds.length === 0} className="ds-btn ds-btn--primary ds-btn--sm flex-1">Next</button>
                   ) : null}
                 </div>
               </div>
@@ -678,17 +667,17 @@ export default function SchedulesPage() {
 
         {/* Delete Channel Confirmation */}
         {deleteChannelId ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setDeleteChannelId(null)}>
-            <div className="animate-rise w-full max-w-sm rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="delete-channel-title" onClick={(e) => e.stopPropagation()}>
-              <h2 id="delete-channel-title" className="text-[16px] font-semibold text-[#1f1f1e]">Delete channel?</h2>
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setDeleteChannelId(null)}>
+            <div className="animate-rise w-full max-w-sm rounded-t-2xl border border-white/10 bg-[#161616] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="delete-channel-title" onClick={(e) => e.stopPropagation()}>
+              <h2 id="delete-channel-title" className="text-[16px] font-semibold text-white">Delete channel?</h2>
               {deleteAffected.length > 0 ? (
-                <p className="mt-2 text-[13px] text-[#8a857c]">This channel is used by {deleteAffected.length} active schedule{deleteAffected.length > 1 ? "s" : ""}. Removing it will affect those schedules.</p>
+                <p className="mt-2 text-[13px] text-white/55">This channel is used by {deleteAffected.length} active schedule{deleteAffected.length > 1 ? "s" : ""}. Removing it will affect those schedules.</p>
               ) : (
-                <p className="mt-2 text-[13px] text-[#8a857c]">This channel is not linked to any schedule.</p>
+                <p className="mt-2 text-[13px] text-white/55">This channel is not linked to any schedule.</p>
               )}
               <div className="mt-5 flex items-center gap-3">
-                <button type="button" onClick={() => setDeleteChannelId(null)} className="rounded-full border border-[#e5e1d8] bg-white px-4 py-2 text-[13px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f]">Cancel</button>
-                <button type="button" onClick={() => deleteChannel(deleteChannelId)} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#dc2626] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#b91c1c] active:scale-[0.98]">Delete</button>
+                <button type="button" onClick={() => setDeleteChannelId(null)} className="ds-btn ds-btn--ghost-dark ds-btn--sm">Cancel</button>
+                <button type="button" onClick={() => deleteChannel(deleteChannelId)} className="ds-btn ds-btn--danger ds-btn--sm flex-1">Delete</button>
               </div>
             </div>
           </div>
@@ -696,13 +685,13 @@ export default function SchedulesPage() {
 
         {/* Delete Schedule Confirmation */}
         {deleteScheduleId ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setDeleteScheduleId(null)}>
-            <div className="animate-rise w-full max-w-sm rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="delete-schedule-title" onClick={(e) => e.stopPropagation()}>
-              <h2 id="delete-schedule-title" className="text-[16px] font-semibold text-[#1f1f1e]">Delete schedule?</h2>
-              <p className="mt-2 text-[13px] text-[#8a857c]">This will permanently remove the schedule. Past runs are not affected.</p>
+          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setDeleteScheduleId(null)}>
+            <div className="animate-rise w-full max-w-sm rounded-t-2xl border border-white/10 bg-[#161616] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="delete-schedule-title" onClick={(e) => e.stopPropagation()}>
+              <h2 id="delete-schedule-title" className="text-[16px] font-semibold text-white">Delete schedule?</h2>
+              <p className="mt-2 text-[13px] text-white/55">This will permanently remove the schedule. Past runs are not affected.</p>
               <div className="mt-5 flex items-center gap-3">
-                <button type="button" onClick={() => setDeleteScheduleId(null)} className="rounded-full border border-[#e5e1d8] bg-white px-4 py-2 text-[13px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f]">Cancel</button>
-                <button type="button" onClick={() => deleteSchedule(deleteScheduleId)} className="flex flex-1 items-center justify-center gap-2 rounded-full bg-[#dc2626] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#b91c1c] active:scale-[0.98]">Delete</button>
+                <button type="button" onClick={() => setDeleteScheduleId(null)} className="ds-btn ds-btn--ghost-dark ds-btn--sm">Cancel</button>
+                <button type="button" onClick={() => deleteSchedule(deleteScheduleId)} className="ds-btn ds-btn--danger ds-btn--sm flex-1">Delete</button>
               </div>
             </div>
           </div>
@@ -723,7 +712,7 @@ export default function SchedulesPage() {
           {confirmToggle ? (
             <>
               <p>This will {confirmToggle.isActive ? "pause" : "resume"} daily briefings for:</p>
-              <p className="mt-2 rounded-lg bg-[#f3f1ea] px-3 py-2 font-medium text-[#1f1f1e]">
+              <p className="mt-2 rounded-lg bg-white/[0.04] px-3 py-2 font-medium text-white">
                 &ldquo;{confirmToggle.query}&rdquo;
               </p>
             </>

@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import BriefingCard from "@/components/BriefingCard";
+import { SchedulerStory } from "@/components/scheduler-illustrations";
 
 const suggestions = [
   { text: "Manchester United Women Goals 2024", runId: "fec0a34a-d0df-410d-885f-cd4ed1bc82d1" },
@@ -255,18 +256,19 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-1 flex-col">
-      <div className="mx-auto w-full max-w-[1080px] px-[22px] pb-24">
+    <main className="flex flex-1 flex-col">
+      <div className="mx-auto w-full max-w-[1080px] px-[22px]">
         <section className="pb-[30px] pt-16 text-center">
-          <h1 className="mx-auto max-w-[640px] text-[40px] font-extrabold leading-[1.08] tracking-[-0.025em] text-[#1f1f1e]">
+          <span className="ds-eyebrow ds-eyebrow--orange mb-5 block">TinyFish × VideoDB · Football agent</span>
+          <h1 className="mx-auto mt-1 max-w-[660px] text-[clamp(32px,6vw,52px)] font-medium leading-[1.06] tracking-[-0.03em] text-white">
             Your daily football briefing, on{"\u00A0"}demand
           </h1>
-          <p className="mx-auto mt-4 max-w-[480px] text-[16px] leading-relaxed text-[#7a756b]">
-            Search any match moment and get a playable reel — or set up a daily AI digest sent to Telegram or Discord.
+          <p className="mx-auto mt-4 max-w-[500px] text-[16px] leading-relaxed text-white/65">
+            Search any match moment and get a playable reel — or set up a daily AI digest delivered to your Telegram or Discord.
           </p>
 
           <div className="relative mx-auto mt-[30px] max-w-[640px]">
-            <form onSubmit={handleSubmit} className="flex items-center gap-[10px] rounded-full border border-[#e7e3d9] bg-white py-2 pl-5 pr-2 shadow-[0_4px_18px_rgba(31,31,30,0.06)]">
+            <form onSubmit={handleSubmit} className="flex items-center gap-[10px] rounded-full border border-white/10 bg-[#161616] py-2 pl-5 pr-2 shadow-[0_8px_30px_rgba(0,0,0,0.4)] focus-within:border-[#F24E1E]/50 transition-colors duration-200">
               <input
                 ref={inputRef}
                 type="text"
@@ -281,13 +283,13 @@ export default function Home() {
                 placeholder={hasSession ? "Ask for any match moment…" : "Choose a briefing below, or add API keys to run your own"}
                 readOnly={!hasSession}
                 disabled={isRunning}
-                className="flex-1 border-none bg-transparent py-3 pl-2 text-[15.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 rounded-full disabled:opacity-50"
+                className="flex-1 border-none bg-transparent py-3 pl-2 text-[15.5px] text-white outline-none placeholder:text-white/40 rounded-full disabled:opacity-50"
               />
               <button
                 type={hasSession ? "submit" : "button"}
                 onClick={hasSession ? undefined : openKeysModal}
                 disabled={hasSession ? (!prompt.trim() || isRunning) : isRunning}
-                className="flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-[11px] text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#e9e9dc] disabled:text-[#a8a399] disabled:shadow-none"
+                className="flex items-center gap-2 rounded-full bg-[#F24E1E] px-5 py-[11px] text-[14px] font-medium text-white shadow-[0_2px_10px_rgba(242,78,30,0.3)] transition-all duration-200 hover:bg-[#D14016] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-white/[0.06] disabled:text-white/40 disabled:shadow-none"
               >
                 {hasSession ? "Run" : "Add keys"}<span className="text-[14px]">↵</span>
               </button>
@@ -296,48 +298,49 @@ export default function Home() {
             {showSuggestions ? (
               <div
                 ref={suggestionsRef}
-                className="absolute inset-x-0 top-16 z-20 rounded-[16px] border border-[#ece9e1] bg-white p-2 text-left shadow-[0_14px_40px_rgba(31,31,30,0.14)] animate-rise"
+                className="absolute inset-x-0 top-16 z-20 rounded-[16px] border border-white/10 bg-[#161616] p-2 text-left shadow-[0_14px_40px_rgba(0,0,0,0.5)] animate-rise"
               >
-                <p className="mx-3 mb-1.5 mt-2 text-[11px] font-bold tracking-[0.06em] text-[#bdb6a9]">
-                  TRY ONE OF THESE
+                <p className="mx-3 mb-1.5 mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-white/40">
+                  Try one of these
                 </p>
                 {suggestions.map((ex) => (
                   <button
                     key={ex.runId}
                     type="button"
                     onMouseDown={() => selectSuggestion(ex.text, ex.runId)}
-                    className={`flex w-full items-center gap-[11px] rounded-[11px] px-3 py-2.5 text-left transition-all duration-200 hover:bg-[#f3f1ea] ${
+                    className={`flex w-full items-center gap-[11px] rounded-[11px] px-3 py-2.5 text-left transition-all duration-200 hover:bg-white/[0.05] ${
                       selectedSuggestionRunId === ex.runId
-                        ? "scale-[0.99] bg-[#fff3e7] shadow-[0_0_0_2px_rgba(255,103,0,0.18),0_10px_24px_rgba(255,103,0,0.12)]"
+                        ? "scale-[0.99] bg-[#F24E1E]/[0.12] shadow-[0_0_0_1px_rgba(242,78,30,0.35)]"
                         : ""
                     }`}
                   >
-                    <span className="flex size-6 flex-none items-center justify-center rounded-[7px] bg-[#f3f1ea] text-[12px] text-[#a8a399]" aria-hidden="true">
+                    <span className="flex size-6 flex-none items-center justify-center rounded-[7px] bg-white/[0.06] text-[12px] text-white/50" aria-hidden="true">
                       {selectedSuggestionRunId === ex.runId ? "→" : "⌕"}
                     </span>
-                  <span className="text-[14px] text-[#3f3a32]">{ex.text}</span>
+                  <span className="text-[14px] text-white/80">{ex.text}</span>
                   </button>
                 ))}
               </div>
             ) : null}
           </div>
         </section>
+      </div>
 
+      <SchedulerStory />
+
+      <div className="mx-auto w-full max-w-[1080px] px-[22px] pb-24">
         {hasSession && schedules.filter((s) => s.isActive).length > 0 ? (
           <section className="mt-[34px]">
             <div className="flex items-end justify-between gap-4">
               <div>
-                <h2 className="text-[20px] font-bold tracking-[-0.01em] text-[#1f1f1e]">
+                <h2 className="text-[20px] font-medium tracking-[-0.01em] text-white">
                   Your schedules
                 </h2>
-                <p className="mt-[5px] text-[13px] text-[#a8a399]">
+                <p className="mt-[5px] text-[13px] text-white/50">
                   Daily briefings running automatically
                 </p>
               </div>
-              <Link
-                href="/schedules"
-                className="rounded-full border border-[#ece9e1] bg-white px-[15px] py-[9px] text-[13px] font-semibold text-[#3f3a32] transition-colors duration-200 hover:border-[#fecb8b] active:scale-[0.98]"
-              >
+              <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
                 Manage all →
               </Link>
             </div>
@@ -347,28 +350,24 @@ export default function Home() {
                 <Link
                   key={s.id}
                   href={`/schedules/${s.id}`}
-                  className="flex items-center justify-between gap-4 rounded-[14px] border border-[#ece9e1] bg-white px-5 py-4 hover:border-[#fecb8b] transition-all duration-200 active:scale-[0.98]"
+                  className="ds-card ds-card--dark is-interactive flex items-center justify-between gap-4 px-5 py-4 hover:border-[#F24E1E]/50 transition-all duration-200 active:scale-[0.98]"
                 >
                   <div className="flex items-center gap-3 min-w-0">
-                    <span className="inline-flex size-[34px] shrink-0 items-center justify-center rounded-[9px] border border-[#ece9e1] bg-[#f4f2ec] text-[#ff6700]">
+                    <span className="inline-flex size-[34px] shrink-0 items-center justify-center rounded-[9px] border border-white/10 bg-white/[0.04] text-[#F24E1E]">
                       <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-[14px] font-semibold text-[#1f1f1e]">
+                      <p className="truncate text-[14px] font-semibold text-white">
                         {s.query}
                       </p>
-                      <p className="mt-0.5 text-[12px] text-[#a8a399]">
+                      <p className="mt-0.5 text-[12px] text-white/50">
                         Daily at {formatHourMinute(s.runTime)} · via {s.channel}
                         {s.nextRunAt ? ` · next ${scheduleRelativeTime(s.nextRunAt)}` : ""}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
-                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
-                      s.isActive
-                        ? "bg-[#dcfce7] text-[#166534]"
-                        : "bg-[#f3f1ea] text-[#a8a399]"
-                    }`}>
+                    <span className={s.isActive ? "ds-pill-status ds-pill-status--orange" : "ds-pill-status ds-pill-status--muted-dark"}>
                       {s.isActive ? "Active" : "Paused"}
                     </span>
                   </div>
@@ -381,27 +380,24 @@ export default function Home() {
         <section className="mt-[34px]">
           <div className="flex items-end justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-[20px] font-bold tracking-[-0.01em] text-[#1f1f1e]">
+              <h2 className="text-[20px] font-medium tracking-[-0.01em] text-white">
                 {previewType === "personal" ? "Your briefings" : "Public briefings"}
               </h2>
-              <p className="mt-[5px] text-[13px] text-[#a8a399]">
+              <p className="mt-[5px] text-[13px] text-white/50">
                 {previewType === "personal" ? "Reels you have generated" : "Curated World Cup match moments"}
               </p>
             </div>
             <div className="flex items-center gap-[10px]">
-              <div className="flex items-center gap-2 rounded-full border border-[#ece9e1] bg-white px-[13px] py-2">
-                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#bdb6a9] shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <div className="flex items-center gap-2 rounded-full border border-white/10 bg-[#161616] px-[13px] py-2 focus-within:border-[#F24E1E]/50 transition-colors">
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/40 shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input
                   value={search}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search…"
-                  className="w-[120px] border-none bg-transparent text-[13.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1"
+                  className="w-[120px] border-none bg-transparent text-[13.5px] text-white outline-none placeholder:text-white/40"
                 />
               </div>
-              <Link
-                href={previewType === "personal" ? "/me" : "/gallery"}
-                className="rounded-full border border-[#ece9e1] bg-white px-[15px] py-[9px] text-[13px] font-semibold text-[#3f3a32] transition-colors duration-200 hover:border-[#fecb8b]"
-              >
+              <Link href={previewType === "personal" ? "/me" : "/gallery"} className="ds-btn ds-btn--ghost-dark ds-btn--sm">
                 View all →
               </Link>
             </div>
@@ -410,19 +406,19 @@ export default function Home() {
           <div className="mt-5 grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
             {previewLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-[#ece9e1] bg-white">
-                  <div className="aspect-video rounded-t-[15px] bg-[#e9e9dc]" />
+                <div key={i} className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-white/10 bg-[#161616]">
+                  <div className="aspect-video rounded-t-[15px] bg-white/[0.06]" />
                   <div className="p-4 space-y-3">
-                    <div className="h-4 w-3/4 rounded bg-[#e9e9dc]" />
-                    <div className="h-3 w-full rounded bg-[#e9e9dc]" />
-                    <div className="h-3 w-1/3 rounded bg-[#e9e9dc]" />
+                    <div className="h-4 w-3/4 rounded bg-white/[0.06]" />
+                    <div className="h-3 w-full rounded bg-white/[0.06]" />
+                    <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
                   </div>
                 </div>
               ))
             ) : previewRuns.length === 0 ? (
-              <div className="rounded-[16px] border border-[#ece9e1] bg-white p-8 text-center col-span-full">
-                <p className="text-[14px] text-[#625d55]">No briefings yet.</p>
-                <p className="mt-1 text-[13px] text-[#a8a399]">Create one with the compose bar above.</p>
+              <div className="rounded-[16px] border border-white/10 bg-[#161616] p-8 text-center col-span-full">
+                <p className="text-[14px] text-white/70">No briefings yet.</p>
+                <p className="mt-1 text-[13px] text-white/45">Create one with the compose bar above.</p>
               </div>
             ) : (
               previewRuns.map((run) => (
@@ -434,75 +430,41 @@ export default function Home() {
           {previewType === "personal" && !previewLoading ? (
             <Link
               href="/gallery"
-              className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-[#ece9e1] bg-[#f4f2ec] px-5 py-4 hover:border-[#fecb8b] transition-colors duration-200 active:scale-[0.98]"
+              className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-white/10 bg-white/[0.03] px-5 py-4 hover:border-[#F24E1E]/50 transition-colors duration-200 active:scale-[0.98]"
             >
               <span className="flex items-center gap-3">
-                <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-[#ece9e1] bg-white text-[#ff6700]"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></span>
+                <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-white/10 bg-[#161616] text-[#F24E1E]"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></span>
                 <span>
-                  <span className="block text-[14px] font-bold text-[#1f1f1e]">Explore the public gallery</span>
-                  <span className="mt-px block text-[12.5px] text-[#a8a399]">Curated World Cup reels from the community</span>
+                  <span className="block text-[14px] font-semibold text-white">Explore the public gallery</span>
+                  <span className="mt-px block text-[12.5px] text-white/45">Curated World Cup reels from the community</span>
                 </span>
               </span>
-              <span className="text-[#c4bdb0]">→</span>
+              <span className="text-white/30">→</span>
             </Link>
           ) : null}
         </section>
 
         {(!hasSession || schedules.filter((s) => s.isActive).length === 0) ? (
-          <section className="mt-10 rounded-[18px] border border-[#ece9e1] bg-[#f4f2ec] px-6 py-7 text-center">
-            <span className="inline-flex size-[52px] items-center justify-center rounded-[13px] border border-[#ece9e1] bg-white text-[#ff6700] shadow-[0_1px_2px_rgba(31,31,30,0.04)]">
-              <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-            </span>
-            <h2 className="mt-4 text-[20px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
-              Daily AI briefings on autopilot
+          <section className="mt-12 overflow-hidden rounded-[18px] border border-[#F24E1E]/25 bg-gradient-to-br from-[#1a0f0a] to-[#0F0F0F] px-7 py-8 text-center">
+            <span className="ds-eyebrow ds-eyebrow--orange block">Set it once · runs forever</span>
+            <h2 className="mx-auto mt-4 max-w-[440px] text-[24px] font-medium tracking-[-0.02em] text-white">
+              Wake up to the reel already cut and waiting.
             </h2>
-            <p className="mt-2 text-[14px] leading-relaxed text-[#7a756b] max-w-[440px] mx-auto">
-              Set a match query, pick a time, and get curated moment reels delivered straight to Telegram or Discord every day.
+            <p className="mx-auto mt-2.5 max-w-[440px] text-[14px] leading-relaxed text-white/60">
+              Pick a match query, a time and a channel. The agent runs every day and delivers straight to your Telegram or Discord — no app to open.
             </p>
-
-            <div className={`mt-7 grid grid-cols-1 sm:grid-cols-2 ${hasSession ? "lg:grid-cols-3 place-items-center" : "lg:grid-cols-4"} gap-4 text-left max-w-[760px] mx-auto`}>
-              {(hasSession
-                ? [
-                    { step: 1, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
-                    { step: 2, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
-                    { step: 3, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
-                  ]
-                : [
-                    { step: 1, title: "Add API keys", desc: "Connect TinyFish and VideoDB to power your daily briefings." },
-                    { step: 2, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
-                    { step: 3, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
-                    { step: 4, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
-                  ]
-              ).map((s) => (
-                <div key={s.step} className="flex flex-col items-start gap-3 rounded-[14px] border border-[#ece9e1] bg-white p-4">
-                  <span className="inline-flex size-[28px] shrink-0 items-center justify-center rounded-full bg-[#f4f2ec] text-[12px] font-bold text-[#ff6700]">{s.step}</span>
-                  <div>
-                    <p className="text-[14px] font-semibold text-[#1f1f1e]">{s.title}</p>
-                    <p className="mt-1 text-[12.5px] leading-relaxed text-[#8a857c]">{s.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-
             {hasSession ? (
-              <Link
-                href="/schedules"
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
-              >
+              <Link href="/schedules" className="ds-btn ds-btn--primary mt-7 inline-flex">
                 Set up a schedule →
               </Link>
             ) : (
-              <button
-                type="button"
-                onClick={openKeysModal}
-                className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
-              >
+              <button type="button" onClick={openKeysModal} className="ds-btn ds-btn--primary mt-7 inline-flex">
                 Add API keys to start →
               </button>
             )}
           </section>
         ) : null}
       </div>
-    </div>
+    </main>
   );
 }

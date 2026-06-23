@@ -131,9 +131,9 @@ export default function BriefingCard({ run }: { run: BriefingCardRun }) {
         e.preventDefault();
         router.push(`/b/${run.id}`);
       }}
-      className="group block w-full text-left rounded-[16px] border border-[#ece9e1] bg-white shadow-[0_1px_2px_rgba(31,31,30,0.04)] transition-all duration-[180ms] hover:-translate-y-[3px] hover:border-[#fecb8b] hover:shadow-[0_10px_26px_rgba(255,103,0,0.12)] overflow-hidden"
+      className="group block w-full text-left rounded-[16px] border border-white/10 bg-[#161616] shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-all duration-[180ms] hover:-translate-y-[3px] hover:border-[#F24E1E] hover:shadow-[0_10px_26px_rgba(242,78,30,0.16)] overflow-hidden"
     >
-      <div className="relative aspect-video bg-[#1f1f1e] overflow-hidden">
+      <div className="relative aspect-video bg-black overflow-hidden">
         {run.thumbnail_url ? (
           <img
             src={run.thumbnail_url}
@@ -149,11 +149,11 @@ export default function BriefingCard({ run }: { run: BriefingCardRun }) {
         </div>
       </div>
       <div className="px-[15px] pt-[13px] pb-[15px]">
-        <p title={title} className="text-[14.5px] font-bold text-[#1f1f1e] line-clamp-1">{title}</p>
-        <p className="mt-[5px] text-[13px] text-[#7a756b] line-clamp-2 leading-[1.5]">{subtitle}</p>
-        <div className="mt-[11px] flex items-center gap-2 text-[12px] text-[#a8a399]">
+        <p title={title} className="text-[14.5px] font-bold text-white line-clamp-1">{title}</p>
+        <p className="mt-[5px] text-[13px] text-white/70 line-clamp-2 leading-[1.5]">{subtitle}</p>
+        <div className="mt-[11px] flex items-center gap-2 text-[12px] text-white/55">
           {momentsText ? <span>{momentsText}</span> : null}
-          {momentsText ? <span className="size-[3px] rounded-full bg-[#d8d3c8]" /> : null}
+          {momentsText ? <span className="size-[3px] rounded-full bg-white/25" /> : null}
           <span>{relativeTime(run.created_at)}</span>
         </div>
       </div>

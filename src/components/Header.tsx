@@ -3,6 +3,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import ConfirmModal from "@/components/ConfirmModal";
 import KeyModal from "@/components/KeyModal";
 
 export default function Header() {
@@ -14,6 +15,7 @@ export default function Header() {
   const [keysValidating, setKeysValidating] = useState(false);
   const [keysError, setKeysError] = useState("");
   const [accountOpen, setAccountOpen] = useState(false);
+  const [clearConfirm, setClearConfirm] = useState(false);
   const accountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -141,7 +143,7 @@ export default function Header() {
                     </Link>
                     <button
                       type="button"
-                      onClick={clearKeys}
+                      onClick={() => setClearConfirm(true)}
                       className="flex w-full items-center rounded-[10px] px-3 py-[9px] text-[13px] font-semibold text-[#b14a3e] hover:bg-[#fef2f2]"
                     >
                       Clear keys
@@ -170,6 +172,17 @@ export default function Header() {
           )}
         </div>
       </header>
+
+      <ConfirmModal
+        open={clearConfirm}
+        title="Clear API keys?"
+        confirmLabel="Clear keys"
+        danger
+        onConfirm={clearKeys}
+        onClose={() => setClearConfirm(false)}
+      >
+        <p>This will remove your API keys from this browser. You will need to re-add them to access your schedules and briefings.</p>
+      </ConfirmModal>
 
       {keyPanelOpen ? (
         <KeyModal

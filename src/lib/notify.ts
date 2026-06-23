@@ -220,7 +220,7 @@ export async function sendRunNotification(
 
 export async function notifyScheduleChange(
   notifyConfig: NotifyConfig,
-  schedule: { query: string; runTime: string; timezone: string; action: "created" | "paused" | "resumed" | "removed" },
+  schedule: { query: string; runTime: string; timezone: string; action: "created" | "paused" | "resumed" | "removed" | "updated" },
 ): Promise<void> {
   const [h, m] = schedule.runTime.split(":").map(Number);
   const hour = h % 12 || 12;
@@ -247,6 +247,11 @@ export async function notifyScheduleChange(
       text: `📤 <b>Removed from briefing</b>\n\n<b>${escapeHtml(schedule.query)}</b>`,
       embedColor: 0xe74c3c,
       embedTitle: "Schedule Removed",
+    },
+    updated: {
+      text: `✏ <b>Briefing updated</b>\n\n<b>${escapeHtml(schedule.query)}</b>\n\nYour reel will arrive around ${escapeHtml(timeLabel)}.`,
+      embedColor: 0x3498db,
+      embedTitle: "Schedule Updated",
     },
   };
 

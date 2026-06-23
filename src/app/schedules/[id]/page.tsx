@@ -253,8 +253,8 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
         <Pagination page={page} totalPages={totalPages} onPageChange={setPage} />
       </div>
 
-      <ConfirmModal open={confirmToggle} title={schedule?.isActive ? "Resume this schedule?" : "Pause this schedule?"} confirmLabel={schedule?.isActive ? "Resume" : "Pause"} onConfirm={toggleActive} onClose={() => setConfirmToggle(false)}>
-        {schedule ? <><p>This will {schedule.isActive ? "resume" : "pause"} daily briefings for:</p><p className="mt-2 rounded-[10px] bg-[#f4f2ec] px-3 py-2.5 text-[14px] font-semibold text-[#1f1f1e]">&ldquo;{schedule.query}&rdquo;</p></> : null}
+      <ConfirmModal open={confirmToggle} title={schedule?.isActive ? "Pause this schedule?" : "Resume this schedule?"} confirmLabel={schedule?.isActive ? "Pause" : "Resume"} onConfirm={toggleActive} onClose={() => setConfirmToggle(false)}>
+        {schedule ? <><p>This will {schedule.isActive ? "pause" : "resume"} daily briefings for:</p><p className="mt-2 rounded-[10px] bg-[#f4f2ec] px-3 py-2.5 text-[14px] font-semibold text-[#1f1f1e]">&ldquo;{schedule.query}&rdquo;</p></> : null}
       </ConfirmModal>
 
       <ConfirmModal open={deleteConfirm} title="Delete schedule?" confirmLabel="Delete" danger onConfirm={handleDelete} onClose={() => setDeleteConfirm(false)}>

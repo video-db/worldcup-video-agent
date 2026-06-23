@@ -526,8 +526,8 @@ export default function SchedulesPage() {
           scheduleOk ? (
             <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
               <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="schedule-ok-title" onClick={(e) => e.stopPropagation()}>
-                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[#1f1f1e] mb-4">Schedule Created</h2>
-                <p className="text-[14px] text-[#8a857c]">Your daily briefing has been scheduled.</p>
+                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[#1f1f1e] mb-4">{scheduleEditingId ? "Schedule Updated" : "Schedule Created"}</h2>
+                <p className="text-[14px] text-[#8a857c]">{scheduleEditingId ? "Your daily briefing has been updated." : "Your daily briefing has been scheduled."}</p>
                 <div className="mt-5">
                   <button type="button" onClick={() => setSchedulePanel(false)} className="w-full rounded-full bg-[#FF6700] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#e35c00]">Done</button>
                 </div>

@@ -1,26 +1,15 @@
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, inArray } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { channels, db, schedules } from "@/lib/db";
 import { decryptJson, encrypt } from "@/lib/encrypt";
 import { notifyScheduleChange } from "@/lib/notify";
-import { resolveSessionToken } from "@/lib/session";
+import { getApiKeyHashes, resolveSessionToken } from "@/lib/session";
 import { computeNextRunAt } from "@/lib/timezone";
 import { logger } from "@/lib/logger";
 
-function getApiKeyHash(request: NextRequest): string | null {
-  const hash = request.headers.get("x-vdb-key-hash");
-  if (hash) return hash;
-  const token = request.headers.get("x-session-token");
-  if (token) {
-    const s = resolveSessionToken(token);
-    return s?.apiKeyHash ?? null;
-  }
-  return null;
-}
-
 export async function GET(request: NextRequest) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -38,7 +27,7 @@ export async function GET(request: NextRequest) {
         createdAt: schedules.createdAt,
       })
       .from(schedules)
-      .where(eq(schedules.apiKeyHash, apiKeyHash))
+      .where(inArray(schedules.apiKeyHash, hashes))
       .orderBy(desc(schedules.createdAt))
       .limit(50);
 
@@ -73,6 +62,7 @@ export async function POST(request: NextRequest) {
   const tfApiKey = session.tfApiKey;
   const vdbApiKey = session.vdbApiKey;
   const apiKeyHash = session.apiKeyHash;
+  const hashes = session.userId ? await getApiKeyHashes(request.headers) : [apiKeyHash];
 
   if (!query || !runTime || !timezone) {
     return NextResponse.json(
@@ -99,7 +89,7 @@ export async function POST(request: NextRequest) {
     const channelRows = await db
       .select({ id: channels.id, type: channels.type, credentialsEnc: channels.credentialsEnc })
       .from(channels)
-      .where(and(eq(channels.apiKeyHash, apiKeyHash)));
+      .where(inArray(channels.apiKeyHash, hashes));
 
     const channelMap = new Map(channelRows.map((c) => [c.id, c.type]));
     const channel = channelIds.map((cid) => channelMap.get(cid)).filter(Boolean).join(",") || "none";

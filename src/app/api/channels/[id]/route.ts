@@ -1,27 +1,16 @@
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { channels, db, schedules } from "@/lib/db";
-import { resolveSessionToken } from "@/lib/session";
+import { getApiKeyHashes } from "@/lib/session";
 import { encryptJson } from "@/lib/encrypt";
 import { logger } from "@/lib/logger";
-
-function getApiKeyHash(request: NextRequest): string | null {
-  const hash = request.headers.get("x-vdb-key-hash");
-  if (hash) return hash;
-  const token = request.headers.get("x-session-token");
-  if (token) {
-    const s = resolveSessionToken(token);
-    return s?.apiKeyHash ?? null;
-  }
-  return null;
-}
 
 export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -31,7 +20,7 @@ export async function DELETE(
     const [channel] = await db
       .select({ id: channels.id, apiKeyHash: channels.apiKeyHash })
       .from(channels)
-      .where(and(eq(channels.id, id), eq(channels.apiKeyHash, apiKeyHash)))
+      .where(and(eq(channels.id, id), inArray(channels.apiKeyHash, hashes)))
       .limit(1);
 
     if (!channel) {
@@ -41,7 +30,7 @@ export async function DELETE(
     const allSchedules = await db
       .select({ id: schedules.id, channelConfig: schedules.channelConfig, isActive: schedules.isActive })
       .from(schedules)
-      .where(eq(schedules.apiKeyHash, apiKeyHash));
+      .where(inArray(schedules.apiKeyHash, hashes));
 
     const affected: string[] = [];
 
@@ -78,8 +67,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -89,7 +78,7 @@ export async function PATCH(
     const [channel] = await db
       .select({ id: channels.id, apiKeyHash: channels.apiKeyHash })
       .from(channels)
-      .where(and(eq(channels.id, id), eq(channels.apiKeyHash, apiKeyHash)))
+      .where(and(eq(channels.id, id), inArray(channels.apiKeyHash, hashes)))
       .limit(1);
 
     if (!channel) {

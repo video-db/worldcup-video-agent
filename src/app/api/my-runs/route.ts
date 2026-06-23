@@ -1,20 +1,12 @@
-import { and, desc, eq, isNull, ne, or, sql, count, type SQL } from "drizzle-orm";
+import { and, desc, eq, isNull, ne, or, sql, count, type SQL, inArray } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { db, runs } from "@/lib/db";
-import { resolveApiKeyHash } from "@/lib/session";
+import { getApiKeyHashes } from "@/lib/session";
 import { logger } from "@/lib/logger";
 
-function getApiKeyHash(request: NextRequest): string | null {
-  const hash = request.headers.get("x-vdb-key-hash");
-  if (hash) return hash;
-  const token = request.headers.get("x-session-token");
-  if (token) return resolveApiKeyHash(token);
-  return null;
-}
-
 export async function GET(request: NextRequest) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -26,7 +18,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const conditions: SQL[] = [
-      eq(runs.apiKeyHash, apiKeyHash),
+      inArray(runs.apiKeyHash, hashes),
       isNull(runs.scheduleId),
     ];
 
@@ -96,8 +88,8 @@ export async function GET(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -117,7 +109,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "Run not found" }, { status: 404 });
     }
 
-    if (found[0].apiKeyHash !== apiKeyHash) {
+    if (!found[0].apiKeyHash || !hashes.includes(found[0].apiKeyHash)) {
       return NextResponse.json({ error: "Not authorized to delete this run" }, { status: 403 });
     }
 

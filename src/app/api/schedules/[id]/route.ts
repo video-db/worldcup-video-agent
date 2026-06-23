@@ -1,29 +1,18 @@
-import { and, desc, eq, count } from "drizzle-orm";
+import { and, desc, eq, count, inArray } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { channels, db, runs, schedules } from "@/lib/db";
 import { decryptJson } from "@/lib/encrypt";
 import { notifyScheduleChange } from "@/lib/notify";
-import { resolveSessionToken } from "@/lib/session";
+import { getApiKeyHashes, resolveSessionToken } from "@/lib/session";
 import { computeNextRunAt } from "@/lib/timezone";
 import { logger } from "@/lib/logger";
-
-function getApiKeyHash(request: NextRequest): string | null {
-  const hash = request.headers.get("x-vdb-key-hash");
-  if (hash) return hash;
-  const token = request.headers.get("x-session-token");
-  if (token) {
-    const s = resolveSessionToken(token);
-    return s?.apiKeyHash ?? null;
-  }
-  return null;
-}
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -33,7 +22,7 @@ export async function GET(
     const [schedule] = await db
       .select()
       .from(schedules)
-      .where(and(eq(schedules.id, id), eq(schedules.apiKeyHash, apiKeyHash)))
+      .where(and(eq(schedules.id, id), inArray(schedules.apiKeyHash, hashes)))
       .limit(1);
 
     if (!schedule) {
@@ -112,8 +101,8 @@ export async function PATCH(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -149,7 +138,7 @@ export async function PATCH(
       return NextResponse.json({ error: "Schedule not found" }, { status: 404 });
     }
 
-    if (existing.apiKeyHash !== apiKeyHash) {
+    if (!existing.apiKeyHash || !hashes.includes(existing.apiKeyHash)) {
       return NextResponse.json({ error: "Not authorized to modify this schedule" }, { status: 403 });
     }
 
@@ -175,7 +164,7 @@ export async function PATCH(
       const channelRows = await db
         .select({ id: channels.id, type: channels.type })
         .from(channels)
-        .where(and(eq(channels.apiKeyHash, apiKeyHash)));
+        .where(inArray(channels.apiKeyHash, hashes));
 
       const channelMap = new Map(channelRows.map((c) => [c.id, c.type]));
       updateData.channel = newChannelIds.map((cid) => channelMap.get(cid)).filter(Boolean).join(",") || "none";
@@ -204,7 +193,7 @@ export async function PATCH(
       const allChannelRows = await db
         .select({ id: channels.id, type: channels.type, credentialsEnc: channels.credentialsEnc })
         .from(channels)
-        .where(and(eq(channels.apiKeyHash, existing.apiKeyHash)));
+        .where(inArray(channels.apiKeyHash, hashes));
 
       const channelCreds = new Map<string, Record<string, unknown>>();
       for (const c of allChannelRows) {
@@ -261,8 +250,8 @@ export async function DELETE(
   request: NextRequest,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const apiKeyHash = getApiKeyHash(request);
-  if (!apiKeyHash) {
+  const hashes = await getApiKeyHashes(request.headers);
+  if (hashes.length === 0) {
     return NextResponse.json({ error: "Missing x-vdb-key-hash or x-session-token header" }, { status: 400 });
   }
 
@@ -279,7 +268,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Schedule not found" }, { status: 404 });
     }
 
-    if (existing.apiKeyHash !== apiKeyHash) {
+    if (!existing.apiKeyHash || !hashes.includes(existing.apiKeyHash)) {
       return NextResponse.json({ error: "Not authorized to delete this schedule" }, { status: 403 });
     }
 

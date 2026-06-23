@@ -1,7 +1,7 @@
 import { eq, sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { db, runs } from "@/lib/db";
-import { resolveSessionToken } from "@/lib/session";
+import { getApiKeyHashes, resolveSessionToken } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { BriefingEvent } from "@/lib/demo-data";
 
@@ -52,7 +52,11 @@ export async function GET(
         return NextResponse.json({ error: "Run not found" }, { status: 404 });
       }
       const session = resolveSessionToken(sessionToken);
-      if (!session || session.apiKeyHash !== row.apiKeyHash) {
+      if (!session) {
+        return NextResponse.json({ error: "Run not found" }, { status: 404 });
+      }
+      const hashes = await getApiKeyHashes(request.headers);
+      if (!row.apiKeyHash || !hashes.includes(row.apiKeyHash)) {
         return NextResponse.json({ error: "Run not found" }, { status: 404 });
       }
     }

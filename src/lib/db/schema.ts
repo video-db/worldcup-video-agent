@@ -76,3 +76,9 @@ export const schedules = pgTable("schedules", {
   lastRunAt: timestamp("last_run_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
 });
+
+export const userKeys = pgTable("user_keys", {
+  apiKeyHash: text("api_key_hash").primaryKey(),
+  userId: text("user_id").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});

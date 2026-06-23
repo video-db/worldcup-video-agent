@@ -281,7 +281,7 @@ export default function Home() {
                 placeholder={hasSession ? "Ask for any match moment…" : "Choose a briefing below, or add API keys to run your own"}
                 readOnly={!hasSession}
                 disabled={isRunning}
-                className="flex-1 border-none bg-transparent py-2 text-[15.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
+                className="flex-1 border-none bg-transparent py-3 pl-2 text-[15.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 rounded-full disabled:opacity-50"
               />
               <button
                 type={hasSession ? "submit" : "button"}
@@ -371,7 +371,6 @@ export default function Home() {
                     }`}>
                       {s.isActive ? "Active" : "Paused"}
                     </span>
-                    <span className="text-[#c4bdb0]">→</span>
                   </div>
                 </Link>
               ))}

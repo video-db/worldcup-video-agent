@@ -3,11 +3,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { db, runs } from "@/lib/db";
 import { logger } from "@/lib/logger";
 
-export async function GET(request: NextRequest) {
+function checkAdmin(request: NextRequest) {
   const secret = request.headers.get("x-admin-secret");
   if (!secret || secret !== process.env.ADMIN_SECRET) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
+  return null;
+}
+
+export async function GET(request: NextRequest) {
+  const auth = checkAdmin(request);
+  if (auth) return auth;
 
   try {
     const rows = await db
@@ -46,5 +52,35 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logger.error({ err: error }, "Admin runs API error");
     return NextResponse.json({ runs: [], total: 0 }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: NextRequest) {
+  const auth = checkAdmin(request);
+  if (auth) return auth;
+
+  let body: { runId?: string };
+  try {
+    body = await request.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+  }
+
+  if (!body.runId) {
+    return NextResponse.json({ error: "runId is required" }, { status: 400 });
+  }
+
+  try {
+    const result = await db
+      .update(runs)
+      .set({ isPublic: false })
+      .where(eq(runs.id, body.runId));
+    if (result.rowCount === 0) {
+      return NextResponse.json({ error: "Run not found" }, { status: 404 });
+    }
+    return NextResponse.json({ success: true, runId: body.runId, action: "unseeded" });
+  } catch (error) {
+    logger.error({ err: error }, "Admin unseed run error");
+    return NextResponse.json({ error: "Failed to unseed run" }, { status: 500 });
   }
 }

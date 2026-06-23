@@ -117,7 +117,6 @@ async function saveRunToDb(
       query,
       topic: briefing?.topic ?? null,
       status: isError ? "failed" : "completed",
-      isPublic: !isError,
       mode: briefing?.mode ?? null,
       selectedVideo: briefing?.selectedVideo ?? null,
       streamUrl: briefing?.streamUrl ?? null,

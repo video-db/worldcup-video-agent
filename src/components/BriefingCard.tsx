@@ -149,8 +149,8 @@ export default function BriefingCard({ run }: { run: BriefingCardRun }) {
         </div>
       </div>
       <div className="px-[15px] pt-[13px] pb-[15px]">
-        <p className="text-[14.5px] font-bold text-[#1f1f1e] line-clamp-1">{title}</p>
-        <p className="mt-[5px] text-[13px] text-[#7a756b] line-clamp-2 leading-[1.4]">{subtitle}</p>
+        <p title={title} className="text-[14.5px] font-bold text-[#1f1f1e] line-clamp-1">{title}</p>
+        <p className="mt-[5px] text-[13px] text-[#7a756b] line-clamp-2 leading-[1.5]">{subtitle}</p>
         <div className="mt-[11px] flex items-center gap-2 text-[12px] text-[#a8a399]">
           {momentsText ? <span>{momentsText}</span> : null}
           {momentsText ? <span className="size-[3px] rounded-full bg-[#d8d3c8]" /> : null}

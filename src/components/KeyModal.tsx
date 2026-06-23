@@ -28,11 +28,14 @@ export default function KeyModal({
     >
       <div
         className="animate-rise w-full max-w-[430px] rounded-[20px] bg-white p-6 shadow-[0_24px_60px_rgba(20,20,19,0.28)]"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="key-modal-title"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 className="text-[19px] font-bold tracking-[-0.01em] text-[#1f1f1e]">Add your API keys</h2>
+            <h2 id="key-modal-title" className="text-[19px] font-bold tracking-[-0.01em] text-[#1f1f1e]">Add your API keys</h2>
             <p className="mt-[7px] text-[13px] leading-relaxed text-[#8a857c]">
               Stored in your browser only. Never sent to our servers.
             </p>
@@ -41,9 +44,10 @@ export default function KeyModal({
             type="button"
             onClick={onClose}
             disabled={validating}
+            aria-label="Close"
             className="flex size-[30px] shrink-0 items-center justify-center rounded-full border-0 bg-[#f3f1ea] text-[15px] text-[#8a857c] hover:text-[#625d55] disabled:opacity-50"
           >
-            ✕
+            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>
         </div>
 
@@ -56,7 +60,7 @@ export default function KeyModal({
         <div className="mt-5 flex flex-col gap-4">
           <div>
             <div className="mb-[7px] flex items-center justify-between">
-              <label className="text-[12.5px] font-semibold text-[#3f3a32]">TinyFish API key</label>
+              <label htmlFor="tf-key" className="text-[12.5px] font-semibold text-[#3f3a32]">TinyFish API key</label>
               <a
                 href="https://agent.tinyfish.ai/api-keys"
                 target="_blank"
@@ -67,17 +71,19 @@ export default function KeyModal({
               </a>
             </div>
             <input
+              id="tf-key"
               type="password"
               value={tfKey}
               onChange={(e) => onTfKeyChange(e.target.value)}
               placeholder="tf-..."
+              autoComplete="off"
               disabled={validating}
-              className="w-full rounded-[11px] border border-[#e8e4db] bg-white px-[13px] py-[11px] text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#fecb8b] disabled:opacity-50"
+              className="w-full rounded-[11px] border border-[#e8e4db] bg-white px-[13px] py-[11px] text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#fecb8b] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
             />
           </div>
           <div>
             <div className="mb-[7px] flex items-center justify-between">
-              <label className="text-[12.5px] font-semibold text-[#3f3a32]">VideoDB API key</label>
+              <label htmlFor="vdb-key" className="text-[12.5px] font-semibold text-[#3f3a32]">VideoDB API key</label>
               <a
                 href="https://console.videodb.io"
                 target="_blank"
@@ -88,12 +94,14 @@ export default function KeyModal({
               </a>
             </div>
             <input
+              id="vdb-key"
               type="password"
               value={vdbKey}
               onChange={(e) => onVdbKeyChange(e.target.value)}
               placeholder="vdb-..."
+              autoComplete="off"
               disabled={validating}
-              className="w-full rounded-[11px] border border-[#e8e4db] bg-white px-[13px] py-[11px] text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#fecb8b] disabled:opacity-50"
+              className="w-full rounded-[11px] border border-[#e8e4db] bg-white px-[13px] py-[11px] text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#fecb8b] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
             />
           </div>
         </div>

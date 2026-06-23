@@ -94,7 +94,7 @@ export default async function GalleryPage({
       <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
         <Link
           href="/"
-          className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+          className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
         >
           ← Home
         </Link>

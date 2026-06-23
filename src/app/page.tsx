@@ -25,6 +25,34 @@ type PreviewRun = {
   created_at?: string;
 };
 
+type ScheduleItem = {
+  id: string; query: string; runTime: string; timezone: string; channel: string;
+  channelConfig: { channelIds?: string[] }; isActive: boolean;
+  nextRunAt: string | null; lastRunAt: string | null; createdAt: string | null;
+};
+
+function formatHourMinute(time: string): string {
+  const [h, m] = time.split(":").map(Number);
+  const hour = h % 12 || 12;
+  const ampm = h < 12 ? "AM" : "PM";
+  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
+}
+
+function scheduleRelativeTime(dateStr: string): string {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diffMs = date.getTime() - now.getTime();
+  const diffSec = Math.floor(diffMs / 1000);
+  const diffMin = Math.floor(diffSec / 60);
+  const diffHr = Math.floor(diffMin / 60);
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffMs < 0) return "now";
+  if (diffDay > 0) return diffDay === 1 ? "in 1 day" : `in ${diffDay} days`;
+  if (diffHr > 0) return diffHr === 1 ? "in 1 hour" : `in ${diffHr} hours`;
+  if (diffMin > 0) return diffMin === 1 ? "in 1 minute" : `in ${diffMin} minutes`;
+  return "in less than a minute";
+}
+
 export default function Home() {
   const router = useRouter();
   const [prompt, setPrompt] = useState("");
@@ -42,6 +70,16 @@ export default function Home() {
   const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const [trigger, setTrigger] = useState(0);
+  const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
+
+  useEffect(() => {
+    if (!hasSession) { setSchedules([]); return; }
+    const sessionToken = localStorage.getItem("session_token");
+    fetch("/api/schedules", { headers: { "x-session-token": sessionToken! } })
+      .then((r) => r.json())
+      .then((d) => setSchedules(d.schedules || []))
+      .catch(() => {});
+  }, [hasSession, trigger]);
 
   useEffect(() => {
     setHasSession(!!localStorage.getItem("session_token"));
@@ -221,10 +259,10 @@ export default function Home() {
       <div className="mx-auto w-full max-w-[1080px] px-[22px] pb-24">
         <section className="pb-[30px] pt-16 text-center">
           <h1 className="mx-auto max-w-[640px] text-[40px] font-extrabold leading-[1.08] tracking-[-0.025em] text-[#1f1f1e]">
-            What match moments do you want?
+            Your daily football briefing, on{"\u00A0"}demand
           </h1>
           <p className="mx-auto mt-4 max-w-[480px] text-[16px] leading-relaxed text-[#7a756b]">
-            Ask for fouls, goals, cards, or penalties — get back a playable reel in a couple of minutes.
+            Search any match moment and get a playable reel — or set up a daily AI digest sent to Telegram or Discord.
           </p>
 
           <div className="relative mx-auto mt-[30px] max-w-[640px]">
@@ -243,13 +281,13 @@ export default function Home() {
                 placeholder={hasSession ? "Ask for any match moment…" : "Choose a briefing below, or add API keys to run your own"}
                 readOnly={!hasSession}
                 disabled={isRunning}
-                className="flex-1 border-none bg-transparent py-2 text-[15.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] disabled:opacity-50"
+                className="flex-1 border-none bg-transparent py-2 text-[15.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
               />
               <button
                 type={hasSession ? "submit" : "button"}
                 onClick={hasSession ? undefined : openKeysModal}
                 disabled={hasSession ? (!prompt.trim() || isRunning) : isRunning}
-                className="flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-[11px] text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#FF6700] disabled:text-white disabled:shadow-[0_2px_10px_rgba(255,103,0,0.26)]"
+                className="flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-[11px] text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[#e9e9dc] disabled:text-[#a8a399] disabled:shadow-none"
               >
                 {hasSession ? "Run" : "Add keys"}<span className="text-[14px]">↵</span>
               </button>
@@ -274,7 +312,7 @@ export default function Home() {
                         : ""
                     }`}
                   >
-                    <span className="flex size-6 flex-none items-center justify-center rounded-[7px] bg-[#f3f1ea] text-[12px] text-[#a8a399]">
+                    <span className="flex size-6 flex-none items-center justify-center rounded-[7px] bg-[#f3f1ea] text-[12px] text-[#a8a399]" aria-hidden="true">
                       {selectedSuggestionRunId === ex.runId ? "→" : "⌕"}
                     </span>
                   <span className="text-[14px] text-[#3f3a32]">{ex.text}</span>
@@ -284,6 +322,62 @@ export default function Home() {
             ) : null}
           </div>
         </section>
+
+        {hasSession && schedules.filter((s) => s.isActive).length > 0 ? (
+          <section className="mt-[34px]">
+            <div className="flex items-end justify-between gap-4">
+              <div>
+                <h2 className="text-[20px] font-bold tracking-[-0.01em] text-[#1f1f1e]">
+                  Your schedules
+                </h2>
+                <p className="mt-[5px] text-[13px] text-[#a8a399]">
+                  Daily briefings running automatically
+                </p>
+              </div>
+              <Link
+                href="/schedules"
+                className="rounded-full border border-[#ece9e1] bg-white px-[15px] py-[9px] text-[13px] font-semibold text-[#3f3a32] transition-colors duration-200 hover:border-[#fecb8b] active:scale-[0.98]"
+              >
+                Manage all →
+              </Link>
+            </div>
+
+            <div className="mt-4 flex flex-col gap-3">
+              {schedules.filter((s) => s.isActive).slice(0, 3).map((s) => (
+                <Link
+                  key={s.id}
+                  href={`/schedules/${s.id}`}
+                  className="flex items-center justify-between gap-4 rounded-[14px] border border-[#ece9e1] bg-white px-5 py-4 hover:border-[#fecb8b] transition-all duration-200 active:scale-[0.98]"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="inline-flex size-[34px] shrink-0 items-center justify-center rounded-[9px] border border-[#ece9e1] bg-[#f4f2ec] text-[#ff6700]">
+                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                    </span>
+                    <div className="min-w-0">
+                      <p className="truncate text-[14px] font-semibold text-[#1f1f1e]">
+                        {s.query}
+                      </p>
+                      <p className="mt-0.5 text-[12px] text-[#a8a399]">
+                        Daily at {formatHourMinute(s.runTime)} · via {s.channel}
+                        {s.nextRunAt ? ` · next ${scheduleRelativeTime(s.nextRunAt)}` : ""}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${
+                      s.isActive
+                        ? "bg-[#dcfce7] text-[#166534]"
+                        : "bg-[#f3f1ea] text-[#a8a399]"
+                    }`}>
+                      {s.isActive ? "Active" : "Paused"}
+                    </span>
+                    <span className="text-[#c4bdb0]">→</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        ) : null}
 
         <section className="mt-[34px]">
           <div className="flex items-end justify-between gap-4 flex-wrap">
@@ -297,17 +391,17 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-[10px]">
               <div className="flex items-center gap-2 rounded-full border border-[#ece9e1] bg-white px-[13px] py-2">
-                <span className="text-[13px] text-[#bdb6a9]">⌕</span>
+                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#bdb6a9] shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 <input
                   value={search}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search…"
-                  className="w-[120px] border-none bg-transparent text-[13.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399]"
+                  className="w-[120px] border-none bg-transparent text-[13.5px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1"
                 />
               </div>
               <Link
                 href={previewType === "personal" ? "/me" : "/gallery"}
-                className="rounded-full border border-[#ece9e1] bg-white px-[15px] py-[9px] text-[13px] font-semibold text-[#3f3a32] hover:border-[#fecb8b]"
+                className="rounded-full border border-[#ece9e1] bg-white px-[15px] py-[9px] text-[13px] font-semibold text-[#3f3a32] transition-colors duration-200 hover:border-[#fecb8b]"
               >
                 View all →
               </Link>
@@ -317,7 +411,7 @@ export default function Home() {
           <div className="mt-5 grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
             {previewLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
-                <div key={i} className="animate-pulse rounded-[16px] border border-[#ece9e1] bg-white">
+                <div key={i} className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-[#ece9e1] bg-white">
                   <div className="aspect-video rounded-t-[15px] bg-[#e9e9dc]" />
                   <div className="p-4 space-y-3">
                     <div className="h-4 w-3/4 rounded bg-[#e9e9dc]" />
@@ -341,10 +435,10 @@ export default function Home() {
           {previewType === "personal" && !previewLoading ? (
             <Link
               href="/gallery"
-              className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-[#ece9e1] bg-[#f4f2ec] px-5 py-4 hover:border-[#fecb8b]"
+              className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-[#ece9e1] bg-[#f4f2ec] px-5 py-4 hover:border-[#fecb8b] transition-colors duration-200 active:scale-[0.98]"
             >
               <span className="flex items-center gap-3">
-                <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-[#ece9e1] bg-white text-[#ff6700]">◎</span>
+                <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-[#ece9e1] bg-white text-[#ff6700]"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></span>
                 <span>
                   <span className="block text-[14px] font-bold text-[#1f1f1e]">Explore the public gallery</span>
                   <span className="mt-px block text-[12.5px] text-[#a8a399]">Curated World Cup reels from the community</span>
@@ -354,6 +448,61 @@ export default function Home() {
             </Link>
           ) : null}
         </section>
+
+        {(!hasSession || schedules.filter((s) => s.isActive).length === 0) ? (
+          <section className="mt-10 rounded-[18px] border border-[#ece9e1] bg-[#f4f2ec] px-6 py-7 text-center">
+            <span className="inline-flex size-[52px] items-center justify-center rounded-[13px] border border-[#ece9e1] bg-white text-[#ff6700] shadow-[0_1px_2px_rgba(31,31,30,0.04)]">
+              <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </span>
+            <h2 className="mt-4 text-[20px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
+              Daily AI briefings on autopilot
+            </h2>
+            <p className="mt-2 text-[14px] leading-relaxed text-[#7a756b] max-w-[440px] mx-auto">
+              Set a match query, pick a time, and get curated moment reels delivered straight to Telegram or Discord every day.
+            </p>
+
+            <div className={`mt-7 grid grid-cols-1 sm:grid-cols-2 ${hasSession ? "lg:grid-cols-3 place-items-center" : "lg:grid-cols-4"} gap-4 text-left max-w-[760px] mx-auto`}>
+              {(hasSession
+                ? [
+                    { step: 1, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
+                    { step: 2, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
+                    { step: 3, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
+                  ]
+                : [
+                    { step: 1, title: "Add API keys", desc: "Connect TinyFish and VideoDB to power your daily briefings." },
+                    { step: 2, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
+                    { step: 3, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
+                    { step: 4, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
+                  ]
+              ).map((s) => (
+                <div key={s.step} className="flex flex-col items-start gap-3 rounded-[14px] border border-[#ece9e1] bg-white p-4">
+                  <span className="inline-flex size-[28px] shrink-0 items-center justify-center rounded-full bg-[#f4f2ec] text-[12px] font-bold text-[#ff6700]">{s.step}</span>
+                  <div>
+                    <p className="text-[14px] font-semibold text-[#1f1f1e]">{s.title}</p>
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-[#8a857c]">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {hasSession ? (
+              <Link
+                href="/schedules"
+                className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+              >
+                Set up a schedule →
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={openKeysModal}
+                className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+              >
+                Add API keys to start →
+              </button>
+            )}
+          </section>
+        ) : null}
       </div>
     </div>
   );

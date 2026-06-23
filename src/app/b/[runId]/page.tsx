@@ -142,7 +142,7 @@ export default function BriefingPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+            className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
           >
             ← Briefings
           </Link>
@@ -151,7 +151,7 @@ export default function BriefingPage() {
               <button
                 type="button"
                 onClick={openPlayer}
-                className="inline-flex items-center gap-[6px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+                className="inline-flex items-center gap-[6px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
               >
                 ↗ Open
               </button>
@@ -159,9 +159,9 @@ export default function BriefingPage() {
             <button
               type="button"
               onClick={copyUrl}
-              className="inline-flex items-center gap-[6px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+              className="inline-flex items-center gap-[6px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
             >
-              ⧉ {copied ? "Link copied ✓" : "Share"}
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> {copied ? "Link copied ✓" : "Share"}
             </button>
           </div>
         </div>
@@ -258,7 +258,7 @@ export default function BriefingPage() {
               </div>
             ) : null}
 
-            <div className="mt-[26px] grid items-start gap-6" style={{ gridTemplateColumns: "1fr 300px" }}>
+            <div className="mt-[26px] grid items-start gap-6 grid-cols-1 md:grid-cols-[1fr_300px]">
               <div>
                 <h3 className="mb-1 text-[16px] font-bold text-[#1f1f1e]">Moments</h3>
                 {run.events && run.events.length > 0 ? (

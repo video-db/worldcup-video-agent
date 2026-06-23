@@ -307,7 +307,7 @@ export default function ReplayPage() {
           <button
             type="button"
             onClick={() => router.push(`/b/${runId}`)}
-            className="inline-flex items-center gap-[6px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+            className="inline-flex items-center gap-[6px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
           >
             Skip replay →
           </button>

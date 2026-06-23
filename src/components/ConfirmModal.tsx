@@ -32,9 +32,12 @@ export default function ConfirmModal({
     >
       <div
         className="animate-rise w-full max-w-[380px] rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-[18px] sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="confirm-modal-title"
         onClick={(e) => e.stopPropagation()}
       >
-        <h3 className="mb-3 text-[16px] font-semibold text-[#1f1f1e]">{title}</h3>
+        <h3 id="confirm-modal-title" className="mb-3 text-[16px] font-semibold text-[#1f1f1e]">{title}</h3>
         <div className="mb-6 text-[13px] leading-relaxed text-[#625d55]">{children}</div>
         <div className="flex items-center gap-3">
           <button

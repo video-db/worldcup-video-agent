@@ -141,15 +141,32 @@ function MyBriefingsContent() {
         <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
           <Link
             href="/"
-            className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+            className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
           >
             ← Home
           </Link>
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="text-[15px] text-[#625d55]">Add your API keys to see your briefings.</p>
-            <p className="mt-1 text-[13px] text-[#a8a399]">
-              Use the &ldquo;Add API keys&rdquo; button in the header.
+          <div className="flex flex-col items-center justify-center py-16 text-center max-w-[480px] mx-auto">
+            <span className="inline-flex size-[56px] items-center justify-center rounded-[14px] border border-[#ece9e1] bg-white text-[#ff6700] shadow-[0_1px_2px_rgba(31,31,30,0.04)]">
+              <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
+              </svg>
+            </span>
+            <h1 className="mt-5 text-[22px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
+              Your personal briefing library
+            </h1>
+            <p className="mt-3 text-[14px] leading-relaxed text-[#7a756b]">
+              Save your API keys to generate and revisit your custom match moment reels anytime. Every briefing you create is saved here.
             </p>
+            <button
+              type="button"
+              onClick={() => {
+                const btn = document.querySelector<HTMLButtonElement>("[data-header-add-keys]");
+                btn?.click();
+              }}
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+            >
+              Add API keys →
+            </button>
           </div>
         </div>
       </div>
@@ -161,7 +178,7 @@ function MyBriefingsContent() {
       <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
         <Link
           href="/"
-          className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+          className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
         >
           ← Home
         </Link>
@@ -179,18 +196,18 @@ function MyBriefingsContent() {
           </div>
           <div className="flex items-center gap-[9px]">
             <div className="flex items-center gap-[9px] rounded-full border border-[#ece9e1] bg-white px-[14px] py-[9px] shadow-[0_1px_2px_rgba(31,31,30,0.04)]">
-              <span className="text-[14px] text-[#bdb6a9]">⌕</span>
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[#bdb6a9] shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               <input
                 type="text"
                 value={search}
                 onChange={(e) => onSearch(e.target.value)}
                 placeholder="Search your briefings…"
-                className="w-[180px] border-none bg-transparent text-[14px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399]"
+                className="w-[180px] border-none bg-transparent text-[14px] text-[#1f1f1e] outline-none placeholder:text-[#a8a399] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1"
               />
             </div>
             <Link
               href="/"
-              className="flex items-center gap-1.5 rounded-full bg-[#FF6700] px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.24)] hover:bg-[#e35c00]"
+              className="flex items-center gap-1.5 rounded-full bg-[#FF6700] px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.24)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
             >
               + New briefing
             </Link>
@@ -205,7 +222,7 @@ function MyBriefingsContent() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="animate-pulse rounded-[16px] border border-[#ece9e1] bg-white"
+                className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-[#ece9e1] bg-white"
               >
                 <div className="aspect-video rounded-t-[15px] bg-[#e9e9dc]" />
                 <div className="p-4 space-y-3">
@@ -269,7 +286,7 @@ export default function MyBriefings() {
         <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
           <div className="mt-[22px] grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse rounded-[16px] border border-[#ece9e1] bg-white">
+              <div key={i} className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-[#ece9e1] bg-white">
                 <div className="aspect-video rounded-t-[15px] bg-[#e9e9dc]" />
                 <div className="p-4 space-y-3">
                   <div className="h-4 w-3/4 rounded bg-[#e9e9dc]" />

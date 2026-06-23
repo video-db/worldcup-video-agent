@@ -241,9 +241,46 @@ export default function SchedulesPage() {
         </header>
 
         {error ? (
-          <div className="flex flex-col items-center justify-center py-24">
-            <p className="text-[15px] text-[#8a857c]">{error}</p>
-            <Link href="/" className="mt-2 text-[13px] text-[#FF6700] hover:underline">Go to main page →</Link>
+          <div className="flex flex-col items-center justify-center py-16 max-w-[720px] mx-auto text-center">
+            <span className="inline-flex size-[56px] items-center justify-center rounded-[14px] border border-[#ece9e1] bg-white text-[#ff6700] shadow-[0_1px_2px_rgba(31,31,30,0.04)]">
+              <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/>
+              </svg>
+            </span>
+            <h1 className="mt-5 text-[22px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
+              Daily AI briefings on autopilot
+            </h1>
+            <p className="mt-3 text-[14px] leading-relaxed text-[#7a756b] max-w-[400px]">
+              Set a match query, pick a time, and get curated moment reels delivered straight to Telegram or Discord every day.
+            </p>
+
+            <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left w-full">
+              {[
+                { step: 1, title: "Add API keys", desc: "Connect TinyFish and VideoDB to power your daily briefings." },
+                { step: 2, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
+                { step: 3, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
+                { step: 4, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
+              ].map((s) => (
+                <div key={s.step} className="flex flex-col items-start gap-3 rounded-[14px] border border-[#ece9e1] bg-white p-4">
+                  <span className="inline-flex size-[28px] shrink-0 items-center justify-center rounded-full bg-[#f4f2ec] text-[12px] font-bold text-[#ff6700]">{s.step}</span>
+                  <div>
+                    <p className="text-[14px] font-semibold text-[#1f1f1e]">{s.title}</p>
+                    <p className="mt-1 text-[12.5px] leading-relaxed text-[#8a857c]">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <button
+              type="button"
+              onClick={() => {
+                const btn = document.querySelector<HTMLButtonElement>("[data-header-add-keys]");
+                btn?.click();
+              }}
+              className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+            >
+              Add API keys to start →
+            </button>
           </div>
         ) : (
           <>
@@ -263,6 +300,51 @@ export default function SchedulesPage() {
                 </button>
               </div>
             </section>
+
+            {!loading && schedules.length === 0 ? (
+              <section className="mb-10 max-w-[720px] mx-auto text-center">
+                <h2 className="text-[20px] font-extrabold tracking-[-0.02em] text-[#1f1f1e]">
+                  Daily AI briefings on autopilot
+                </h2>
+                <p className="mt-2 text-[14px] leading-relaxed text-[#7a756b] max-w-[480px] mx-auto">
+                  Your API keys are ready. Now add a channel, then create a schedule for automatic daily reels.
+                </p>
+
+                <div className="mt-7 grid grid-cols-1 sm:grid-cols-3 gap-4 text-left">
+                  {[
+                    { step: 1, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
+                    { step: 2, title: "Create a schedule", desc: "Pick any match query and set a daily run time." },
+                    { step: 3, title: "Get daily reels", desc: "Curated moment reels land in your channel every day." },
+                  ].map((s) => (
+                    <div key={s.step} className="flex flex-col items-start gap-3 rounded-[14px] border border-[#ece9e1] bg-white p-4">
+                      <span className="inline-flex size-[28px] shrink-0 items-center justify-center rounded-full bg-[#f4f2ec] text-[12px] font-bold text-[#ff6700]">{s.step}</span>
+                      <div>
+                        <p className="text-[14px] font-semibold text-[#1f1f1e]">{s.title}</p>
+                        <p className="mt-1 text-[12.5px] leading-relaxed text-[#8a857c]">{s.desc}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {channels.length === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => { setAddPanel(true); setAddError(""); }}
+                    className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+                  >
+                    Add a channel first →
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={openNewSchedule}
+                    className="mt-7 inline-flex items-center gap-2 rounded-full bg-[#FF6700] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(255,103,0,0.26)] transition-all duration-200 hover:bg-[#e35c00] active:scale-[0.98]"
+                  >
+                    Create your first schedule →
+                  </button>
+                )}
+              </section>
+            ) : null}
 
             {/* Channels Section */}
             <section className="mb-10">
@@ -293,6 +375,7 @@ export default function SchedulesPage() {
                         </div>
                         <button
                           type="button"
+                          aria-label="Delete channel"
                           onClick={() => handleDeleteChannelClick(ch.id)}
                           className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#fef2f2] hover:text-[#dc2626]"
                         >
@@ -312,7 +395,7 @@ export default function SchedulesPage() {
               <h2 className="text-[14px] font-medium text-[#625d55] mb-4">Schedules ({schedules.length})</h2>
               {schedules.length === 0 ? (
                 <div className="rounded-2xl border border-[#eceae3] bg-white p-6 text-center">
-                  <p className="text-[14px] text-[#8a857c]">No schedules yet. Create your first one.</p>
+                  <p className="text-[14px] text-[#8a857c]">No schedules yet.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -339,12 +422,14 @@ export default function SchedulesPage() {
                           <button
                             type="button"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setConfirmToggle(s); }}
+                            aria-pressed={s.isActive}
                             className={`rounded-full px-3 py-1 text-[11px] font-medium transition-all duration-200 ${s.isActive ? "bg-[#1B7064] text-white" : "border border-[#e5e1d8] bg-white text-[#625d55] hover:border-[#FECB8B]"}`}
                           >
                             {s.isActive ? "Active" : "Paused"}
                           </button>
                           <button
                             type="button"
+                            aria-label="Delete schedule"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteScheduleId(s.id); }}
                             className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#fef2f2] hover:text-[#dc2626]"
                           >
@@ -365,10 +450,10 @@ export default function SchedulesPage() {
         {/* Add Channel Panel */}
         {addPanel ? (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => { if (!addTesting) closeAddPanel(); }}>
-            <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" onClick={(e) => e.stopPropagation()}>
+            <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="add-channel-title" onClick={(e) => e.stopPropagation()}>
               <div className="mb-5 flex items-center justify-between">
-                <h2 className="text-[16px] font-semibold text-[#1f1f1e]">Add Channel</h2>
-                <button type="button" onClick={() => { if (!addTesting) closeAddPanel(); }} disabled={addTesting} className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#f3f1ea] hover:text-[#625d55] disabled:opacity-50">
+                <h2 id="add-channel-title" className="text-[16px] font-semibold text-[#1f1f1e]">Add Channel</h2>
+                <button type="button" aria-label="Close" onClick={() => { if (!addTesting) closeAddPanel(); }} disabled={addTesting} className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#f3f1ea] hover:text-[#625d55] disabled:opacity-50">
                   <svg viewBox="0 0 16 16" className="size-4" fill="none"><path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
                 </button>
               </div>
@@ -377,8 +462,8 @@ export default function SchedulesPage() {
               ) : null}
               <div className="space-y-4">
                 <div>
-                  <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Channel name</label>
-                   <input type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addType === "telegram" ? "Personal Telegram" : "My Discord server"} disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50" />
+                  <label htmlFor="channel-name" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Channel name</label>
+                   <input id="channel-name" type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addType === "telegram" ? "Personal Telegram" : "My Discord server"} disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
                 </div>
                 <div>
                   <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Type</label>
@@ -401,12 +486,12 @@ export default function SchedulesPage() {
                       </a>
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Bot Token</label>
-                      <input type="password" value={addTgToken} onChange={(e) => setAddTgToken(e.target.value)} placeholder="0000000000:XXXXX..." disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50" />
+                      <label htmlFor="tg-token" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Bot Token</label>
+                      <input id="tg-token" type="password" value={addTgToken} onChange={(e) => setAddTgToken(e.target.value)} placeholder="0000000000:XXXXX..." disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
                     </div>
                     <div>
-                      <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Chat ID</label>
-                      <input type="text" value={addTgChatId} onChange={(e) => setAddTgChatId(e.target.value)} placeholder="123456789" disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50" />
+                      <label htmlFor="tg-chat-id" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Chat ID</label>
+                      <input id="tg-chat-id" type="text" value={addTgChatId} onChange={(e) => setAddTgChatId(e.target.value)} placeholder="123456789" disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
                     </div>
                   </>
                 ) : (
@@ -422,7 +507,7 @@ export default function SchedulesPage() {
                         Get webhook URL →
                       </a>
                     </div>
-                    <input type="text" value={addDcWebhook} onChange={(e) => setAddDcWebhook(e.target.value)} placeholder="https://discord.com/api/webhooks/..." disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50" />
+                    <input type="text" value={addDcWebhook} onChange={(e) => setAddDcWebhook(e.target.value)} placeholder="https://discord.com/api/webhooks/..." disabled={addTesting} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
                   </div>
                 )}
               </div>
@@ -440,8 +525,8 @@ export default function SchedulesPage() {
         {schedulePanel ? (
           scheduleOk ? (
             <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
-              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" onClick={(e) => e.stopPropagation()}>
-                <h2 className="text-[16px] font-semibold text-[#1f1f1e] mb-4">Schedule Created</h2>
+              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="schedule-ok-title" onClick={(e) => e.stopPropagation()}>
+                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[#1f1f1e] mb-4">Schedule Created</h2>
                 <p className="text-[14px] text-[#8a857c]">Your daily briefing has been scheduled.</p>
                 <div className="mt-5">
                   <button type="button" onClick={() => setSchedulePanel(false)} className="w-full rounded-full bg-[#FF6700] px-4 py-2 text-[13px] font-medium text-white transition-all duration-200 hover:bg-[#e35c00]">Done</button>
@@ -450,10 +535,10 @@ export default function SchedulesPage() {
             </div>
           ) : (
             <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
-              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" onClick={(e) => e.stopPropagation()}>
+              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="schedule-panel-title" onClick={(e) => e.stopPropagation()}>
                 <div className="mb-5 flex items-center justify-between">
-                  <h2 className="text-[16px] font-semibold text-[#1f1f1e]">{scheduleEditingId ? "Edit Schedule" : "New Schedule"}</h2>
-                  <button type="button" onClick={() => { setSchedulePanel(false); setScheduleEditingId(null); }} disabled={isBusy} className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#f3f1ea] hover:text-[#625d55] disabled:opacity-50">
+                  <h2 id="schedule-panel-title" className="text-[16px] font-semibold text-[#1f1f1e]">{scheduleEditingId ? "Edit Schedule" : "New Schedule"}</h2>
+                  <button type="button" aria-label="Close" onClick={() => { setSchedulePanel(false); setScheduleEditingId(null); }} disabled={isBusy} className="rounded-full p-1 text-[#a8a399] transition-colors hover:bg-[#f3f1ea] hover:text-[#625d55] disabled:opacity-50">
                     <svg viewBox="0 0 16 16" className="size-4" fill="none"><path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
                   </button>
                 </div>
@@ -468,8 +553,8 @@ export default function SchedulesPage() {
                 {scheduleStep === 1 ? (
                   <div className="space-y-4">
                     <div>
-                      <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Search query</label>
-                      <input type="text" value={scheduleQuery} onChange={(e) => setScheduleQuery(e.target.value)} placeholder="e.g. highlights of fouls from USA vs Paraguay" disabled={isBusy} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50" />
+                      <label htmlFor="schedule-query" className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Search query</label>
+                      <input id="schedule-query" type="text" value={scheduleQuery} onChange={(e) => setScheduleQuery(e.target.value)} placeholder="e.g. highlights of fouls from USA vs Paraguay" disabled={isBusy} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50" />
                     </div>
                     <div className="flex gap-3">
                       <div className="flex-1">
@@ -496,7 +581,7 @@ export default function SchedulesPage() {
                                   value={h12}
                                   onChange={(e) => setTime(Number(e.target.value), m, ampm)}
                                   disabled={isBusy}
-                                  className="w-[64px] rounded-xl border border-[#e8e4db] bg-white px-2.5 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50"
+                                  className="w-[64px] rounded-xl border border-[#e8e4db] bg-white px-2.5 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
                                 >
                                   {Array.from({ length: 12 }, (_, i) => i + 1).map((v) => (
                                     <option key={v} value={v}>{v}</option>
@@ -507,7 +592,7 @@ export default function SchedulesPage() {
                                   value={m}
                                   onChange={(e) => setTime(h12, Number(e.target.value), ampm)}
                                   disabled={isBusy}
-                                  className="w-[64px] rounded-xl border border-[#e8e4db] bg-white px-2.5 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50"
+                                  className="w-[64px] rounded-xl border border-[#e8e4db] bg-white px-2.5 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50"
                                 >
                                   {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((v) => (
                                     <option key={v} value={v}>{v.toString().padStart(2, "0")}</option>
@@ -534,7 +619,7 @@ export default function SchedulesPage() {
                       </div>
                       <div className="flex-[2]">
                         <label className="mb-1.5 block text-[12px] font-medium text-[#625d55]">Timezone</label>
-                        <select value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} disabled={isBusy} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] disabled:opacity-50">
+                        <select value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} disabled={isBusy} className="w-full rounded-xl border border-[#e8e4db] bg-white px-4 py-2.5 text-[14px] outline-none transition-all duration-200 focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_4px_16px_rgba(255,103,0,0.08)] focus-visible:ring-2 focus-visible:ring-[#ff6700]/40 focus-visible:ring-offset-1 disabled:opacity-50">
                           {timezones.map((tz) => (<option key={tz.value} value={tz.value}>{tz.label}</option>))}
                         </select>
                       </div>
@@ -594,8 +679,8 @@ export default function SchedulesPage() {
         {/* Delete Channel Confirmation */}
         {deleteChannelId ? (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setDeleteChannelId(null)}>
-            <div className="animate-rise w-full max-w-sm rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" onClick={(e) => e.stopPropagation()}>
-              <h2 className="text-[16px] font-semibold text-[#1f1f1e]">Delete channel?</h2>
+            <div className="animate-rise w-full max-w-sm rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="delete-channel-title" onClick={(e) => e.stopPropagation()}>
+              <h2 id="delete-channel-title" className="text-[16px] font-semibold text-[#1f1f1e]">Delete channel?</h2>
               {deleteAffected.length > 0 ? (
                 <p className="mt-2 text-[13px] text-[#8a857c]">This channel is used by {deleteAffected.length} active schedule{deleteAffected.length > 1 ? "s" : ""}. Removing it will affect those schedules.</p>
               ) : (
@@ -612,8 +697,8 @@ export default function SchedulesPage() {
         {/* Delete Schedule Confirmation */}
         {deleteScheduleId ? (
           <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setDeleteScheduleId(null)}>
-            <div className="animate-rise w-full max-w-sm rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" onClick={(e) => e.stopPropagation()}>
-              <h2 className="text-[16px] font-semibold text-[#1f1f1e]">Delete schedule?</h2>
+            <div className="animate-rise w-full max-w-sm rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="delete-schedule-title" onClick={(e) => e.stopPropagation()}>
+              <h2 id="delete-schedule-title" className="text-[16px] font-semibold text-[#1f1f1e]">Delete schedule?</h2>
               <p className="mt-2 text-[13px] text-[#8a857c]">This will permanently remove the schedule. Past runs are not affected.</p>
               <div className="mt-5 flex items-center gap-3">
                 <button type="button" onClick={() => setDeleteScheduleId(null)} className="rounded-full border border-[#e5e1d8] bg-white px-4 py-2 text-[13px] text-[#625d55] transition-all duration-200 hover:-translate-y-0.5 hover:border-[#FECB8B] hover:text-[#20201f]">Cancel</button>

@@ -17,7 +17,7 @@ export function Pagination({
         type="button"
         disabled={page <= 1}
         onClick={() => onPageChange(page - 1)}
-        className="rounded-full border border-[#ece9e1] bg-white px-4 py-2 text-[13px] font-medium text-[#5c574e] transition-all hover:border-[#fecb8b] disabled:cursor-not-allowed disabled:opacity-30"
+        className="rounded-full border border-[#ece9e1] bg-white px-4 py-2 text-[13px] font-medium text-[#5c574e] transition-all hover:border-[#fecb8b] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-30"
       >
         &larr; Previous
       </button>
@@ -28,7 +28,7 @@ export function Pagination({
         type="button"
         disabled={page >= totalPages}
         onClick={() => onPageChange(page + 1)}
-        className="rounded-full border border-[#ece9e1] bg-white px-4 py-2 text-[13px] font-medium text-[#5c574e] transition-all hover:border-[#fecb8b] disabled:cursor-not-allowed disabled:opacity-30"
+        className="rounded-full border border-[#ece9e1] bg-white px-4 py-2 text-[13px] font-medium text-[#5c574e] transition-all hover:border-[#fecb8b] active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-30"
       >
         Next &rarr;
       </button>

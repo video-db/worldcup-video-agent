@@ -75,7 +75,48 @@
   --touch-target-min: 44px;
   --ds-header-h: 60px;
   --ds-content-max: 860px;
+
+  /* ── Semantic app surface tokens (theme-switchable) ──
+     Default = dark. `.theme-light` on <html> flips these. Components and
+     utilities read these so a single class set works in both themes. */
+  --c-bg: #0A0A0A;
+  --c-bg-2: #0F0F0F;
+  --c-surface: #161616;
+  --c-surface-2: #1F1F1F;
+  --c-text: #FFFFFF;
+  --c-text-muted: rgba(255,255,255,0.72);
+  --c-text-subtle: rgba(255,255,255,0.55);
+  --c-text-faint: rgba(255,255,255,0.40);
+  --c-border: rgba(255,255,255,0.10);
+  --c-border-strong: rgba(255,255,255,0.18);
+  --c-hover: rgba(255,255,255,0.04);
+  --c-hover-2: rgba(255,255,255,0.07);
+  --c-input-bg: rgba(255,255,255,0.04);
+  --c-chrome: rgba(10,10,10,0.80);
+  --c-select-chevron: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='rgba(255,255,255,0.65)' stroke-width='1.5'%3E%3Cpolyline points='4 6 8 10 12 6'/%3E%3C/svg%3E");
 }
+
+.theme-light {
+  --c-bg: #F5F5F7;
+  --c-bg-2: #ECECEE;
+  --c-surface: #FFFFFF;
+  --c-surface-2: #F0F0F2;
+  --c-text: #111111;
+  --c-text-muted: rgba(0,0,0,0.72);
+  --c-text-subtle: rgba(0,0,0,0.55);
+  --c-text-faint: rgba(0,0,0,0.40);
+  --c-border: rgba(0,0,0,0.10);
+  --c-border-strong: rgba(0,0,0,0.14);
+  --c-hover: rgba(0,0,0,0.04);
+  --c-hover-2: rgba(0,0,0,0.06);
+  --c-input-bg: rgba(0,0,0,0.02);
+  --c-chrome: rgba(255,255,255,0.82);
+  --c-select-chevron: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='rgba(0,0,0,0.65)' stroke-width='1.5'%3E%3Cpolyline points='4 6 8 10 12 6'/%3E%3C/svg%3E");
+}
+
+/* Theme-aware logo swap helpers */
+.theme-light .show-on-dark { display: none !important; }
+.theme-dark  .show-on-light { display: none !important; }
 
 /* Tailwind theme bridge — lets existing utilities resolve to DS tokens. */
 @theme inline {
@@ -104,11 +145,12 @@ body {
   font-family: 'Geist', ui-sans-serif, system-ui, sans-serif;
   font-size: 15px;
   line-height: 1.55;
-  background: var(--neutral-dark);
-  color: var(--text-on-dark);
+  background: var(--c-bg);
+  color: var(--c-text);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  transition: background var(--dur-ext) var(--ease-ui), color var(--dur-ext) var(--ease-ui);
 }
 button, input, textarea, select { font: inherit; color: inherit; }
 a { color: inherit; text-decoration: none; }
@@ -144,15 +186,15 @@ pre::-webkit-scrollbar-track { background: transparent; }
 /* ───────────────────────── Surfaces / sections ─────────────────────────
    Dark/light section rhythm (videodb.io style). Every section carries a
    --dark or --light surface; children pick the matching component variant. */
-.ds-section--dark  { background: var(--neutral-dark); color: var(--text-on-dark); }
-.ds-section--darker{ background: var(--neutral-darker); color: var(--text-on-dark); }
+.ds-section--dark  { background: var(--c-bg); color: var(--c-text); }
+.ds-section--darker{ background: var(--c-bg-2); color: var(--c-text); }
 .ds-section--light { background: var(--neutral-light); color: var(--text-on-light); }
 
 /* Generic surface card */
 .ds-card { border-radius: var(--r-card); border: 1px solid; }
-.ds-card--dark  { background: var(--charcoal); border-color: var(--border-on-dark); color: var(--text-on-dark); }
+.ds-card--dark  { background: var(--c-surface); border-color: var(--c-border); color: var(--c-text); }
 .ds-card--light { background: var(--white); border-color: var(--border-on-light); color: var(--text-on-light); }
-.ds-card--dark.is-interactive:hover  { border-color: var(--border-on-dark-strong); }
+.ds-card--dark.is-interactive:hover  { border-color: var(--c-border-strong); }
 .ds-card--light.is-interactive:hover { border-color: var(--border-on-light-strong); }
 
 /* ───────────────────────── Eyebrow / mono labels ───────────────────────── */
@@ -162,7 +204,7 @@ pre::-webkit-scrollbar-track { background: transparent; }
   font-size: 11px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
 }
 .ds-eyebrow--orange { color: var(--orange-500); }
-.ds-eyebrow--on-dark { color: var(--text-on-dark-subtle); }
+.ds-eyebrow--on-dark { color: var(--c-text-subtle); }
 .ds-eyebrow--on-light { color: var(--text-on-light-subtle); }
 
 /* Section heading */
@@ -172,10 +214,10 @@ pre::-webkit-scrollbar-track { background: transparent; }
   font-family: 'Geist', sans-serif; font-size: clamp(26px, 4.5vw, 40px); font-weight: 400;
   letter-spacing: -0.02em; line-height: 1.1; margin: 0;
 }
-.ds-section-heading--dark .ds-section-heading__title { color: var(--text-on-dark); }
+.ds-section-heading--dark .ds-section-heading__title { color: var(--c-text); }
 .ds-section-heading--light .ds-section-heading__title { color: var(--text-on-light); }
 .ds-section-heading__lead { font-family: 'Geist', sans-serif; font-size: 16px; line-height: 1.6; margin: 0; }
-.ds-section-heading--dark .ds-section-heading__lead { color: var(--text-on-dark-muted); }
+.ds-section-heading--dark .ds-section-heading__lead { color: var(--c-text-muted); }
 .ds-section-heading--light .ds-section-heading__lead { color: var(--text-on-light-muted); }
 
 /* ───────────────────────── Buttons ───────────────────────── */
@@ -189,12 +231,12 @@ pre::-webkit-scrollbar-track { background: transparent; }
 .ds-btn:active { transform: scale(0.985); transition-duration: 96ms; }
 .ds-btn--primary { background: var(--orange-500); color: #fff; }
 .ds-btn--primary:hover { background: var(--orange-600); }
-.ds-btn--secondary-dark { background: var(--charcoal); color: var(--text-on-dark-muted); border: 1px solid var(--border-on-dark-strong); }
-.ds-btn--secondary-dark:hover { background: var(--charcoal-hover); color: var(--text-on-dark); }
+.ds-btn--secondary-dark { background: var(--c-surface); color: var(--c-text-muted); border: 1px solid var(--c-border-strong); }
+.ds-btn--secondary-dark:hover { background: var(--c-surface-2); color: var(--c-text); }
 .ds-btn--secondary-light { background: #FFFFFF; color: var(--text-on-light-muted); border: 1px solid var(--border-on-light-strong); }
 .ds-btn--secondary-light:hover { background: var(--surface-light); color: var(--text-on-light); }
-.ds-btn--ghost-dark { background: transparent; color: var(--text-on-dark-muted); border: 1px solid var(--border-on-dark-strong); }
-.ds-btn--ghost-dark:hover { background: rgba(255,255,255,0.06); color: var(--text-on-dark); }
+.ds-btn--ghost-dark { background: transparent; color: var(--c-text-muted); border: 1px solid var(--c-border-strong); }
+.ds-btn--ghost-dark:hover { background: var(--c-hover-2); color: var(--c-text); }
 .ds-btn--ghost-light { background: rgba(0,0,0,0.04); color: var(--text-on-light-muted); border: 1px solid var(--border-on-light-strong); }
 .ds-btn--ghost-light:hover { background: rgba(0,0,0,0.08); color: var(--text-on-light); }
 .ds-btn--ghost-charcoal { background: transparent; color: var(--text-on-dark-muted); border: 1px solid var(--border-on-dark); }
@@ -219,8 +261,8 @@ pre::-webkit-scrollbar-track { background: transparent; }
 }
 .ds-textarea { resize: vertical; min-height: 96px; line-height: 1.5; }
 .ds-input--pill { border-radius: var(--r-control); }
-.ds-input--dark, .ds-textarea--dark { background: rgba(255,255,255,0.04); color: var(--text-on-dark); border-color: var(--border-on-dark); }
-.ds-input--dark::placeholder, .ds-textarea--dark::placeholder { color: var(--text-on-dark-subtle); }
+.ds-input--dark, .ds-textarea--dark { background: var(--c-input-bg); color: var(--c-text); border-color: var(--c-border); }
+.ds-input--dark::placeholder, .ds-textarea--dark::placeholder { color: var(--c-text-faint); }
 .ds-input--light, .ds-textarea--light { background: rgba(255,255,255,0.85); color: var(--text-on-light); border-color: var(--border-on-light); }
 .ds-input--light::placeholder, .ds-textarea--light::placeholder { color: var(--text-on-light-subtle); }
 .ds-input:focus-visible, .ds-textarea:focus-visible, .ds-select:focus-visible {
@@ -231,8 +273,8 @@ pre::-webkit-scrollbar-track { background: transparent; }
   background-repeat: no-repeat; background-position: right 14px center; background-size: 14px;
 }
 .ds-select--dark {
-  background-color: rgba(255,255,255,0.04); color: var(--text-on-dark); border-color: var(--border-on-dark);
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='rgba(255,255,255,0.65)' stroke-width='1.5'%3E%3Cpolyline points='4 6 8 10 12 6'/%3E%3C/svg%3E");
+  background-color: var(--c-input-bg); color: var(--c-text); border-color: var(--c-border);
+  background-image: var(--c-select-chevron);
 }
 .ds-select--light {
   background-color: rgba(255,255,255,0.95); color: var(--text-on-light); border-color: var(--border-on-light);
@@ -242,10 +284,10 @@ pre::-webkit-scrollbar-track { background: transparent; }
   display: block; font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 500;
   letter-spacing: -0.005em; margin-bottom: 8px;
 }
-.ds-field-label--on-dark { color: var(--text-on-dark); }
+.ds-field-label--on-dark { color: var(--c-text); }
 .ds-field-label--on-light { color: var(--text-on-light); }
 .ds-helper { display: block; font-size: 12px; margin-top: 8px; }
-.ds-helper--on-dark { color: var(--text-on-dark-subtle); }
+.ds-helper--on-dark { color: var(--c-text-subtle); }
 .ds-helper.is-error { color: var(--color-error); }
 .ds-input[aria-invalid="true"], .ds-textarea[aria-invalid="true"], .ds-select[aria-invalid="true"] {
   border-color: var(--color-error); animation: ds-input-buzz 120ms var(--ease-ui);
@@ -260,7 +302,7 @@ pre::-webkit-scrollbar-track { background: transparent; }
 }
 .ds-radio { border-radius: var(--r-control); }
 .ds-checkbox { border-radius: var(--r-subtle); }
-.ds-checkbox--dark, .ds-radio--dark { background: var(--grey-900); border-color: var(--grey-700); }
+.ds-checkbox--dark, .ds-radio--dark { background: var(--c-surface); border-color: var(--c-border-strong); }
 .ds-checkbox--light, .ds-radio--light { background: #fff; border-color: var(--grey-400); }
 .ds-checkbox:checked, .ds-radio:checked { background: var(--orange-500); border-color: var(--orange-500); }
 .ds-checkbox:checked::after {
@@ -275,7 +317,7 @@ pre::-webkit-scrollbar-track { background: transparent; }
   font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.1em;
   text-transform: uppercase; border: 1px solid;
 }
-.ds-tag-chip--dark { background: rgba(255,255,255,0.06); color: var(--text-on-dark-muted); border-color: var(--border-on-dark-strong); }
+.ds-tag-chip--dark { background: var(--c-hover-2); color: var(--c-text-muted); border-color: var(--c-border-strong); }
 .ds-tag-chip--light { background: rgba(0,0,0,0.04); color: var(--text-on-light-muted); border-color: var(--border-on-light-strong); }
 .ds-pill-status {
   display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: var(--r-control);
@@ -284,7 +326,7 @@ pre::-webkit-scrollbar-track { background: transparent; }
 }
 .ds-pill-status--orange { background: rgba(var(--orange-rgb), 0.10); color: var(--orange-500); border-color: rgba(var(--orange-rgb), 0.40); }
 .ds-pill-status--dark { background: var(--grey-700); color: #fff; border-color: var(--grey-700); }
-.ds-pill-status--muted-dark { background: rgba(255,255,255,0.04); color: var(--text-on-dark-subtle); border-color: var(--border-on-dark); }
+.ds-pill-status--muted-dark { background: var(--c-hover); color: var(--c-text-subtle); border-color: var(--c-border); }
 .ds-pill-status--muted-light { background: rgba(0,0,0,0.04); color: var(--text-on-light-subtle); border-color: var(--border-on-light-strong); }
 .ds-pill-status__dot { width: 6px; height: 6px; border-radius: 9999px; background: currentColor; flex-shrink: 0; }
 
@@ -295,8 +337,8 @@ pre::-webkit-scrollbar-track { background: transparent; }
 /* ───────────────────────── Header chrome ───────────────────────── */
 .ds-header-nav {
   position: sticky; top: 0; z-index: 40; width: 100%;
-  border-bottom: 1px solid var(--border-on-dark);
-  background: var(--surface-chrome-dark);
+  border-bottom: 1px solid var(--c-border);
+  background: var(--c-chrome);
   backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
 }
 
@@ -327,7 +369,7 @@ pre::-webkit-scrollbar-track { background: transparent; }
   50% { opacity: 0.7; box-shadow: 0 0 0 4px rgba(var(--orange-rgb), 0); }
 }
 
-.composer-dock { background: linear-gradient(to top, var(--neutral-dark) 62%, rgba(10,10,10,0)); pointer-events: none; }
+.composer-dock { background: linear-gradient(to top, var(--c-bg) 62%, transparent); pointer-events: none; }
 .composer-dock > div { pointer-events: auto; }
 
 /* Hand-drawn illustration helpers (PhD-comics style) */

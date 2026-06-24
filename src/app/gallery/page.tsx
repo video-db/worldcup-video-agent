@@ -94,15 +94,15 @@ export default async function GalleryPage({
       <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
         <Link
           href="/"
-          className="inline-flex items-center gap-[7px] rounded-full border border-white/10 bg-[#161616] px-[13px] py-[7px] text-[13px] font-semibold text-white/70 hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+          className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
         >
           ← Home
         </Link>
 
         <div className="mt-[18px] flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-white">Public gallery</h1>
-            <p className="mt-1.5 text-[14px] text-white/55">Curated World Cup match moments · {total} reels</p>
+            <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-[var(--c-text)]">Public gallery</h1>
+            <p className="mt-1.5 text-[14px] text-[var(--c-text-subtle)]">Curated World Cup match moments · {total} reels</p>
           </div>
           <SearchField initialSearch={search} />
         </div>

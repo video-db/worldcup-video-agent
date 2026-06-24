@@ -205,7 +205,7 @@ export async function POST(request: NextRequest) {
       query: prompt,
       status: "processing",
       apiKeyHash,
-      statusMessage: "Got it! Cooking up your football reel...",
+      statusMessage: "Got it! Cooking up your soccer reel...",
     });
   } catch (err) {
     logger.error({ err }, "Failed to insert processing run");

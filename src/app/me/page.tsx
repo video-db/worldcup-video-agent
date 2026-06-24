@@ -141,20 +141,20 @@ function MyBriefingsContent() {
         <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
           <Link
             href="/"
-            className="inline-flex items-center gap-[7px] rounded-full border border-white/10 bg-[#161616] px-[13px] py-[7px] text-[13px] font-semibold text-white/70 hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+            className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
           >
             ← Home
           </Link>
           <div className="flex flex-col items-center justify-center py-16 text-center max-w-[480px] mx-auto">
-            <span className="inline-flex size-[56px] items-center justify-center rounded-[14px] border border-white/10 bg-[#161616] text-[#F24E1E] shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+            <span className="inline-flex size-[56px] items-center justify-center rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] text-[#F24E1E] shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
               <svg aria-hidden="true" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/>
               </svg>
             </span>
-            <h1 className="mt-5 text-[22px] font-extrabold tracking-[-0.02em] text-white">
+            <h1 className="mt-5 text-[22px] font-extrabold tracking-[-0.02em] text-[var(--c-text)]">
               Your personal briefing library
             </h1>
-            <p className="mt-3 text-[14px] leading-relaxed text-white/55">
+            <p className="mt-3 text-[14px] leading-relaxed text-[var(--c-text-subtle)]">
               Save your API keys to generate and revisit your custom match moment reels anytime. Every briefing you create is saved here.
             </p>
             <button
@@ -178,31 +178,31 @@ function MyBriefingsContent() {
       <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
         <Link
           href="/"
-          className="inline-flex items-center gap-[7px] rounded-full border border-white/10 bg-[#161616] px-[13px] py-[7px] text-[13px] font-semibold text-white/70 hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+          className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
         >
           ← Home
         </Link>
 
         <div className="mt-[18px] flex items-end justify-between gap-4 flex-wrap">
           <div>
-            <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-white">
+            <h1 className="text-[27px] font-extrabold tracking-[-0.02em] text-[var(--c-text)]">
               {showingFailed ? "Failed runs" : "My briefings"}
             </h1>
             {!loading ? (
-              <p className="mt-1.5 text-[14px] text-white/55">
+              <p className="mt-1.5 text-[14px] text-[var(--c-text-subtle)]">
                 {showingFailed ? "Runs that did not complete" : "Every reel you&apos;ve generated"} · {total} {searchParam ? "matched" : "total"}
               </p>
             ) : null}
           </div>
           <div className="flex items-center gap-[9px]">
-            <div className="flex items-center gap-[9px] rounded-full border border-white/10 bg-[#161616] px-[14px] py-[9px] shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white/55 shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <div className="flex items-center gap-[9px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[14px] py-[9px] shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
+              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--c-text-subtle)] shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
               <input
                 type="text"
                 value={search}
                 onChange={(e) => onSearch(e.target.value)}
                 placeholder="Search your briefings…"
-                className="w-[180px] border-none bg-transparent text-[14px] text-white outline-none placeholder:text-white/55 focus-visible:ring-2 focus-visible:ring-[#F24E1E]/40 focus-visible:ring-offset-1"
+                className="w-[180px] border-none bg-transparent text-[14px] text-[var(--c-text)] outline-none placeholder:text-[var(--c-text-subtle)] focus-visible:ring-2 focus-visible:ring-[#F24E1E]/40 focus-visible:ring-offset-1"
               />
             </div>
             <Link
@@ -222,20 +222,20 @@ function MyBriefingsContent() {
             {Array.from({ length: 6 }).map((_, i) => (
               <div
                 key={i}
-                className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-white/10 bg-[#161616]"
+                className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-[var(--c-border)] bg-[var(--c-surface)]"
               >
-                <div className="aspect-video rounded-t-[15px] bg-white/[0.06]" />
+                <div className="aspect-video rounded-t-[15px] bg-[var(--c-hover-2)]" />
                 <div className="p-4 space-y-3">
-                  <div className="h-4 w-3/4 rounded bg-white/[0.06]" />
-                  <div className="h-3 w-full rounded bg-white/[0.06]" />
-                  <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
+                  <div className="h-4 w-3/4 rounded bg-[var(--c-hover-2)]" />
+                  <div className="h-3 w-full rounded bg-[var(--c-hover-2)]" />
+                  <div className="h-3 w-1/3 rounded bg-[var(--c-hover-2)]" />
                 </div>
               </div>
             ))}
           </div>
         ) : runs.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
-            <p className="text-[15px] text-white/70">
+            <p className="text-[15px] text-[var(--c-text-muted)]">
               {searchParam
                 ? "No briefings match your search."
                 : showingFailed
@@ -263,11 +263,11 @@ function MyBriefingsContent() {
         )}
 
         {!loading ? (
-          <div className="mt-8 flex justify-center border-t border-white/10 pt-5">
+          <div className="mt-8 flex justify-center border-t border-[var(--c-border)] pt-5">
             <button
               type="button"
               onClick={toggleFailedRuns}
-              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium text-white/55 transition-colors hover:bg-white/[0.04] hover:text-white/70"
+              className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium text-[var(--c-text-subtle)] transition-colors hover:bg-[var(--c-hover)] hover:text-[var(--c-text-muted)]"
             >
               {showingFailed ? "Show completed runs" : "Show failed runs"}
               <span aria-hidden="true">{showingFailed ? "↑" : "↓"}</span>
@@ -286,12 +286,12 @@ export default function MyBriefings() {
         <div className="mx-auto max-w-[1080px] px-[22px] pt-5 pb-24">
           <div className="mt-[22px] grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
             {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-white/10 bg-[#161616]">
-                <div className="aspect-video rounded-t-[15px] bg-white/[0.06]" />
+              <div key={i} className="animate-pulse motion-reduce:animate-none rounded-[16px] border border-[var(--c-border)] bg-[var(--c-surface)]">
+                <div className="aspect-video rounded-t-[15px] bg-[var(--c-hover-2)]" />
                 <div className="p-4 space-y-3">
-                  <div className="h-4 w-3/4 rounded bg-white/[0.06]" />
-                  <div className="h-3 w-full rounded bg-white/[0.06]" />
-                  <div className="h-3 w-1/3 rounded bg-white/[0.06]" />
+                  <div className="h-4 w-3/4 rounded bg-[var(--c-hover-2)]" />
+                  <div className="h-3 w-full rounded bg-[var(--c-hover-2)]" />
+                  <div className="h-3 w-1/3 rounded bg-[var(--c-hover-2)]" />
                 </div>
               </div>
             ))}

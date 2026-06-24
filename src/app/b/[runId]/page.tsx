@@ -118,7 +118,7 @@ export default function BriefingPage() {
   if (loading) {
     return (
       <div className="flex flex-1 items-center justify-center">
-        <div className="text-[15px] text-white/55">Loading briefing...</div>
+        <div className="text-[15px] text-[var(--c-text-subtle)]">Loading briefing...</div>
       </div>
     );
   }
@@ -126,7 +126,7 @@ export default function BriefingPage() {
   if (notFound || !run) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 py-20">
-        <p className="text-[15px] text-white/70">Briefing not found.</p>
+        <p className="text-[15px] text-[var(--c-text-muted)]">Briefing not found.</p>
         <Link href="/" className="rounded-full bg-[#F24E1E] px-4 py-2 text-[13px] font-bold text-white hover:bg-[#D14016]">
           Go home
         </Link>
@@ -142,7 +142,7 @@ export default function BriefingPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-[7px] rounded-full border border-white/10 bg-[#161616] px-[13px] py-[7px] text-[13px] font-semibold text-white/70 hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+            className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
           >
             ← Briefings
           </Link>
@@ -151,7 +151,7 @@ export default function BriefingPage() {
               <button
                 type="button"
                 onClick={openPlayer}
-                className="inline-flex items-center gap-[6px] rounded-full border border-white/10 bg-[#161616] px-[13px] py-[7px] text-[13px] font-semibold text-white/70 hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+                className="inline-flex items-center gap-[6px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
               >
                 ↗ Open
               </button>
@@ -159,7 +159,7 @@ export default function BriefingPage() {
             <button
               type="button"
               onClick={copyUrl}
-              className="inline-flex items-center gap-[6px] rounded-full border border-white/10 bg-[#161616] px-[13px] py-[7px] text-[13px] font-semibold text-white/70 hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+              className="inline-flex items-center gap-[6px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
             >
               <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> {copied ? "Link copied ✓" : "Share"}
             </button>
@@ -172,12 +172,12 @@ export default function BriefingPage() {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-[#E5484D]/40 bg-[#E5484D]/10 px-3 py-[5px] text-[11.5px] font-bold tracking-[0.02em] text-[#E5484D]">
                 FAILED
               </span>
-              <span className="font-mono text-[12px] text-white/55">run {shortId}</span>
+              <span className="font-mono text-[12px] text-[var(--c-text-subtle)]">run {shortId}</span>
             </div>
-            <h1 className="mt-3 max-w-[640px] text-[24px] font-extrabold tracking-[-0.02em] text-white">{run.query}</h1>
+            <h1 className="mt-3 max-w-[640px] text-[24px] font-extrabold tracking-[-0.02em] text-[var(--c-text)]">{run.query}</h1>
             <div className="mt-[22px] max-w-[560px] rounded-[14px] border border-[#E5484D]/40 bg-[#E5484D]/10 p-[18px]">
               <p className="text-[14px] font-bold text-[#E5484D]">We couldn&apos;t finish this reel</p>
-              <p className="mt-1.5 text-[13px] leading-relaxed text-white/70">
+              <p className="mt-1.5 text-[13px] leading-relaxed text-[var(--c-text-muted)]">
                 {run.errorMessage || "No usable match footage was found for this query. Try a different match or rephrase the moment you're after."}
               </p>
               <Link
@@ -195,12 +195,12 @@ export default function BriefingPage() {
                 <span className="status-dot-running size-2 rounded-full bg-[#F24E1E]" />
                 <span className="text-[12px] font-bold tracking-[0.02em] text-[#F24E1E]">PROCESSING</span>
               </span>
-              <span className="font-mono text-[12px] text-white/55">run {shortId}</span>
+              <span className="font-mono text-[12px] text-[var(--c-text-subtle)]">run {shortId}</span>
             </div>
-            <h1 className="mt-[14px] max-w-[720px] text-[25px] font-extrabold leading-[1.2] tracking-[-0.02em] text-white">{run.query}</h1>
+            <h1 className="mt-[14px] max-w-[720px] text-[25px] font-extrabold leading-[1.2] tracking-[-0.02em] text-[var(--c-text)]">{run.query}</h1>
             <div className="mx-auto mt-[26px] max-w-[720px] space-y-4">
               <div className="flex justify-end">
-                <div className="max-w-[80%] rounded-[18px_18px_6px_18px] bg-white/[0.06] px-4 py-[11px] text-[14.5px] text-white/80">{run.query}</div>
+                <div className="max-w-[80%] rounded-[18px_18px_6px_18px] bg-[var(--c-hover-2)] px-4 py-[11px] text-[14.5px] text-[var(--c-text-muted)]">{run.query}</div>
               </div>
               <div className="space-y-[13px]">
                 {run.timeline && run.timeline.length > 0 ? (
@@ -224,11 +224,11 @@ export default function BriefingPage() {
                     <span className="size-[7px] rounded-full bg-[#F24E1E]" />
                     <span className="text-[11.5px] font-bold tracking-[0.02em] text-[#F24E1E]">READY</span>
                   </span>
-                  <span className="font-mono text-[12px] text-white/55">run {shortId}</span>
+                  <span className="font-mono text-[12px] text-[var(--c-text-subtle)]">run {shortId}</span>
                 </div>
-                <h1 className="mt-3 text-[26px] font-extrabold tracking-[-0.02em] text-white">{run.topic || run.query}</h1>
+                <h1 className="mt-3 text-[26px] font-extrabold tracking-[-0.02em] text-[var(--c-text)]">{run.topic || run.query}</h1>
                 {run.topic && run.topic !== run.query ? (
-                  <p className="mt-1.5 text-[14.5px] text-white/55">{run.query}</p>
+                  <p className="mt-1.5 text-[14.5px] text-[var(--c-text-subtle)]">{run.query}</p>
                 ) : null}
               </div>
             </div>
@@ -243,16 +243,16 @@ export default function BriefingPage() {
                   title="Briefing reel"
                 />
               ) : (
-                <div className="flex size-full items-center justify-center text-[14px] text-white/55">
+                <div className="flex size-full items-center justify-center text-[14px] text-[var(--c-text-subtle)]">
                   Player not available
                 </div>
               )}
             </div>
 
             {run.summary ? (
-              <div className="mt-5 rounded-[14px] border border-white/10 bg-[#161616] p-5">
-                <p className="mb-[9px] text-[11px] font-bold tracking-[0.06em] text-white/55">MATCH SUMMARY</p>
-                <div className="text-[14px] leading-relaxed text-white/70 prose-sm prose-p:my-1.5 prose-strong:text-white">
+              <div className="mt-5 rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-5">
+                <p className="mb-[9px] text-[11px] font-bold tracking-[0.06em] text-[var(--c-text-subtle)]">MATCH SUMMARY</p>
+                <div className="text-[14px] leading-relaxed text-[var(--c-text-muted)] prose-sm prose-p:my-1.5 prose-strong:text-[var(--c-text)]">
                   <ReactMarkdown>{run.summary}</ReactMarkdown>
                 </div>
               </div>
@@ -260,22 +260,22 @@ export default function BriefingPage() {
 
             <div className="mt-[26px] grid items-start gap-6 grid-cols-1 md:grid-cols-[1fr_300px]">
               <div>
-                <h3 className="mb-1 text-[16px] font-bold text-white">Moments</h3>
+                <h3 className="mb-1 text-[16px] font-bold text-[var(--c-text)]">Moments</h3>
                 {run.events && run.events.length > 0 ? (
                   <>
-                    <p className="mb-3 text-[13px] text-white/55">{run.events.length} moments</p>
+                    <p className="mb-3 text-[13px] text-[var(--c-text-subtle)]">{run.events.length} moments</p>
                     <div className="flex flex-col">
                       {run.events.map((ev, i) => (
                         <div
                           key={i}
-                          className="grid grid-cols-[30px_70px_1fr] items-center gap-3 border-b border-white/10 px-3 py-3 rounded-[10px]"
+                          className="grid grid-cols-[30px_70px_1fr] items-center gap-3 border-b border-[var(--c-border)] px-3 py-3 rounded-[10px]"
                         >
-                          <span className="font-mono text-[12px] text-white/55">{i + 1}</span>
+                          <span className="font-mono text-[12px] text-[var(--c-text-subtle)]">{i + 1}</span>
                           <span className="font-mono text-[13px] font-medium text-[#F24E1E]">{ev.timestamp || "—"}</span>
                           <span>
-                            <span className="block text-[14px] font-semibold text-white">{ev.label || `Event ${i + 1}`}</span>
+                            <span className="block text-[14px] font-semibold text-[var(--c-text)]">{ev.label || `Event ${i + 1}`}</span>
                             {ev.query ? (
-                              <span className="mt-px block text-[12.5px] text-white/55 line-clamp-1">{ev.query}</span>
+                              <span className="mt-px block text-[12.5px] text-[var(--c-text-subtle)] line-clamp-1">{ev.query}</span>
                             ) : null}
                           </span>
                         </div>
@@ -283,14 +283,14 @@ export default function BriefingPage() {
                     </div>
                   </>
                 ) : (
-                  <p className="text-[13px] text-white/55">No moment timestamps available for this reel.</p>
+                  <p className="text-[13px] text-[var(--c-text-subtle)]">No moment timestamps available for this reel.</p>
                 )}
               </div>
 
               <div className="flex flex-col gap-[14px]">
                 {run.selectedVideo ? (
-                  <div className="rounded-[14px] border border-white/10 bg-[#161616] p-4">
-                    <p className="mb-[9px] text-[11px] font-bold tracking-[0.06em] text-white/55">SOURCE VIDEO</p>
+                  <div className="rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-4">
+                    <p className="mb-[9px] text-[11px] font-bold tracking-[0.06em] text-[var(--c-text-subtle)]">SOURCE VIDEO</p>
                     <a
                       href={run.selectedVideo.url || "#"}
                       target="_blank"
@@ -301,12 +301,12 @@ export default function BriefingPage() {
                     </a>
                   </div>
                 ) : null}
-                <div className="rounded-[14px] border border-white/10 bg-[#161616] p-4">
-                  <p className="mb-[9px] text-[11px] font-bold tracking-[0.06em] text-white/55">RUN DETAILS</p>
+                <div className="rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-4">
+                  <p className="mb-[9px] text-[11px] font-bold tracking-[0.06em] text-[var(--c-text-subtle)]">RUN DETAILS</p>
                   <div className="flex flex-col gap-1.5">
-                    <div className="flex justify-between text-[12.5px]"><span className="text-white/55">Run ID</span><span className="font-mono text-white/70">{shortId}</span></div>
-                    <div className="flex justify-between text-[12.5px]"><span className="text-white/55">Created</span><span className="text-white/70">{relativeTime(run.createdAt)}</span></div>
-                    <div className="flex justify-between text-[12.5px]"><span className="text-white/55">Mode</span><span className="font-semibold text-[#F24E1E]">{run.mode || "live"}</span></div>
+                    <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Run ID</span><span className="font-mono text-[var(--c-text-muted)]">{shortId}</span></div>
+                    <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Created</span><span className="text-[var(--c-text-muted)]">{relativeTime(run.createdAt)}</span></div>
+                    <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Mode</span><span className="font-semibold text-[#F24E1E]">{run.mode || "live"}</span></div>
                   </div>
                 </div>
               </div>
@@ -326,14 +326,14 @@ function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: s
           const isLast = i === cards.length - 1;
           const isActive = isLast && i < cards.length;
           return (
-            <div key={i} className="flex items-center gap-[10px] rounded-[14px] border border-white/10 bg-[#161616] p-[15px]">
+            <div key={i} className="flex items-center gap-[10px] rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-[15px]">
               <div className="flex items-center gap-[10px] flex-1">
                 {isActive ? (
-                  <span className="size-[18px] flex-none rounded-full border-2 border-white/10 border-t-[#F24E1E] animate-spin" />
+                  <span className="size-[18px] flex-none rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 ) : (
                   <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 )}
-                <span className="text-[13.5px] font-bold text-white">{entry.msg}</span>
+                <span className="text-[13.5px] font-bold text-[var(--c-text)]">{entry.msg}</span>
               </div>
             </div>
           );
@@ -342,10 +342,10 @@ function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: s
     );
   }
   return (
-    <div className="flex items-center gap-[10px] rounded-[14px] border border-white/10 bg-[#161616] p-[15px]">
+    <div className="flex items-center gap-[10px] rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-[15px]">
       <div className="flex items-center gap-[10px] flex-1">
-        <span className="size-[18px] flex-none rounded-full border-2 border-white/10 border-t-[#F24E1E] animate-spin" />
-        <span className="text-[13.5px] font-bold text-white">{fallback || "Creating your highlight..."}</span>
+        <span className="size-[18px] flex-none rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
+        <span className="text-[13.5px] font-bold text-[var(--c-text)]">{fallback || "Creating your highlight..."}</span>
       </div>
     </div>
   );
@@ -373,7 +373,7 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
         if (item.type === "text") {
           return (
             <div key={i} className="flex items-start gap-[10px]">
-              <div className="text-[14px] leading-relaxed text-white/80 prose-sm prose-invert prose-p:my-1 prose-strong:text-white prose-em:text-white/70 [&_p]:mb-1.5 [&_ol]:my-2 [&_ol]:pl-5 [&_li]:mb-1 [&_li]:pl-0.5">
+              <div className="text-[14px] leading-relaxed text-[var(--c-text-muted)] prose-sm prose-invert prose-p:my-1 prose-strong:text-[var(--c-text)] prose-em:text-[var(--c-text-muted)] [&_p]:mb-1.5 [&_ol]:my-2 [&_ol]:pl-5 [&_li]:mb-1 [&_li]:pl-0.5">
                 <ReactMarkdown>{item.text}</ReactMarkdown>
               </div>
             </div>
@@ -382,16 +382,16 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
         const tc = item.tc!;
         const isTinyFish = tc.name.includes("TinyFish");
         return (
-          <div key={i} className="rounded-[14px] border border-white/10 bg-[#161616] overflow-hidden">
+          <div key={i} className="rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] overflow-hidden">
             {isTinyFish ? (
               <>
-                <div className="flex items-center gap-[10px] border-b border-white/10 px-4 py-[13px]">
+                <div className="flex items-center gap-[10px] border-b border-[var(--c-border)] px-4 py-[13px]">
                   <Image src="/brand/icon-tinyfish.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
-                  <span className="text-[13.5px] font-bold text-white">TinyFish · {tc.summary}</span>
+                  <span className="text-[13.5px] font-bold text-[var(--c-text)]">TinyFish · {tc.summary}</span>
                 </div>
                 {tc.details && (tc.details as { results?: Array<{ title: string; url: string }> }).results?.[0] ? (
                   <div className="px-4 py-[13px]">
-                    <p className="text-[11px] font-bold tracking-[0.06em] text-white/55">SELECTED SOURCE</p>
+                    <p className="text-[11px] font-bold tracking-[0.06em] text-[var(--c-text-subtle)]">SELECTED SOURCE</p>
                     <a
                       href={(tc.details as { results?: Array<{ title: string; url: string }> }).results?.[0]?.url || "#"}
                       target="_blank"
@@ -408,9 +408,9 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
                 {tc.status === "done" ? (
                   <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 ) : (
-                  <span className="size-[18px] rounded-full border-2 border-white/10 border-t-[#F24E1E] animate-spin" />
+                  <span className="size-[18px] rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 )}
-                <span className="text-[13.5px] font-bold text-white">VideoDB · {tc.summary}</span>
+                <span className="text-[13.5px] font-bold text-[var(--c-text)]">VideoDB · {tc.summary}</span>
               </div>
             )}
           </div>

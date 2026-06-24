@@ -27,7 +27,7 @@ export default function KeyModal({
       onClick={onClose}
     >
       <div
-        className="animate-rise w-full max-w-[430px] rounded-[20px] border border-white/10 bg-[#161616] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
+        className="animate-rise w-full max-w-[430px] rounded-[20px] border border-[var(--c-border)] bg-[var(--c-surface)] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
         role="dialog"
         aria-modal="true"
         aria-labelledby="key-modal-title"
@@ -35,8 +35,8 @@ export default function KeyModal({
       >
         <div className="flex items-start justify-between">
           <div>
-            <h2 id="key-modal-title" className="text-[19px] font-bold tracking-[-0.01em] text-white">Add your API keys</h2>
-            <p className="mt-[7px] text-[13px] leading-relaxed text-white/55">
+            <h2 id="key-modal-title" className="text-[19px] font-bold tracking-[-0.01em] text-[var(--c-text)]">Add your API keys</h2>
+            <p className="mt-[7px] text-[13px] leading-relaxed text-[var(--c-text-subtle)]">
               Stored in your browser only. Never sent to our servers.
             </p>
           </div>
@@ -45,7 +45,7 @@ export default function KeyModal({
             onClick={onClose}
             disabled={validating}
             aria-label="Close"
-            className="flex size-[30px] shrink-0 items-center justify-center rounded-full border-0 bg-white/[0.06] text-[15px] text-white/55 hover:text-white/80 disabled:opacity-50"
+            className="flex size-[30px] shrink-0 items-center justify-center rounded-full border-0 bg-[var(--c-hover-2)] text-[15px] text-[var(--c-text-subtle)] hover:text-[var(--c-text-muted)] disabled:opacity-50"
           >
             <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
           </button>

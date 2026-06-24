@@ -51,7 +51,7 @@ export const demoVideos: VideoCandidate[] = [
     id: "brazil-morocco-preview",
     title: "Brazil vs Morocco tactical preview and squad news",
     url: "https://www.youtube.com/watch?v=BGNUEdyqqy0",
-    source: "World Football Desk",
+    source: "World Soccer Desk",
     duration: "18:21",
     teams: ["Brazil", "Morocco"],
     match: "Brazil vs Morocco",
@@ -154,7 +154,7 @@ export function buildDemoBriefing(topic: string, selectedVideo: VideoCandidate):
     integration: {
       tinyfish: "Search or browser agent returns video URLs, metadata, teams, match, and content type.",
       videodb:
-        "Upload URL, index scenes with a football-event prompt, search event queries, compile results into stream URLs.",
+        "Upload URL, index scenes with a soccer-event prompt, search event queries, compile results into stream URLs.",
     },
   };
 }

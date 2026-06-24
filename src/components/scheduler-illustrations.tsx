@@ -166,14 +166,14 @@ export function SchedulerStepStrip({ steps }: { steps: Step[] }) {
     <div className="mt-9 grid w-full grid-cols-1 gap-x-5 gap-y-8 text-center sm:grid-cols-2 lg:grid-cols-4">
       {steps.map(({ Panel, title, desc }, i) => (
         <div key={title} className="flex flex-col items-center">
-          <div className="relative w-full max-w-[200px] text-white/85">
+          <div className="relative w-full max-w-[200px] text-[var(--c-text)]">
             <span className="absolute -left-1 -top-2 z-10 inline-flex size-7 items-center justify-center rounded-full bg-[#F24E1E] font-mono text-[12px] font-semibold text-white">
               {i + 1}
             </span>
             <Panel />
           </div>
-          <h3 className="mt-3 text-[14px] font-medium text-white">{title}</h3>
-          <p className="mt-1 max-w-[220px] text-[12.5px] leading-relaxed text-white/55">{desc}</p>
+          <h3 className="mt-3 text-[14px] font-medium text-[var(--c-text)]">{title}</h3>
+          <p className="mt-1 max-w-[220px] text-[12.5px] leading-relaxed text-[var(--c-text-subtle)]">{desc}</p>
         </div>
       ))}
     </div>

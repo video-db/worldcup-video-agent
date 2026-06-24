@@ -53,16 +53,16 @@ export function GalleryTabs({
       {hasSession ? (
         <Link
           href="/me"
-          className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-white/10 bg-white/[0.04] px-5 py-4 hover:border-[#F24E1E]"
+          className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-[var(--c-border)] bg-[var(--c-hover)] px-5 py-4 hover:border-[#F24E1E]"
         >
           <span className="flex items-center gap-3">
-            <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-white/10 bg-[#161616] text-[#F24E1E]">◎</span>
+            <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-[var(--c-border)] bg-[var(--c-surface)] text-[#F24E1E]">◎</span>
             <span>
-              <span className="block text-[14px] font-bold text-white">Go to your briefings</span>
-              <span className="mt-px block text-[12.5px] text-white/55">View reels you generated with your API keys</span>
+              <span className="block text-[14px] font-bold text-[var(--c-text)]">Go to your briefings</span>
+              <span className="mt-px block text-[12.5px] text-[var(--c-text-subtle)]">View reels you generated with your API keys</span>
             </span>
           </span>
-          <span className="text-white/40">→</span>
+          <span className="text-[var(--c-text-faint)]">→</span>
         </Link>
       ) : null}
     </div>

@@ -202,7 +202,7 @@ export async function PATCH(
 
       const effectiveRunTime = (updateData.runTime as string) || existing.runTime;
       const effectiveTimezone = (updateData.timezone as string) || existing.timezone;
-      const action: "created" | "paused" | "resumed" = hasToggle ? (body.isActive ? "resumed" : "paused") : "created";
+      const action: "created" | "paused" | "resumed" | "updated" = hasToggle ? (body.isActive ? "resumed" : "paused") : "updated";
 
       if (newIds.length > 0) {
         const notifyConfig: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string } } = {};

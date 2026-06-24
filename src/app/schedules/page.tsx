@@ -542,10 +542,10 @@ export default function SchedulesPage() {
         {/* New Schedule Panel */}
         {schedulePanel ? (
           scheduleOk ? (
-            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
-              <div className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="schedule-ok-title" onClick={(e) => e.stopPropagation()}>
-                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[var(--c-text)] mb-4">Schedule Created</h2>
-                <p className="text-[14px] text-[var(--c-text-subtle)]">Your daily briefing has been scheduled.</p>
+            <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
+              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="schedule-ok-title" onClick={(e) => e.stopPropagation()}>
+                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[#1f1f1e] mb-4">{scheduleEditingId ? "Schedule Updated" : "Schedule Created"}</h2>
+                <p className="text-[14px] text-[#8a857c]">{scheduleEditingId ? "Your daily briefing has been updated." : "Your daily briefing has been scheduled."}</p>
                 <div className="mt-5">
                   <button type="button" onClick={() => setSchedulePanel(false)} className="ds-btn ds-btn--primary ds-btn--sm w-full">Done</button>
                 </div>

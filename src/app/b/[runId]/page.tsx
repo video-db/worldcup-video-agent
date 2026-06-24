@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeftIcon, CheckIcon, ExternalLinkIcon } from "@/components/Icons";
+import SendToInboxModal from "@/components/SendToInboxModal";
 import type { BriefingEvent } from "@/lib/demo-data";
 
 type TimelineEvent = { type: string; text?: string; toolCall?: { name: string; status: string; summary: string; details?: unknown }; error?: string; runId?: string };
@@ -51,6 +52,7 @@ export default function BriefingPage() {
   const [notFound, setNotFound] = useState(false);
   const [copied, setCopied] = useState(false);
   const [reelError, setReelError] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const prevStatusRef = useRef<string | undefined>(undefined);
@@ -160,13 +162,22 @@ export default function BriefingPage() {
           </Link>
           <div className="flex items-center gap-[9px]">
             {run.status === "completed" && run.playerUrl ? (
-              <button
-                type="button"
-                onClick={openPlayer}
-                className="inline-flex items-center gap-[6px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
-              >
-                <ExternalLinkIcon className="size-3.5" /> Open
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={openPlayer}
+                  className="inline-flex items-center gap-[6px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+                >
+                  <ExternalLinkIcon className="size-3.5" /> Open
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSendModal(true)}
+                  className="inline-flex items-center gap-[6px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
+                >
+                  <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Send to inbox
+                </button>
+              </>
             ) : null}
             <button
               type="button"
@@ -288,6 +299,11 @@ export default function BriefingPage() {
 
         <div ref={scrollRef} />
       </div>
+      <SendToInboxModal
+        runId={run.runId}
+        open={showSendModal}
+        onClose={() => setShowSendModal(false)}
+      />
     </div>
   );
 }

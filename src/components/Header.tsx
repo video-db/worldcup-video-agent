@@ -90,6 +90,7 @@ export default function Header() {
     setSessionToken("");
     window.dispatchEvent(new Event("session_changed"));
     setAccountOpen(false);
+    window.location.reload();
   }
 
   const [theme, setTheme] = useState<"dark" | "light">("dark");

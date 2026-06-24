@@ -109,11 +109,11 @@ export default function Header() {
     <>
       <header className="ds-header-nav flex items-center justify-between px-[22px] h-[62px]">
         <Link href="/" className="flex items-center gap-[10px] select-none shrink-0 py-1.5">
-          <img src="/brand/videodb-wordmark-dark.png" alt="VideoDB" className="show-on-dark h-[18px] w-auto" />
-          <img src="/brand/videodb-wordmark-light.png" alt="VideoDB" className="show-on-light h-[18px] w-auto" />
-          <span className="text-[20px] font-light text-[var(--c-text-faint)] mx-[5px]">×</span>
           <img src="/brand/TF_Horizontal_light.svg" alt="TinyFish" className="show-on-dark h-[21px] w-auto" />
           <img src="/brand/TF_Horizontal.svg" alt="TinyFish" className="show-on-light h-[21px] w-auto" />
+          <span className="text-[20px] font-light text-[var(--c-text-faint)] mx-[5px]">×</span>
+          <img src="/brand/videodb-wordmark-dark.png" alt="VideoDB" className="show-on-dark h-[18px] w-auto" />
+          <img src="/brand/videodb-wordmark-light.png" alt="VideoDB" className="show-on-light h-[18px] w-auto" />
           <span className="hidden sm:block ml-1.5 h-4 w-px bg-[var(--c-border-strong)]" />
           <span className="hidden sm:inline font-mono text-[11px] font-medium uppercase tracking-[0.16em] text-[var(--c-text-subtle)]">Briefing</span>
         </Link>

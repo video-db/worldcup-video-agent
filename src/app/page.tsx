@@ -479,13 +479,13 @@ export default function Home() {
         </section>
 
         {(!hasSession || schedules.filter((s) => s.isActive).length === 0) ? (
-          <section className="mt-12 overflow-hidden rounded-[18px] border border-[#F24E1E]/25 bg-gradient-to-br from-[#1a0f0a] to-[#0F0F0F] px-7 py-8 text-center">
+          <section className="mt-12 overflow-hidden rounded-[18px] border border-[#F24E1E]/25 bg-gradient-to-br from-[var(--c-surface)] to-[var(--c-hover)] px-7 py-8 text-center">
             <span className="ds-eyebrow ds-eyebrow--orange block">Set it once · runs forever</span>
             <h2 className="mx-auto mt-4 max-w-[440px] text-[24px] font-medium tracking-[-0.02em] text-[var(--c-text)]">
               Wake up to the reel already cut and waiting.
             </h2>
-            <p className="mx-auto mt-2.5 max-w-[440px] text-[14px] leading-relaxed text-[var(--c-text-subtle)]">
-              Pick a match query, a time and a channel. The agent runs every day and delivers straight to your Telegram or Discord — no app to open.
+            <p className="mx-auto mt-2.5 max-w-[440px] text-[14px] leading-relaxed text-[var(--c-text-muted)]">
+              Pick a match query, a time and an inbox. The agent runs every day and delivers straight to your Telegram or Discord — no app to open.
             </p>
             {hasSession ? (
               <Link href="/schedules" className="ds-btn ds-btn--primary mt-7 inline-flex">

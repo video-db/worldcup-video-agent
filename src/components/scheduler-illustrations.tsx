@@ -65,7 +65,7 @@ export function PanelAskOnce() {
 /* ── Panel 2 — Pick a time + a channel ────────────────────────────────── */
 export function PanelPickTime() {
   return (
-    <SketchFrame label="Pick a time and a channel">
+    <SketchFrame label="Pick a time and an inbox">
       {/* clock */}
       <circle cx="70" cy="78" r="34" stroke={INK} strokeWidth="2.4" />
       <circle cx="70" cy="78" r="34" stroke={ORANGE} strokeWidth="2.4" strokeDasharray="3 7" opacity="0.7" />
@@ -79,7 +79,7 @@ export function PanelPickTime() {
       <path d="M150 110 L194 110" stroke={INK} strokeWidth="1.6" />
       {/* paper plane (Telegram-ish) */}
       <path d="M159 74 L185 70 L168 96 L165 84 Z" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
-      <text x="172" y="138" textAnchor="middle" className="font-hand" fontSize="15" fill={INK}>your channel</text>
+      <text x="172" y="138" textAnchor="middle" className="font-hand" fontSize="15" fill={INK}>your inbox</text>
     </SketchFrame>
   );
 }
@@ -183,9 +183,9 @@ export function SchedulerStepStrip({ steps }: { steps: Step[] }) {
 /* ── The full landing-page story section (light "paper" band) ─────────── */
 const STEPS = [
   { n: 1, Panel: PanelAskOnce, title: "Tell it once", body: "Describe the moments you care about — “every penalty”, “all the fouls”, “Messi goals”. Plain words, no setup." },
-  { n: 2, Panel: PanelPickTime, title: "Pick a time & channel", body: "Choose when it should run and where it lands: your Telegram chat or Discord server." },
+  { n: 2, Panel: PanelPickTime, title: "Pick a time & inbox", body: "Choose when it should run and where it lands: your Telegram chat or Discord server." },
   { n: 3, Panel: PanelAgentWorks, title: "It works while you’re away", body: "Each day the agent finds the match, watches every frame, cuts the reel and writes the recap — on its own." },
-  { n: 4, Panel: PanelDelivered, title: "Delivered to you", body: "A ready-to-watch reel lands in your channel. No app to open, no refresh — it just shows up." },
+  { n: 4, Panel: PanelDelivered, title: "Delivered to you", body: "A ready-to-watch reel lands in your inbox. No app to open, no refresh — it just shows up." },
 ];
 
 export function SchedulerStory() {

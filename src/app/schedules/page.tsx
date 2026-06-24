@@ -276,14 +276,14 @@ export default function SchedulesPage() {
               An agent that delivers — while you do nothing
             </h1>
             <p className="mt-3 text-[14px] leading-relaxed text-[var(--c-text-muted)] max-w-[440px]">
-              Set a match query, a time and a channel <span className="font-semibold text-[var(--c-text)]">once</span>. Every day the agent
+              Set a match query, a time and an inbox <span className="font-semibold text-[var(--c-text)]">once</span>. Every day the agent
               finds the match, cuts your reel and drops it straight into Telegram or Discord. No app to open.
             </p>
 
             <SchedulerStepStrip
               steps={[
                 { Panel: PanelAskOnce, title: "Add API keys", desc: "Connect TinyFish + VideoDB to power the agent." },
-                { Panel: PanelPickTime, title: "Pick time & channel", desc: "Choose when it runs and where it lands." },
+                { Panel: PanelPickTime, title: "Pick time & inbox", desc: "Choose when it runs and where it lands." },
                 { Panel: PanelAgentWorks, title: "It works alone", desc: "Finds, watches, cuts and captions the reel." },
                 { Panel: PanelDelivered, title: "Delivered daily", desc: "A ready reel arrives in your chat." },
               ]}
@@ -306,13 +306,13 @@ export default function SchedulesPage() {
               <div className="flex items-center justify-between">
                 <div>
                   <h1 className="text-3xl tracking-tight text-[var(--c-text)]">Your Schedules</h1>
-                  <p className="mt-1 text-[14px] text-[var(--c-text-subtle)]">Manage daily briefings and notification channels</p>
+                  <p className="mt-1 text-[14px] text-[var(--c-text-subtle)]">Manage daily briefings and notification inboxes</p>
                 </div>
                 <button
                   type="button"
                   onClick={openNewSchedule}
                   className="ds-btn ds-btn--primary ds-btn--sm"
-                  title={channels.length === 0 ? "Add a channel first" : "Create a new schedule"}
+                  title={channels.length === 0 ? "Add an inbox first" : "Create a new schedule"}
                 >
                   + New Schedule
                 </button>
@@ -329,14 +329,14 @@ export default function SchedulesPage() {
                   Your keys are ready. Now teach the agent your routine.
                 </h2>
                 <p className="mt-2 text-[14px] leading-relaxed text-[var(--c-text-muted)] max-w-[480px] mx-auto">
-                  Add a channel, then create a schedule. From then on the reel comes to you — every day, automatically.
+                  Add an inbox, then create a schedule. From then on the reel comes to you — every day, automatically.
                 </p>
 
                 <SchedulerStepStrip
                   steps={[
-                    { Panel: PanelPickTime, title: "Add a channel", desc: "Connect Telegram or Discord where reels get delivered." },
+                    { Panel: PanelPickTime, title: "Add an inbox", desc: "Connect Telegram or Discord where reels get delivered." },
                     { Panel: PanelAgentWorks, title: "Create a schedule", desc: "Pick a match query and a daily run time." },
-                    { Panel: PanelDelivered, title: "Get daily reels", desc: "Curated moment reels land in your channel." },
+                    { Panel: PanelDelivered, title: "Get daily reels", desc: "Curated moment reels land in your inbox." },
                   ]}
                 />
 
@@ -346,7 +346,7 @@ export default function SchedulesPage() {
                     onClick={() => { setAddPanel(true); setAddError(""); }}
                     className="ds-btn ds-btn--primary mt-7"
                   >
-                    Add a channel first <ArrowRightIcon className="size-4" />
+                    Add an inbox first <ArrowRightIcon className="size-4" />
                   </button>
                 ) : (
                   <button
@@ -363,18 +363,18 @@ export default function SchedulesPage() {
             {/* Channels Section */}
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
-                <h2 className="text-[14px] font-medium text-[var(--c-text-muted)]">Channels ({channels.length})</h2>
+                <h2 className="text-[14px] font-medium text-[var(--c-text-muted)]">Inboxes ({channels.length})</h2>
                 <button
                   type="button"
                   onClick={() => { setAddPanel(true); setAddError(""); }}
                   className="ds-btn ds-btn--ghost-dark ds-btn--sm"
                 >
-                  + Add Channel
+                  + Add Inbox
                 </button>
               </div>
               {channels.length === 0 ? (
                 <div className="ds-card ds-card--dark p-6 text-center">
-                  <p className="text-[14px] text-[var(--c-text-subtle)]">No channels yet. Add one to start scheduling.</p>
+                  <p className="text-[14px] text-[var(--c-text-subtle)]">No inboxes yet. Add one to start scheduling.</p>
                 </div>
               ) : (
                 <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -394,7 +394,7 @@ export default function SchedulesPage() {
                         </div>
                         <button
                           type="button"
-                          aria-label="Delete channel"
+                          aria-label="Delete inbox"
                           onClick={() => handleDeleteChannelClick(ch.id)}
                           className="flex size-11 items-center justify-center rounded-full text-[var(--c-text-subtle)] transition-colors hover:bg-[#E5484D]/10 hover:text-[#E5484D]"
                         >
@@ -470,7 +470,7 @@ export default function SchedulesPage() {
             className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
           >
               <div className="mb-5 flex items-center justify-between">
-                <h2 id="add-channel-title" className="text-[16px] font-semibold text-[var(--c-text)]">Add Channel</h2>
+                <h2 id="add-channel-title" className="text-[16px] font-semibold text-[var(--c-text)]">Add Inbox</h2>
                 <button type="button" aria-label="Close" onClick={() => { if (!addTesting) closeAddPanel(); }} disabled={addTesting} className="rounded-full p-1 text-[var(--c-text-subtle)] transition-colors hover:bg-[var(--c-hover-2)] hover:text-[var(--c-text-muted)] disabled:opacity-50">
                   <CloseIcon className="size-4" />
                 </button>
@@ -480,7 +480,7 @@ export default function SchedulesPage() {
               ) : null}
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="channel-name" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Channel name</label>
+                  <label htmlFor="channel-name" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Inbox name</label>
                    <input id="channel-name" type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addType === "telegram" ? "Personal Telegram" : "My Discord server"} disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                 </div>
                 <div>
@@ -566,7 +566,7 @@ export default function SchedulesPage() {
                   </button>
                 </div>
                 <div className="mb-5 flex items-center gap-1 rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] p-1">
-                  {["Query & Time", "Channel", "Confirm"].map((label, i) => (
+                  {["Query & Time", "Inbox", "Confirm"].map((label, i) => (
                     <button key={label} disabled={isBusy} className={`flex-1 rounded-full px-2 py-1 text-[12px] font-medium transition-all duration-200 ${scheduleStep === i + 1 ? "bg-[#F24E1E] text-white" : "text-[var(--c-text-subtle)]"}`}>{label}</button>
                   ))}
                 </div>
@@ -650,9 +650,9 @@ export default function SchedulesPage() {
                   </div>
                 ) : scheduleStep === 2 ? (
                   <div className="space-y-4">
-                    <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Pick channels</label>
+                    <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Pick inboxes</label>
                     {channels.length === 0 ? (
-                      <p className="text-[13px] text-[var(--c-text-subtle)]">No channels. Add one above first.</p>
+                      <p className="text-[13px] text-[var(--c-text-subtle)]">No inboxes. Add one above first.</p>
                     ) : (
                       <div className="space-y-2">
                         {channels.map((ch) => (
@@ -678,7 +678,7 @@ export default function SchedulesPage() {
                     <div className="ds-card ds-card--dark p-4 space-y-2">
                       <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--c-text-subtle)]">Query</span><p className="text-[14px] text-[var(--c-text)]">{scheduleQuery}</p></div>
                       <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--c-text-subtle)]">Schedule</span><p className="text-[14px] text-[var(--c-text)]">Daily at {formatHourMinute(scheduleTime)} ({tzLabel})</p></div>
-                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--c-text-subtle)]">Channels</span><p className="text-[14px] text-[var(--c-text)]">{selectedChannelIds.length ? channels.filter(c => selectedChannelIds.includes(c.id)).map(c => c.name).join(", ") : "None"}</p></div>
+                      <div><span className="text-[11px] font-medium uppercase tracking-[0.08em] text-[var(--c-text-subtle)]">Inboxes</span><p className="text-[14px] text-[var(--c-text)]">{selectedChannelIds.length ? channels.filter(c => selectedChannelIds.includes(c.id)).map(c => c.name).join(", ") : "None"}</p></div>
                     </div>
                     <button type="button" onClick={handleCreateSchedule} disabled={isBusy || !scheduleQuery.trim() || !scheduleTimeConfirmed || selectedChannelIds.length === 0} className="ds-btn ds-btn--primary w-full">
                       {scheduleSubmitting ? "Saving..." : scheduleEditingId ? "Save changes" : "Schedule daily briefing"}
@@ -706,11 +706,11 @@ export default function SchedulesPage() {
             onClose={() => setDeleteChannelId(null)}
             className="animate-rise w-full max-w-sm rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
           >
-              <h2 id="delete-channel-title" className="text-[16px] font-semibold text-[var(--c-text)]">Delete channel?</h2>
+              <h2 id="delete-channel-title" className="text-[16px] font-semibold text-[var(--c-text)]">Delete inbox?</h2>
               {deleteAffected.length > 0 ? (
-                <p className="mt-2 text-[13px] text-[var(--c-text-subtle)]">This channel is used by {deleteAffected.length} active schedule{deleteAffected.length > 1 ? "s" : ""}. Removing it will affect those schedules.</p>
+                <p className="mt-2 text-[13px] text-[var(--c-text-subtle)]">This inbox is used by {deleteAffected.length} active schedule{deleteAffected.length > 1 ? "s" : ""}. Removing it will affect those schedules.</p>
               ) : (
-                <p className="mt-2 text-[13px] text-[var(--c-text-subtle)]">This channel is not linked to any schedule.</p>
+                <p className="mt-2 text-[13px] text-[var(--c-text-subtle)]">This inbox is not linked to any schedule.</p>
               )}
               <div className="mt-5 flex items-center gap-3">
                 <button type="button" onClick={() => setDeleteChannelId(null)} className="ds-btn ds-btn--ghost-dark ds-btn--sm">Cancel</button>

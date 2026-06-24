@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeftIcon, CheckIcon, ExternalLinkIcon } from "@/components/Icons";
+import type { BriefingEvent } from "@/lib/demo-data";
 
 type TimelineEvent = { type: string; text?: string; toolCall?: { name: string; status: string; summary: string; details?: unknown }; error?: string; runId?: string };
 

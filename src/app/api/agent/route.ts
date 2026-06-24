@@ -13,6 +13,7 @@ import { AGENT_SYSTEM_PROMPT, videoCandidateSchema } from "@/lib/agent-tools";
 import { db, runs } from "@/lib/db";
 import { inngest } from "@/inngest/client";
 import { resolveSessionToken } from "@/lib/session";
+import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 // Vercel Hobby plan caps Serverless Function duration at 300s.

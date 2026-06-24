@@ -5,6 +5,7 @@ import { FormEvent, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import BriefingCard from "@/components/BriefingCard";
+import LowCreditsBanner from "@/components/LowCreditsBanner";
 import { SchedulerStory } from "@/components/scheduler-illustrations";
 import { ArrowRightIcon, CalendarIcon, SearchIcon, TargetIcon } from "@/components/Icons";
 
@@ -355,6 +356,7 @@ export default function Home() {
             ) : null}
           </div>
         </section>
+        <LowCreditsBanner />
       </div>
 
       <SchedulerStory />

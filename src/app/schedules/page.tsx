@@ -8,6 +8,7 @@ import { getCommonTimezones } from "@/lib/timezone";
 import ConfirmModal from "@/components/ConfirmModal";
 import ChannelIcon from "@/components/ChannelIcon";
 import ModalShell from "@/components/ModalShell";
+import LowCreditsBanner from "@/components/LowCreditsBanner";
 import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from "@/components/Icons";
 import { DeliveryLoopIllustration, SchedulerStepStrip, PanelAskOnce, PanelPickTime, PanelAgentWorks, PanelDelivered } from "@/components/scheduler-illustrations";
 
@@ -302,6 +303,8 @@ export default function SchedulesPage() {
           </div>
         ) : (
           <>
+            {schedules.some((s) => s.isActive) ? <LowCreditsBanner /> : null}
+
             <section className="pt-10 pb-8">
               <div className="flex items-center justify-between">
                 <div>

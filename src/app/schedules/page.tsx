@@ -9,8 +9,9 @@ import ConfirmModal from "@/components/ConfirmModal";
 import ChannelIcon from "@/components/ChannelIcon";
 import ModalShell from "@/components/ModalShell";
 import LowCreditsBanner from "@/components/LowCreditsBanner";
-import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from "@/components/Icons";
-import { DeliveryLoopIllustration, SchedulerStepStrip, PanelAskOnce, PanelPickTime, PanelAgentWorks, PanelDelivered } from "@/components/scheduler-illustrations";
+import { ArrowLeftIcon, CalendarIcon, CheckIcon, CloseIcon } from "@/components/Icons";
+import { DeliveryLoopIllustration } from "@/components/scheduler-illustrations";
+import OnboardingStepper from "@/components/onboarding-stepper";
 
 type ChannelItem = { id: string; name: string; type: string; isValidated: boolean };
 type ScheduleItem = {
@@ -123,7 +124,7 @@ export default function SchedulesPage() {
         setScheduleEditingId(editing.id || null);
         setScheduleQuery(editing.query || "");
         setScheduleTime(editing.runTime || "09:00");
-        setScheduleTimeConfirmed(true);
+        setScheduleTimeConfirmed(false);
         setScheduleTimezone(editing.timezone || "UTC");
         const cfg = (editing.channelConfig || {}) as { channelIds?: string[] };
         setSelectedChannelIds(Array.isArray(cfg.channelIds) ? cfg.channelIds : []);
@@ -216,32 +217,39 @@ export default function SchedulesPage() {
 
   async function handleCreateSchedule() {
     setScheduleSubmitting(true); setScheduleError("");
-    const sessionToken = localStorage.getItem("session_token"); if (!sessionToken) return;
-    const isEdit = Boolean(scheduleEditingId);
+    try {
+      const sessionToken = localStorage.getItem("session_token");
+      if (!sessionToken) { setScheduleError("Add API keys first."); return; }
+      const isEdit = Boolean(scheduleEditingId);
 
-    if (isEdit) {
-      const res = await fetch(`/api/schedules/${scheduleEditingId}`, {
-        method: "PATCH", headers: { "Content-Type": "application/json", "x-session-token": sessionToken },
-        body: JSON.stringify({ query: scheduleQuery, runTime: scheduleTime, timezone: scheduleTimezone, channelIds: selectedChannelIds }),
-      });
-      const data = await res.json();
-      if (res.ok) { setScheduleOk(true); setScheduleEditingId(null); fetchData(); }
-      else setScheduleError(data.error || "Failed");
-    } else {
-      const res = await fetch("/api/schedules", {
-        method: "POST", headers: { "Content-Type": "application/json", "x-session-token": sessionToken },
-        body: JSON.stringify({ query: scheduleQuery, runTime: scheduleTime, timezone: scheduleTimezone, channelIds: selectedChannelIds }),
-      });
-      const data = await res.json();
-      if (res.ok) { setScheduleOk(true); fetchData(); }
-      else setScheduleError(data.error || "Failed");
+      if (isEdit) {
+        const res = await fetch(`/api/schedules/${scheduleEditingId}`, {
+          method: "PATCH", headers: { "Content-Type": "application/json", "x-session-token": sessionToken },
+          body: JSON.stringify({ query: scheduleQuery, runTime: scheduleTime, timezone: scheduleTimezone, channelIds: selectedChannelIds }),
+        });
+        const data = await res.json();
+        if (res.ok) { setScheduleOk(true); fetchData(); }
+        else setScheduleError(data.error || "Could not update this schedule. Try again.");
+      } else {
+        const res = await fetch("/api/schedules", {
+          method: "POST", headers: { "Content-Type": "application/json", "x-session-token": sessionToken },
+          body: JSON.stringify({ query: scheduleQuery, runTime: scheduleTime, timezone: scheduleTimezone, channelIds: selectedChannelIds }),
+        });
+        const data = await res.json();
+        if (res.ok) { setScheduleOk(true); fetchData(); }
+        else setScheduleError(data.error || "Could not create this schedule. Try again.");
+      }
+    } catch {
+      setScheduleError("Could not save this schedule. Check your connection and try again.");
+    } finally {
+      setScheduleSubmitting(false);
     }
-    setScheduleSubmitting(false);
   }
 
   function openNewSchedule() {
     // Can't schedule without a delivery channel — guide the user to add one first.
     if (channels.length === 0) { setAddPanel(true); setAddError(""); return; }
+    setScheduleEditingId(null);
     setSchedulePanel(true); setScheduleStep(1); setScheduleOk(false);
     setScheduleQuery(""); setScheduleTime("09:00"); setScheduleTimeConfirmed(false);
     setScheduleTimezone("UTC"); setSelectedChannelIds([]);
@@ -281,24 +289,10 @@ export default function SchedulesPage() {
               finds the match, cuts your reel and drops it straight into Telegram or Discord. No app to open.
             </p>
 
-            <SchedulerStepStrip
-              steps={[
-                { Panel: PanelAskOnce, title: "Add API keys", desc: "Connect TinyFish + VideoDB to power the agent." },
-                { Panel: PanelPickTime, title: "Pick time & inbox", desc: "Choose when it runs and where it lands." },
-                { Panel: PanelAgentWorks, title: "It works alone", desc: "Finds, watches, cuts and captions the reel." },
-                { Panel: PanelDelivered, title: "Delivered daily", desc: "A ready reel arrives in your chat." },
-              ]}
+            <OnboardingStepper
+              hasSession={false}
+              onScheduleCreated={() => fetchData()}
             />
-
-            <button
-              type="button"
-              onClick={() => {
-                window.dispatchEvent(new CustomEvent("open-key-modal"));
-              }}
-              className="ds-btn ds-btn--primary mt-9"
-            >
-              Add API keys to start <ArrowRightIcon className="size-4" />
-            </button>
           </div>
         ) : (
           <>
@@ -322,46 +316,14 @@ export default function SchedulesPage() {
             </section>
 
             {!loading && schedules.length === 0 ? (
-              <section className="mb-10 max-w-[760px] mx-auto text-center">
-                <div className="mx-auto w-[150px] text-[var(--c-text)]">
-                  <DeliveryLoopIllustration className="h-auto w-full" />
-                </div>
-                <span className="ds-eyebrow ds-eyebrow--orange mt-2 block">Set it once</span>
-                <h2 className="mt-4 text-[22px] font-medium tracking-[-0.02em] text-[var(--c-text)]">
-                  Your keys are ready. Now teach the agent your routine.
-                </h2>
-                <p className="mt-2 text-[14px] leading-relaxed text-[var(--c-text-muted)] max-w-[480px] mx-auto">
-                  Add an inbox, then create a schedule. From then on the reel comes to you — every day, automatically.
-                </p>
-
-                <SchedulerStepStrip
-                  steps={[
-                    { Panel: PanelPickTime, title: "Add an inbox", desc: "Connect Telegram or Discord where reels get delivered." },
-                    { Panel: PanelAgentWorks, title: "Create a schedule", desc: "Pick a match query and a daily run time." },
-                    { Panel: PanelDelivered, title: "Get daily reels", desc: "Curated moment reels land in your inbox." },
-                  ]}
-                />
-
-                {channels.length === 0 ? (
-                  <button
-                    type="button"
-                    onClick={() => { setAddPanel(true); setAddError(""); }}
-                    className="ds-btn ds-btn--primary mt-7"
-                  >
-                    Add an inbox first <ArrowRightIcon className="size-4" />
-                  </button>
-                ) : (
-                  <button
-                    type="button"
-                    onClick={openNewSchedule}
-                    className="ds-btn ds-btn--primary mt-7"
-                  >
-                    Create your first schedule <ArrowRightIcon className="size-4" />
-                  </button>
-                )}
-              </section>
+              <OnboardingStepper
+                hasSession={true}
+                onScheduleCreated={() => fetchData()}
+              />
             ) : null}
 
+            {schedules.length > 0 && (
+              <>
             {/* Channels Section */}
             <section className="mb-10">
               <div className="flex items-center justify-between mb-4">
@@ -460,8 +422,10 @@ export default function SchedulesPage() {
                 </div>
               )}
             </section>
-          </>
-        )}
+              </>
+            )}
+      </>
+    )}
 
         {/* Add Channel Panel */}
         {addPanel ? (
@@ -488,8 +452,8 @@ export default function SchedulesPage() {
                 <div>
                   <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Type</label>
                   <div className="flex gap-1 rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] p-1">
-                    <button type="button" onClick={() => { setAddType("telegram"); setAddTgToken(""); setAddTgChatId(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "telegram" ? "bg-[#F24E1E] text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="telegram" size={15} mono={addType === "telegram"} />Telegram</button>
-                    <button type="button" onClick={() => { setAddType("discord"); setAddDcWebhook(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "discord" ? "bg-[#F24E1E] text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="discord" size={15} mono={addType === "discord"} />Discord</button>
+                    <button type="button" onClick={() => { setAddType("telegram"); setAddTgToken(""); setAddTgChatId(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "telegram" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="telegram" size={15} mono={addType === "telegram"} className={addType === "telegram" ? "!text-white" : undefined} />Telegram</button>
+                    <button type="button" onClick={() => { setAddType("discord"); setAddDcWebhook(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "discord" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="discord" size={15} mono={addType === "discord"} className={addType === "discord" ? "!text-white" : undefined} />Discord</button>
                   </div>
                 </div>
                 {addType === "telegram" ? (
@@ -545,19 +509,46 @@ export default function SchedulesPage() {
           scheduleOk ? (
             <ModalShell
               labelledBy="schedule-ok-title"
-              onClose={() => setSchedulePanel(false)}
+              onClose={() => { setSchedulePanel(false); setScheduleEditingId(null); }}
               className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
             >
-                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[var(--c-text)] mb-4">{scheduleEditingId ? "Schedule Updated" : "Schedule Created"}</h2>
-                <p className="text-[14px] text-[var(--c-text-muted)]">{scheduleEditingId ? "Your daily briefing has been updated." : "Your daily briefing has been scheduled."}</p>
+                <div className="rounded-[20px] border border-[#F24E1E]/25 bg-[linear-gradient(135deg,rgba(242,78,30,0.16),rgba(242,78,30,0.045)_46%,rgba(255,255,255,0.03))] px-5 py-6 text-center">
+                  <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-[#F24E1E]/15 text-[#F24E1E] ring-1 ring-[#F24E1E]/25">
+                    <CheckIcon className="size-5" />
+                  </div>
+                  <h2 id="schedule-ok-title" className="mt-4 text-[19px] font-semibold tracking-[-0.02em] text-[var(--c-text)]">
+                    {scheduleEditingId ? "Schedule updated." : "Delivery is live."}
+                  </h2>
+                  <p className="mx-auto mt-2 max-w-[340px] text-[14px] leading-relaxed text-[var(--c-text-muted)]">
+                    {scheduleEditingId
+                      ? "Your agent will follow the updated rule from the next run."
+                      : "Your agent is now set to find the moments, cut the reel, and deliver it automatically."}
+                  </p>
+                  <div className="mt-5 rounded-[14px] border border-[var(--c-border)] bg-[var(--c-hover)] px-4 py-3 text-left">
+                    <div className="flex items-start gap-3">
+                      <span className="mt-0.5 inline-flex size-8 shrink-0 items-center justify-center rounded-full bg-[#F24E1E]/10 text-[#F24E1E]">
+                        <CalendarIcon className="size-4" />
+                      </span>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-semibold text-[var(--c-text)]">Daily at {formatHourMinute(scheduleTime)}</p>
+                        <p className="mt-0.5 text-[12px] leading-relaxed text-[var(--c-text-subtle)]">
+                          {tzLabel} · {selectedChannelIds.length} inbox{selectedChannelIds.length === 1 ? "" : "es"} selected
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <p className="mt-5 font-hand text-[22px] leading-snug text-[#F24E1E]">
+                    Set once. Let the reel show up.
+                  </p>
+                </div>
                 <div className="mt-5">
-                  <button type="button" onClick={() => setSchedulePanel(false)} className="ds-btn ds-btn--primary ds-btn--sm w-full">Done</button>
+                  <button type="button" onClick={() => { setSchedulePanel(false); setScheduleEditingId(null); }} className="ds-btn ds-btn--primary ds-btn--sm w-full">Back to schedules</button>
                 </div>
             </ModalShell>
           ) : (
             <ModalShell
               labelledBy="schedule-panel-title"
-              onClose={() => setSchedulePanel(false)}
+              onClose={() => { setSchedulePanel(false); setScheduleEditingId(null); }}
               closeOnBackdrop={!isBusy}
               className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
             >
@@ -569,7 +560,7 @@ export default function SchedulesPage() {
                 </div>
                 <div className="mb-5 flex items-center gap-1 rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] p-1">
                   {["Query & Time", "Inbox", "Confirm"].map((label, i) => (
-                    <button key={label} disabled={isBusy} className={`flex-1 rounded-full px-2 py-1 text-[12px] font-medium transition-all duration-200 ${scheduleStep === i + 1 ? "bg-[#F24E1E] text-white" : "text-[var(--c-text-subtle)]"}`}>{label}</button>
+                    <button key={label} disabled={isBusy} className={`flex-1 rounded-full px-2 py-1 text-[12px] font-medium transition-all duration-200 ${scheduleStep === i + 1 ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)]"}`}>{label}</button>
                   ))}
                 </div>
                 {scheduleError ? (
@@ -581,8 +572,8 @@ export default function SchedulesPage() {
                       <label htmlFor="schedule-query" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Search query</label>
                       <input id="schedule-query" type="text" value={scheduleQuery} onChange={(e) => setScheduleQuery(e.target.value)} placeholder="e.g. highlights of fouls from USA vs Paraguay" disabled={isBusy} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                     </div>
-                    <div className="flex gap-3">
-                      <div className="flex-1">
+                    <div className="grid grid-cols-1 gap-3">
+                      <div className="min-w-0">
                         <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Time</label>
                         {scheduleTimeConfirmed ? (
                           <div className="flex items-center gap-2">
@@ -601,40 +592,44 @@ export default function SchedulesPage() {
                               setScheduleTime(`${h24.toString().padStart(2, "0")}:${min.toString().padStart(2, "0")}`);
                             };
                             return (
-                              <div className="flex items-center gap-1.5">
+                              <div className="flex min-h-[46px] flex-wrap items-center gap-1.5 rounded-xl border border-[var(--c-border)] bg-[var(--c-hover)] p-1.5">
                                 <select
                                   value={h12}
                                   onChange={(e) => setTime(Number(e.target.value), m, ampm)}
                                   disabled={isBusy}
-                                  className="ds-select ds-select--dark w-[64px] px-2.5 disabled:opacity-50"
+                                  aria-label="Hour"
+                                  className="h-9 w-[72px] rounded-lg border border-[var(--c-border)] bg-[var(--c-surface)] px-3 text-[14px] font-semibold text-[var(--c-text)] outline-none focus-visible:ring-2 focus-visible:ring-[#F24E1E]/50 disabled:opacity-50"
                                 >
                                   {Array.from({ length: 12 }, (_, i) => i + 1).map((v) => (
                                     <option key={v} value={v}>{v}</option>
                                   ))}
                                 </select>
-                                <span className="text-[14px] text-[var(--c-text-subtle)]">:</span>
+                                <span className="text-[14px] font-semibold text-[var(--c-text-subtle)]">:</span>
                                 <select
                                   value={m}
                                   onChange={(e) => setTime(h12, Number(e.target.value), ampm)}
                                   disabled={isBusy}
-                                  className="ds-select ds-select--dark w-[64px] px-2.5 disabled:opacity-50"
+                                  aria-label="Minute"
+                                  className="h-9 w-[72px] rounded-lg border border-[var(--c-border)] bg-[var(--c-surface)] px-3 text-[14px] font-semibold text-[var(--c-text)] outline-none focus-visible:ring-2 focus-visible:ring-[#F24E1E]/50 disabled:opacity-50"
                                 >
                                   {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((v) => (
                                     <option key={v} value={v}>{v.toString().padStart(2, "0")}</option>
                                   ))}
                                 </select>
-                                <div className="flex rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] p-0.5">
+                                <div className="flex min-w-[104px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] p-0.5">
                                   <button
                                     type="button"
                                     onClick={() => setTime(h12, m, "AM")}
                                     disabled={isBusy}
-                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200 ${ampm === "AM" ? "bg-[#F24E1E] text-white" : "text-[var(--c-text-subtle)] hover:text-white"}`}
+                                    aria-pressed={ampm === "AM"}
+                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-semibold transition-all duration-200 ${ampm === "AM" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}
                                   >AM</button>
                                   <button
                                     type="button"
                                     onClick={() => setTime(h12, m, "PM")}
                                     disabled={isBusy}
-                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-medium transition-all duration-200 ${ampm === "PM" ? "bg-[#F24E1E] text-white" : "text-[var(--c-text-subtle)] hover:text-white"}`}
+                                    aria-pressed={ampm === "PM"}
+                                    className={`rounded-full px-2.5 py-1.5 text-[12px] font-semibold transition-all duration-200 ${ampm === "PM" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}
                                   >PM</button>
                                 </div>
                               </div>
@@ -642,9 +637,9 @@ export default function SchedulesPage() {
                           })()
                         )}
                       </div>
-                      <div className="flex-[2]">
+                      <div className="min-w-0">
                         <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Timezone</label>
-                        <select value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} disabled={isBusy} className="ds-select ds-select--dark w-full disabled:opacity-50">
+                        <select value={scheduleTimezone} onChange={(e) => setScheduleTimezone(e.target.value)} disabled={isBusy} className="ds-select ds-select--dark min-h-[46px] w-full text-[14px] font-medium text-[var(--c-text)] disabled:opacity-50">
                           {timezones.map((tz) => (<option key={tz.value} value={tz.value}>{tz.label}</option>))}
                         </select>
                       </div>
@@ -691,7 +686,7 @@ export default function SchedulesPage() {
                   {scheduleStep > 1 ? (
                     <button type="button" onClick={() => setScheduleStep((s) => s - 1)} disabled={isBusy} className="ds-btn ds-btn--ghost-dark ds-btn--sm disabled:opacity-50">Back</button>
                   ) : (
-                    <button type="button" onClick={() => setSchedulePanel(false)} disabled={isBusy} className="ds-btn ds-btn--ghost-dark ds-btn--sm disabled:opacity-50">Cancel</button>
+                    <button type="button" onClick={() => { setSchedulePanel(false); setScheduleEditingId(null); }} disabled={isBusy} className="ds-btn ds-btn--ghost-dark ds-btn--sm disabled:opacity-50">Cancel</button>
                   )}
                   {scheduleStep < 3 ? (
                     <button type="button" onClick={() => { if (scheduleStep === 1) setScheduleTimeConfirmed(true); setScheduleStep((s) => s + 1); }} disabled={scheduleStep === 1 ? !scheduleQuery.trim() || !scheduleTime : selectedChannelIds.length === 0} className="ds-btn ds-btn--primary ds-btn--sm flex-1">Next</button>

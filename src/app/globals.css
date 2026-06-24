@@ -280,6 +280,8 @@ pre::-webkit-scrollbar-track { background: transparent; }
   background-color: rgba(255,255,255,0.95); color: var(--text-on-light); border-color: var(--border-on-light);
   background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='rgba(0,0,0,0.65)' stroke-width='1.5'%3E%3Cpolyline points='4 6 8 10 12 6'/%3E%3C/svg%3E");
 }
+.ds-select option { color: #111; background: #fff; }
+.ds-select--dark option { color: #111; background: #fff; }
 .ds-field-label {
   display: block; font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 500;
   letter-spacing: -0.005em; margin-bottom: 8px;

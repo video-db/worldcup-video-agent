@@ -27,37 +27,34 @@ function SketchFrame({ children, label }: { children: ReactNode; label?: string 
   );
 }
 
-/* Stick figure helper — head + body + arms, positioned by translate. */
-function StickFigure({ x, y, arm = "up", accent = false }: { x: number; y: number; arm?: "up" | "down" | "cheer"; accent?: boolean }) {
-  const stroke = accent ? ORANGE : INK;
-  return (
-    <g transform={`translate(${x} ${y})`} stroke={stroke} strokeWidth="2.4" className="sketch-stroke">
-      <circle cx="0" cy="0" r="9" />
-      <path d="M0 9 Q-1 22 0 34" />
-      {arm === "up" && <path d="M0 16 Q10 12 16 4" />}
-      {arm === "up" && <path d="M0 16 Q-8 18 -13 22" />}
-      {arm === "cheer" && <path d="M0 15 Q9 8 12 -2" />}
-      {arm === "cheer" && <path d="M0 15 Q-9 8 -12 -2" />}
-      {arm === "down" && <path d="M0 16 Q9 22 13 28" />}
-      {arm === "down" && <path d="M0 16 Q-9 22 -13 28" />}
-      <path d="M0 34 Q-7 42 -11 49" />
-      <path d="M0 34 Q7 42 11 49" />
-    </g>
-  );
-}
-
 /* ── Panel 1 — Ask once ───────────────────────────────────────────────── */
 export function PanelAskOnce() {
   return (
     <SketchFrame label="You ask the agent once">
-      <StickFigure x={48} y={92} arm="up" />
-      {/* speech bubble */}
-      <path d="M86 36 Q84 26 96 24 L182 22 Q196 22 196 34 L196 64 Q196 75 184 75 L108 77 L96 92 L100 76 Q86 74 86 62 Z" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
-      <text x="142" y="46" textAnchor="middle" className="font-hand" fontSize="16" fill={INK}>“Every goal from</text>
-      <text x="142" y="63" textAnchor="middle" className="font-hand" fontSize="16" fill={INK}>Brazil vs Morocco”</text>
-      {/* football */}
-      <circle cx="48" cy="158" r="11" stroke={ORANGE} strokeWidth="2.4" />
-      <path d="M48 149 l4 6 -3 7 -5 0 -3 -7 z" stroke={ORANGE} strokeWidth="1.6" className="sketch-stroke" />
+      {/* Key meets socket: the agent gets plugged in. */}
+      <rect x="36" y="66" width="76" height="76" rx="14" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M74 50 L74 66" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <circle cx="74" cy="45" r="5" fill={ORANGE} />
+      <circle cx="61" cy="94" r="5" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <circle cx="88" cy="94" r="5" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M61 116 Q74 124 88 116" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
+
+      <rect x="126" y="84" width="46" height="34" rx="8" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M126 96 L112 96" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M112 88 L112 104" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M172 96 L186 96" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M186 88 L186 104" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+
+      <g stroke={ORANGE} strokeWidth="2.4" className="sketch-stroke">
+        <circle cx="151" cy="53" r="10" />
+        <path d="M142 59 L122 75" />
+        <path d="M129 69 L136 76" />
+        <path d="M122 75 L127 81" />
+      </g>
+      <path d="M114 78 Q124 73 134 69" stroke={INK} strokeWidth="1.8" strokeDasharray="2 5" className="sketch-stroke" />
+      <path d="M119 137 Q144 153 176 136" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M173 129 L184 135 L174 142" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <text x="111" y="168" textAnchor="middle" className="font-hand" fontSize="18" fill={INK}>keys click in</text>
     </SketchFrame>
   );
 }
@@ -66,20 +63,18 @@ export function PanelAskOnce() {
 export function PanelPickTime() {
   return (
     <SketchFrame label="Pick a time and an inbox">
-      {/* clock */}
-      <circle cx="70" cy="78" r="34" stroke={INK} strokeWidth="2.4" />
-      <circle cx="70" cy="78" r="34" stroke={ORANGE} strokeWidth="2.4" strokeDasharray="3 7" opacity="0.7" />
-      <path d="M70 78 L70 56" stroke={INK} strokeWidth="2.6" className="sketch-stroke" />
-      <path d="M70 78 L88 86" stroke={ORANGE} strokeWidth="2.6" className="sketch-stroke" />
-      <circle cx="70" cy="78" r="2.5" fill={INK} />
-      <text x="70" y="132" textAnchor="middle" className="font-hand" fontSize="17" fill={ORANGE}>9:00 AM, daily</text>
-      {/* phone / channel */}
-      <rect x="150" y="48" width="44" height="74" rx="8" stroke={INK} strokeWidth="2.4" />
-      <path d="M150 60 L194 60" stroke={INK} strokeWidth="1.6" />
-      <path d="M150 110 L194 110" stroke={INK} strokeWidth="1.6" />
-      {/* paper plane (Telegram-ish) */}
-      <path d="M159 74 L185 70 L168 96 L165 84 Z" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
-      <text x="172" y="138" textAnchor="middle" className="font-hand" fontSize="15" fill={INK}>your inbox</text>
+      {/* Clear schedule card with one big clock. */}
+      <rect x="42" y="44" width="136" height="116" rx="14" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M42 68 Q76 71 178 67" stroke={INK} strokeWidth="2" className="sketch-stroke" />
+      <path d="M66 36 L66 55 M154 36 L154 55" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <circle cx="110" cy="103" r="34" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <circle cx="110" cy="103" r="34" stroke={ORANGE} strokeWidth="2.1" strokeDasharray="3 8" opacity="0.75" className="sketch-stroke" />
+      <path d="M110 103 L110 80" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M110 103 L128 112" stroke={ORANGE} strokeWidth="2.5" className="sketch-stroke" />
+      <circle cx="110" cy="103" r="3" fill={INK} />
+      <path d="M67 86 L82 86 M67 104 L82 104 M67 122 L82 122" stroke={INK} strokeWidth="1.7" opacity="0.55" className="sketch-stroke" />
+      <path d="M140 86 L154 86 M140 104 L154 104 M140 122 L154 122" stroke={INK} strokeWidth="1.7" opacity="0.55" className="sketch-stroke" />
+      <text x="110" y="151" textAnchor="middle" className="font-hand" fontSize="18" fill={ORANGE}>daily at 9:00</text>
     </SketchFrame>
   );
 }
@@ -88,22 +83,39 @@ export function PanelPickTime() {
 export function PanelAgentWorks() {
   return (
     <SketchFrame label="The agent works while you are away">
-      {/* moon */}
-      <path d="M44 30 a16 16 0 1 0 14 24 a13 13 0 0 1 -14 -24 z" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
-      <text x="78" y="34" className="font-hand" fontSize="15" fill={INK}>zzz…</text>
-      {/* desk */}
-      <path d="M30 150 L196 150" stroke={INK} strokeWidth="2.6" />
-      {/* robot agent */}
-      <rect x="92" y="78" width="56" height="48" rx="9" stroke={INK} strokeWidth="2.4" />
-      <path d="M120 66 L120 78" stroke={INK} strokeWidth="2.2" />
-      <circle cx="120" cy="62" r="4" fill={ORANGE} />
-      <circle cx="108" cy="100" r="5" stroke={ORANGE} strokeWidth="2.2" />
-      <circle cx="132" cy="100" r="5" stroke={ORANGE} strokeWidth="2.2" />
-      <path d="M106 114 Q120 120 134 114" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
-      {/* film strip being cut */}
-      <rect x="40" y="96" width="44" height="20" rx="3" stroke={INK} strokeWidth="2" />
-      <path d="M46 96 L46 116 M54 96 L54 116 M62 96 L62 116 M70 96 L70 116 M78 96 L78 116" stroke={INK} strokeWidth="1.2" opacity="0.6" />
-      <text x="113" y="174" textAnchor="middle" className="font-hand" fontSize="15" fill={INK}>finds · cuts · captions</text>
+      {/* Robot discovers a clip, cuts it, and sends the finished reel. */}
+      <path d="M30 136 Q86 140 190 136" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+
+      <g stroke={INK} strokeWidth="2.3" className="sketch-stroke">
+        <rect x="35" y="78" width="76" height="32" rx="6" />
+        <path d="M43 78 L43 110 M55 78 L55 110 M67 78 L67 110 M79 78 L79 110 M91 78 L91 110 M103 78 L103 110" opacity="0.55" />
+        <path d="M44 90 L102 90" opacity="0.45" />
+        <path d="M44 99 L102 99" opacity="0.45" />
+      </g>
+      <circle cx="73" cy="94" r="13" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M83 104 L96 117" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+
+      <rect x="112" y="55" width="58" height="48" rx="10" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M141 43 L141 55" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
+      <circle cx="141" cy="39" r="4.5" fill={ORANGE} />
+      <circle cx="130" cy="77" r="5" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <circle cx="153" cy="77" r="5" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M129 91 Q141 96 154 91" stroke={INK} strokeWidth="2.1" className="sketch-stroke" />
+      <path d="M112 84 Q101 91 94 104" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M170 85 Q182 90 187 104" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
+
+      <g stroke={ORANGE} strokeWidth="2.1" className="sketch-stroke">
+        <path d="M104 118 L117 106" />
+        <path d="M104 106 L117 118" />
+        <circle cx="101" cy="104" r="4" />
+        <circle cx="101" cy="120" r="4" />
+      </g>
+
+      <rect x="147" y="111" width="38" height="48" rx="8" stroke={INK} strokeWidth="2.3" className="sketch-stroke" />
+      <path d="M155 127 L176 139 L155 151 Z" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M191 122 Q198 129 196 138 M140 122 Q133 129 135 138" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
+      <text x="94" y="162" textAnchor="middle" className="font-hand" fontSize="17" fill={INK}>find + cut</text>
+      <text x="167" y="176" textAnchor="middle" className="font-hand" fontSize="16" fill={ORANGE}>delivered</text>
     </SketchFrame>
   );
 }
@@ -112,19 +124,102 @@ export function PanelAgentWorks() {
 export function PanelDelivered() {
   return (
     <SketchFrame label="The reel is delivered to you">
-      {/* phone buzzing */}
-      <g className="deliver-buzz" style={{ transformBox: "fill-box" } as React.CSSProperties}>
-        <rect x="78" y="40" width="64" height="100" rx="11" stroke={INK} strokeWidth="2.4" />
-        <rect x="86" y="56" width="48" height="34" rx="4" stroke={ORANGE} strokeWidth="2.2" />
-        {/* play triangle */}
-        <path d="M104 66 L116 73 L104 80 Z" fill={ORANGE} />
-        <path d="M88 102 L132 102 M88 112 L120 112" stroke={INK} strokeWidth="1.8" opacity="0.6" />
+      {/* Final reel lands on a buzzing phone after the robot cuts it. */}
+      <rect x="36" y="80" width="50" height="42" rx="8" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M61 67 L61 80" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
+      <circle cx="61" cy="63" r="4" fill={ORANGE} />
+      <circle cx="51" cy="99" r="4" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
+      <circle cx="71" cy="99" r="4" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
+      <path d="M50 111 Q61 116 72 111" stroke={INK} strokeWidth="2" className="sketch-stroke" />
+
+      <g stroke={INK} strokeWidth="2" className="sketch-stroke">
+        <rect x="44" y="135" width="62" height="22" rx="5" />
+        <path d="M52 135 L52 157 M64 135 L64 157 M76 135 L76 157 M88 135 L88 157 M100 135 L100 157" opacity="0.55" />
       </g>
-      {/* buzz lines */}
-      <path d="M150 52 q8 4 8 12 M150 128 q8 -4 8 -12" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
-      <path d="M62 52 q-8 4 -8 12 M62 128 q-8 -4 -8 -12" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
-      <StickFigure x={40} y={150} arm="cheer" accent />
-      <text x="150" y="174" textAnchor="middle" className="font-hand" fontSize="16" fill={INK}>ready to watch ✦</text>
+      <path d="M102 122 L112 134 M112 122 L102 134" stroke={ORANGE} strokeWidth="2.1" className="sketch-stroke" />
+
+      <path d="M92 88 Q112 73 134 72" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M130 63 L143 72 L130 80" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+
+      <g className="deliver-buzz" style={{ transformBox: "fill-box" } as React.CSSProperties}>
+        <rect x="132" y="46" width="52" height="92" rx="11" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+        <path d="M140 58 L176 58 M140 126 L176 126" stroke={INK} strokeWidth="1.6" opacity="0.7" className="sketch-stroke" />
+        <rect x="142" y="72" width="32" height="28" rx="5" stroke={ORANGE} strokeWidth="2.1" className="sketch-stroke" />
+        <path d="M154 79 L166 86 L154 93 Z" fill={ORANGE} />
+        <path d="M143 110 Q157 114 175 109" stroke={INK} strokeWidth="1.8" opacity="0.6" className="sketch-stroke" />
+      </g>
+      <path d="M190 62 q8 8 6 18 M190 116 q8 -8 6 -18 M126 62 q-8 8 -6 18 M126 116 q-8 -8 -6 -18" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
+      <text x="111" y="174" textAnchor="middle" className="font-hand" fontSize="17" fill={INK}>clip lands</text>
+    </SketchFrame>
+  );
+}
+
+/* ── STEPPER PANELS (Phase 5 – videodb-deck style) ────────────────────── */
+/*
+   Visual language: stick-figure cartoons, speech bubbles, wobbly hand-drawn
+   strokes, #F24E1E orange for focal points. One clear narrative per panel.
+   Toolkit references (from videodb-deck): stick, bubble, gear, arrow, box, frame.
+*/
+
+/* Panel 1 — Plug in your keys to wake the agent */
+export function PanelConnectKeys() {
+  return (
+    <SketchFrame label="Connect your TinyFish and VideoDB API keys">
+      <rect x="38" y="70" width="72" height="70" rx="14" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M74 54 L74 70" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <circle cx="74" cy="49" r="5" fill={ORANGE} />
+      <circle cx="62" cy="96" r="5" stroke={ORANGE} strokeWidth="2.1" className="sketch-stroke" />
+      <circle cx="87" cy="96" r="5" stroke={ORANGE} strokeWidth="2.1" className="sketch-stroke" />
+      <path d="M62 118 Q74 126 88 118" stroke={INK} strokeWidth="2.1" className="sketch-stroke" />
+
+      <rect x="126" y="86" width="48" height="34" rx="8" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M126 98 L111 98 M111 90 L111 106 M174 98 L189 98 M189 90 L189 106" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <circle cx="151" cy="55" r="10" stroke={ORANGE} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M142 61 L120 78 M128 72 L136 80 M120 78 L126 84" stroke={ORANGE} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M117 80 Q126 75 136 71" stroke={INK} strokeWidth="1.8" strokeDasharray="2 5" className="sketch-stroke" />
+      <path d="M119 139 Q144 154 177 138" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <path d="M174 131 L184 137 L174 144" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+      <text x="111" y="169" textAnchor="middle" className="font-hand" fontSize="18" fill={INK}>keys connected</text>
+    </SketchFrame>
+  );
+}
+
+/* Panel 2 — Connect a Telegram or Discord inbox */
+export function PanelAddInbox() {
+  return (
+    <SketchFrame label="Add your Telegram or Discord inbox">
+      <rect x="52" y="42" width="82" height="58" rx="14" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M74 100 L62 118 L88 102" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <path d="M69 62 L117 62 M69 79 L103 79" stroke={INK} strokeWidth="2" opacity="0.55" className="sketch-stroke" />
+      <circle cx="134" cy="41" r="11" fill={ORANGE} />
+      <text x="134" y="47" textAnchor="middle" className="font-hand" fontSize="17" fill={INK}>1</text>
+
+      <path d="M93 126 Q122 109 154 96" stroke={ORANGE} strokeWidth="2.2" strokeDasharray="3 6" className="sketch-stroke" />
+      <path d="M134 87 L169 78 L147 112 L143 96 Z" stroke={ORANGE} strokeWidth="2.4" className="sketch-stroke" />
+
+      <rect x="145" y="96" width="42" height="66" rx="9" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M153 111 L177 111 M153 126 L171 126 M153 141 L176 141" stroke={INK} strokeWidth="1.7" opacity="0.6" className="sketch-stroke" />
+      <path d="M189 109 q8 6 7 15 M141 109 q-8 6 -7 15" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
+      <text x="94" y="162" textAnchor="middle" className="font-hand" fontSize="18" fill={INK}>reels land here</text>
+    </SketchFrame>
+  );
+}
+
+/* Panel 3 — Agent runs on schedule, reel arrives while you sleep */
+export function PanelSetSchedule() {
+  return (
+    <SketchFrame label="Set it once — delivered every day">
+      <rect x="42" y="44" width="136" height="116" rx="14" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M42 68 Q82 71 178 67" stroke={INK} strokeWidth="2" className="sketch-stroke" />
+      <path d="M66 36 L66 55 M154 36 L154 55" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+      <circle cx="110" cy="103" r="34" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <circle cx="110" cy="103" r="34" stroke={ORANGE} strokeWidth="2.1" strokeDasharray="3 8" opacity="0.75" className="sketch-stroke" />
+      <path d="M110 103 L110 80" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
+      <path d="M110 103 L128 112" stroke={ORANGE} strokeWidth="2.5" className="sketch-stroke" />
+      <circle cx="110" cy="103" r="3" fill={INK} />
+      <path d="M67 86 L82 86 M67 104 L82 104 M67 122 L82 122" stroke={INK} strokeWidth="1.7" opacity="0.55" className="sketch-stroke" />
+      <path d="M140 86 L154 86 M140 104 L154 104 M140 122 L154 122" stroke={INK} strokeWidth="1.7" opacity="0.55" className="sketch-stroke" />
+      <text x="110" y="151" textAnchor="middle" className="font-hand" fontSize="18" fill={ORANGE}>daily at 9:00</text>
     </SketchFrame>
   );
 }
@@ -133,26 +228,37 @@ export function PanelDelivered() {
 export function DeliveryLoopIllustration({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 260 260" className={className} role="img" aria-label="Set it once, delivered every day" fill="none">
-      {/* dashed orbit with arrowheads */}
-      <circle cx="130" cy="130" r="96" stroke={ORANGE} strokeWidth="2.6" strokeDasharray="2 10" opacity="0.8" />
-      <path d="M226 124 l8 8 -10 6" stroke={ORANGE} strokeWidth="2.6" className="sketch-stroke" />
-      <path d="M34 136 l-8 -8 10 -6" stroke={ORANGE} strokeWidth="2.6" className="sketch-stroke" />
-      {/* center: calendar */}
-      <rect x="92" y="92" width="76" height="72" rx="10" stroke={INK} strokeWidth="2.6" />
-      <path d="M92 110 L168 110" stroke={INK} strokeWidth="2.2" />
-      <path d="M108 84 L108 100 M152 84 L152 100" stroke={INK} strokeWidth="2.6" className="sketch-stroke" />
-      <circle cx="112" cy="128" r="4" fill={ORANGE} />
-      <circle cx="130" cy="128" r="4" fill={INK} opacity="0.4" />
-      <circle cx="148" cy="128" r="4" fill={INK} opacity="0.4" />
-      <circle cx="112" cy="146" r="4" fill={INK} opacity="0.4" />
-      <circle cx="130" cy="146" r="4" fill={INK} opacity="0.4" />
-      <text x="130" y="186" textAnchor="middle" className="font-hand" fontSize="20" fill={INK}>every day</text>
-      {/* little satellites */}
+      {/* circular loop: set once -> every day -> delivered */}
+      <path d="M130 34 Q194 36 222 91 Q248 146 207 197 Q164 245 97 225 Q35 207 28 137 Q21 72 75 45 Q98 34 130 34" stroke={INK} strokeWidth="2.3" strokeDasharray="3 9" opacity="0.55" className="sketch-stroke" />
+      <path d="M216 82 L230 91 L216 101" stroke={ORANGE} strokeWidth="2.8" className="sketch-stroke" />
+      <path d="M44 181 L30 171 L47 164" stroke={ORANGE} strokeWidth="2.8" className="sketch-stroke" />
+
       <g className="float-bob">
-        <path d="M36 60 L58 56 L44 78 L42 67 Z" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+        <rect x="91" y="79" width="78" height="72" rx="11" stroke={INK} strokeWidth="2.6" className="sketch-stroke" />
+        <path d="M91 101 Q119 104 169 101" stroke={INK} strokeWidth="2.2" className="sketch-stroke" />
+        <path d="M108 69 L108 88 M152 69 L152 88" stroke={INK} strokeWidth="2.6" className="sketch-stroke" />
+        <circle cx="113" cy="121" r="4.5" fill={ORANGE} />
+        <circle cx="130" cy="121" r="3.8" fill={INK} opacity="0.35" />
+        <circle cx="147" cy="121" r="3.8" fill={INK} opacity="0.35" />
+        <circle cx="113" cy="137" r="3.8" fill={INK} opacity="0.35" />
+        <circle cx="130" cy="137" r="3.8" fill={INK} opacity="0.35" />
       </g>
-      <rect x="196" y="186" width="34" height="24" rx="5" stroke={INK} strokeWidth="2.2" />
-      <path d="M201 196 L221 192 L209 208 Z" stroke={ORANGE} strokeWidth="1.8" className="sketch-stroke" />
+
+      <g stroke={INK} strokeWidth="2.3" className="sketch-stroke">
+        <circle cx="66" cy="67" r="14" />
+        <path d="M54 76 L34 91" />
+        <path d="M43 84 L51 93" />
+        <path d="M34 91 L40 99" />
+      </g>
+
+      <g className="deliver-buzz" style={{ transformBox: "fill-box" } as React.CSSProperties}>
+        <rect x="183" y="165" width="42" height="58" rx="9" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
+        <path d="M194 184 L215 196 L194 208 Z" stroke={ORANGE} strokeWidth="2" className="sketch-stroke" />
+      </g>
+      <path d="M230 178 q8 8 5 18 M178 178 q-8 8 -5 18" stroke={ORANGE} strokeWidth="2.2" className="sketch-stroke" />
+
+      <text x="130" y="181" textAnchor="middle" className="font-hand" fontSize="22" fill={INK}>every day</text>
+      <text x="130" y="204" textAnchor="middle" className="font-hand" fontSize="19" fill={ORANGE}>set once → delivered</text>
     </svg>
   );
 }

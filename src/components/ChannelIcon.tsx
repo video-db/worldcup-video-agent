@@ -1,4 +1,4 @@
-/* Brand icons for the notification channels (Telegram, Discord). Used in the
+/* Brand icons for the notification channels (Telegram, Discord, Slack). Used in the
    add-channel form, channel cards, the schedule channel picker, and every popup
    that references a channel. Default to brand colors; pass `mono` to inherit
    the current text color instead. */
@@ -21,10 +21,26 @@ export function DiscordIcon({ size = 16, className, mono = false }: IconProps) {
   );
 }
 
+export function SlackIcon({ size = 16, className, mono = false }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" className={className} fill="none" aria-hidden="true">
+      <path d="M9.1 2.4a2.3 2.3 0 0 1 4.6 0v5.7a2.3 2.3 0 1 1-4.6 0V2.4Z" fill={mono ? "currentColor" : "#36C5F0"} />
+      <path d="M21.6 9.1a2.3 2.3 0 0 1 0 4.6h-5.7a2.3 2.3 0 1 1 0-4.6h5.7Z" fill={mono ? "currentColor" : "#2EB67D"} />
+      <path d="M14.9 21.6a2.3 2.3 0 0 1-4.6 0v-5.7a2.3 2.3 0 1 1 4.6 0v5.7Z" fill={mono ? "currentColor" : "#ECB22E"} />
+      <path d="M2.4 14.9a2.3 2.3 0 0 1 0-4.6h5.7a2.3 2.3 0 1 1 0 4.6H2.4Z" fill={mono ? "currentColor" : "#E01E5A"} />
+      <path d="M14.9 2.4a2.3 2.3 0 0 1 4.6 0 2.3 2.3 0 0 1-2.3 2.3h-2.3V2.4Z" fill={mono ? "currentColor" : "#2EB67D"} />
+      <path d="M21.6 14.9a2.3 2.3 0 0 1 0 4.6 2.3 2.3 0 0 1-2.3-2.3v-2.3h2.3Z" fill={mono ? "currentColor" : "#ECB22E"} />
+      <path d="M9.1 21.6a2.3 2.3 0 0 1-4.6 0 2.3 2.3 0 0 1 2.3-2.3h2.3v2.3Z" fill={mono ? "currentColor" : "#E01E5A"} />
+      <path d="M2.4 9.1a2.3 2.3 0 0 1 0-4.6 2.3 2.3 0 0 1 2.3 2.3v2.3H2.4Z" fill={mono ? "currentColor" : "#36C5F0"} />
+    </svg>
+  );
+}
+
 export default function ChannelIcon({ type, size = 16, className, mono }: { type: string } & IconProps) {
   const t = type.toLowerCase();
   if (t === "telegram") return <TelegramIcon size={size} className={className} mono={mono} />;
   if (t === "discord") return <DiscordIcon size={size} className={className} mono={mono} />;
+  if (t === "slack") return <SlackIcon size={size} className={className} mono={mono} />;
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className={className} aria-hidden="true">
       <path d="M22 2 11 13M22 2l-7 20-4-9-9-4 20-7z" strokeLinecap="round" strokeLinejoin="round" />

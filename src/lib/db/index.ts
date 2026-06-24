@@ -7,4 +7,4 @@ const pool = new Pool({
 });
 export const db = drizzle(pool);
 
-export { channels, runs, videoCache, schedules, userKeys } from "./schema";
+export { channels, runs, videoCache, schedules, userKeys, freeRunCounts } from "./schema";

@@ -9,6 +9,8 @@ import LowCreditsBanner from "@/components/LowCreditsBanner";
 import { SchedulerStory } from "@/components/scheduler-illustrations";
 import { ArrowRightIcon, CalendarIcon, SearchIcon, TargetIcon } from "@/components/Icons";
 
+const FREE_RUN_LIMIT = 3;
+
 const suggestions = [
   { text: "Manchester United Women Goals 2024", runId: "fec0a34a-d0df-410d-885f-cd4ed1bc82d1" },
   { text: "Barcelona vs Manchester United foul moments", runId: "11f29b6c-46c0-4963-9934-324bf4aa0e88" },
@@ -67,6 +69,8 @@ export default function Home() {
   const [previewLoading, setPreviewLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [hasSession, setHasSession] = useState(false);
+  const [freeRunCount, setFreeRunCount] = useState(0);
+  const [freeRunsExhausted, setFreeRunsExhausted] = useState(false);
   const [selectedSuggestionRunId, setSelectedSuggestionRunId] = useState<string | null>(null);
   const [suggestionFocusIdx, setSuggestionFocusIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -86,8 +90,14 @@ export default function Home() {
   }, [hasSession, trigger]);
 
   useEffect(() => {
-    setHasSession(!!localStorage.getItem("session_token"));
+    const hasToken = !!localStorage.getItem("session_token");
+    setHasSession(hasToken);
     setKeysLoaded(true);
+    if (!hasToken) {
+      const count = parseInt(sessionStorage.getItem("free_run_count") || "0", 10);
+      setFreeRunCount(count);
+      if (count >= FREE_RUN_LIMIT) setFreeRunsExhausted(true);
+    }
   }, []);
 
   useEffect(() => {
@@ -187,27 +197,46 @@ export default function Home() {
     e.preventDefault();
     if (!prompt.trim() || isRunning) return;
 
-    const sessionToken = localStorage.getItem("session_token");
-    if (!sessionToken) {
-      const addKeysBtn = document.querySelector<HTMLButtonElement>('[data-header-add-keys]');
-      addKeysBtn?.click();
+    if (!hasSession && freeRunsExhausted) {
+      openKeysModal();
       return;
     }
 
     setIsRunning(true);
     try {
+      const headers: Record<string, string> = {
+        "Content-Type": "application/json",
+      };
+      const sessionToken = localStorage.getItem("session_token");
+      if (sessionToken) headers["x-session-token"] = sessionToken;
+
       const res = await fetch("/api/agent", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-session-token": sessionToken,
-        },
+        headers,
         body: JSON.stringify({ prompt: prompt.trim() }),
       });
 
-      if (!res.ok || !res.body) {
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        if (data.error === "free_runs_exhausted") {
+          sessionStorage.setItem("free_run_count", String(FREE_RUN_LIMIT));
+          setFreeRunCount(FREE_RUN_LIMIT);
+          setFreeRunsExhausted(true);
+        }
         setIsRunning(false);
         return;
+      }
+
+      if (!res.body) {
+        setIsRunning(false);
+        return;
+      }
+
+      const isFreeRun = !sessionToken;
+      if (isFreeRun) {
+        const next = freeRunCount + 1;
+        sessionStorage.setItem("free_run_count", String(next));
+        setFreeRunCount(next);
       }
 
       const reader = res.body.getReader();
@@ -271,8 +300,7 @@ export default function Home() {
   }
 
   function openKeysModal() {
-    const addKeysBtn = document.querySelector<HTMLButtonElement>('[data-header-add-keys]');
-    addKeysBtn?.click();
+    window.dispatchEvent(new CustomEvent("open-key-modal"));
   }
 
   return (
@@ -294,25 +322,18 @@ export default function Home() {
                 type="text"
                 value={prompt}
                 aria-label="Search for match moments"
-                onChange={(e) => {
-                  if (hasSession) setPrompt(e.target.value);
-                }}
+                onChange={(e) => setPrompt(e.target.value)}
                 onFocus={() => setShowSuggestions(true)}
-                onKeyDown={(e) => {
-                  if (!hasSession && e.key.length === 1) e.preventDefault();
-                }}
-                placeholder={hasSession ? "Ask for any match moment…" : "Choose a briefing below, or add API keys to run your own"}
-                readOnly={!hasSession}
+                placeholder="Ask for any match moment…"
                 disabled={isRunning}
                 className="flex-1 border-none bg-transparent py-3 pl-2 text-[15.5px] text-[var(--c-text)] outline-none placeholder:text-[var(--c-text-faint)] rounded-full disabled:opacity-50"
               />
               <button
-                type={hasSession ? "submit" : "button"}
-                onClick={hasSession ? undefined : openKeysModal}
-                disabled={hasSession ? (!prompt.trim() || isRunning) : isRunning}
+                type="submit"
+                disabled={!prompt.trim() || isRunning}
                 className="flex items-center gap-2 rounded-full bg-[#F24E1E] px-5 py-[11px] text-[14px] font-medium text-white shadow-[0_2px_10px_rgba(242,78,30,0.3)] transition-all duration-200 hover:bg-[#D14016] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[var(--c-hover-2)] disabled:text-[var(--c-text-faint)] disabled:shadow-none"
               >
-                {hasSession ? "Run" : "Add keys"}<ArrowRightIcon className="size-[14px]" />
+                Run<ArrowRightIcon className="size-[14px]" />
               </button>
             </form>
 
@@ -355,6 +376,27 @@ export default function Home() {
               </div>
             ) : null}
           </div>
+
+          {!hasSession && !freeRunsExhausted ? (
+            <div className="mx-auto mt-4 max-w-[640px] flex items-center justify-center gap-3 text-[13.5px]">
+              <button type="button" onClick={openKeysModal} className="rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] px-3.5 py-1.5 text-[12.5px] font-semibold text-[var(--c-text-subtle)] transition-colors hover:border-[#F24E1E]/40 hover:text-[var(--c-text)]">
+                Use your own keys
+              </button>
+              <span className="font-semibold text-[var(--c-text-subtle)]">
+                {FREE_RUN_LIMIT - freeRunCount} free run{FREE_RUN_LIMIT - freeRunCount === 1 ? "" : "s"} left
+              </span>
+            </div>
+          ) : freeRunsExhausted && !hasSession ? (
+            <div className="mt-4 mx-auto max-w-[640px] rounded-[14px] border border-[#F24E1E]/30 bg-[#F24E1E]/5 px-5 py-4 text-center">
+              <p className="text-[13.5px] text-[var(--c-text-muted)]">
+                You&apos;ve used your {FREE_RUN_LIMIT} free runs.{" "}
+                <button type="button" onClick={openKeysModal} className="font-semibold text-[#F24E1E] hover:underline">
+                  Add your own API keys
+                </button>{" "}
+                to keep going.
+              </p>
+            </div>
+          ) : null}
         </section>
         <LowCreditsBanner />
       </div>

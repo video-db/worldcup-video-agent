@@ -162,8 +162,7 @@ function MyBriefingsContent() {
             <button
               type="button"
               onClick={() => {
-                const btn = document.querySelector<HTMLButtonElement>("[data-header-add-keys]");
-                btn?.click();
+                window.dispatchEvent(new CustomEvent("open-key-modal"));
               }}
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#F24E1E] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(242,78,30,0.26)] transition-all duration-200 hover:bg-[#D14016] active:scale-[0.98]"
             >

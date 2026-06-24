@@ -26,6 +26,12 @@ export default function Header() {
   }, []);
 
   useEffect(() => {
+    const handler = () => setKeyPanelOpen(true);
+    window.addEventListener("open-key-modal", handler);
+    return () => window.removeEventListener("open-key-modal", handler);
+  }, []);
+
+  useEffect(() => {
     function handleClick(e: MouseEvent) {
       if (accountRef.current && !accountRef.current.contains(e.target as Node)) {
         setAccountOpen(false);
@@ -133,45 +139,34 @@ export default function Header() {
             )}
           </button>
           {hasSession ? (
-            <>
-              <Link href="/schedules" className="ds-btn ds-btn--primary ds-btn--sm">
-                <CalendarIcon className="size-[15px]" /> Schedules
-              </Link>
-              <div ref={accountRef} className="relative">
-                <button
-                  ref={accountBtnRef}
-                  type="button"
-                  onClick={() => setAccountOpen(!accountOpen)}
-                  aria-expanded={accountOpen}
-                  aria-controls="account-dropdown"
-                  aria-label="API keys active — click to manage"
-                  className="flex items-center gap-1.5 rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] px-[10px] py-[7px] text-[12.5px] font-semibold text-[var(--c-text-muted)] whitespace-nowrap transition-all duration-200 hover:border-[#F24E1E]/60 hover:text-[var(--c-text)] active:scale-[0.98]"
-                >
-                  <span className="size-2 rounded-full bg-[#F24E1E] flex-none" />
-                  API
-                  <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--c-text-faint)]"><path d="m6 9 6 6 6-6"/></svg>
-                </button>
-                {accountOpen ? (
-                  <div
-                    id="account-dropdown"
-                    ref={accountMenuRef}
-                    className="absolute right-0 top-full mt-1.5 w-[312px] rounded-[16px] border border-[var(--c-border)] bg-[var(--c-surface)] p-2 shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-rise"
-                  >
-                    <div className="px-3 py-2.5">
-                      <p className="text-[13.5px] font-semibold text-[var(--c-text)]">Your keys</p>
-                      <p className="mt-1 text-[12px] text-[var(--c-text-faint)]">Your keys are sent once for validation, then stored encrypted and represented locally by a session token.</p>
-                    </div>
-                    <div className="flex flex-col gap-1.5 px-1.5">
-                      <div className="flex items-center justify-between rounded-[10px] bg-[var(--c-hover)] px-[11px] py-[9px]">
-                        <span className="text-[12.5px] font-semibold text-[var(--c-text-muted)]">TinyFish</span>
-                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#F24E1E]">Configured</span>
-                      </div>
-                      <div className="flex items-center justify-between rounded-[10px] bg-[var(--c-hover)] px-[11px] py-[9px]">
-                        <span className="text-[12.5px] font-semibold text-[var(--c-text-muted)]">VideoDB</span>
-                        <span className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#F24E1E]">Configured</span>
-                      </div>
-                    </div>
-                    <div className="mx-1.5 my-2.5 h-px bg-[var(--c-border)]" />
+            <Link href="/schedules" className="ds-btn ds-btn--primary ds-btn--sm">
+              <CalendarIcon className="size-[15px]" /> Create a Schedule
+            </Link>
+          ) : (
+            <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
+              <CalendarIcon className="size-[15px]" /> Create a Schedule
+            </Link>
+          )}
+          <div ref={accountRef} className="relative">
+            <button
+              ref={accountBtnRef}
+              type="button"
+              onClick={() => setAccountOpen(!accountOpen)}
+              aria-expanded={accountOpen}
+              aria-controls="account-dropdown"
+              aria-label="Account menu"
+              className="flex size-11 items-center justify-center rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] text-[var(--c-text-muted)] transition-all duration-200 hover:border-[#F24E1E]/60 hover:text-[var(--c-text)] active:scale-[0.98]"
+            >
+              <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </button>
+            {accountOpen ? (
+              <div
+                id="account-dropdown"
+                ref={accountMenuRef}
+                className="absolute right-0 top-full mt-1.5 w-[224px] rounded-[16px] border border-[var(--c-border)] bg-[var(--c-surface)] p-2 shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-rise"
+              >
+                {hasSession ? (
+                  <>
                     <Link
                       href="/me"
                       onClick={() => setAccountOpen(false)}
@@ -179,6 +174,7 @@ export default function Header() {
                     >
                       My briefings<ArrowRightIcon className="size-3.5" />
                     </Link>
+                    <div className="mx-1.5 my-2 h-px bg-[var(--c-border)]" />
                     <button
                       type="button"
                       onClick={() => setClearConfirm(true)}
@@ -186,25 +182,19 @@ export default function Header() {
                     >
                       Clear keys
                     </button>
-                  </div>
-                ) : null}
+                  </>
+                ) : (
+                    <button
+                    type="button"
+                    onClick={() => { setAccountOpen(false); setKeyPanelOpen(true); }}
+                    className="flex w-full items-center justify-between rounded-[10px] px-3 py-[9px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:bg-[var(--c-hover)]"
+                  >
+                    Add API keys<ArrowRightIcon className="size-3.5" />
+                  </button>
+                )}
               </div>
-            </>
-          ) : (
-            <>
-              <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
-                <CalendarIcon className="size-[15px]" /> Schedules
-              </Link>
-              <button
-                type="button"
-                data-header-add-keys
-                onClick={() => setKeyPanelOpen(true)}
-                className="ds-btn ds-btn--primary ds-btn--sm"
-              >
-                Add API keys
-              </button>
-            </>
-          )}
+            ) : null}
+          </div>
         </div>
       </header>
 

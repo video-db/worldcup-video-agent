@@ -1,7 +1,8 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { stepCountIs, streamText, tool } from "ai";
 import { NextRequest } from "next/server";
 import { z } from "zod";
+import crypto from "crypto";
 import type { BriefingPayload, VideoCandidate } from "@/lib/demo-data";
 import {
   inferIntent,
@@ -10,7 +11,7 @@ import {
   type SearchResponse,
 } from "@/lib/video-pipeline";
 import { AGENT_SYSTEM_PROMPT, videoCandidateSchema } from "@/lib/agent-tools";
-import { db, runs } from "@/lib/db";
+import { db, runs, freeRunCounts } from "@/lib/db";
 import { inngest } from "@/inngest/client";
 import { resolveSessionToken } from "@/lib/session";
 import { logger } from "@/lib/logger";
@@ -105,26 +106,22 @@ function errorMessage(error: unknown): string {
   }
 }
 
+function sha256(text: string): string {
+  return crypto.createHash("sha256").update(text).digest("hex");
+}
+
+const FREE_RUN_LIMIT = 3;
+
+function clientIP(request: NextRequest): string {
+  const realIp = request.headers.get("x-real-ip");
+  if (realIp) return realIp.trim();
+  return "127.0.0.1";
+}
+
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => null)) as {
     prompt?: string;
   } | null;
-
-  const sessionToken = request.headers.get("x-session-token");
-  if (!sessionToken) {
-    return new Response(
-      JSON.stringify({ error: "Session token is required" }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
-    );
-  }
-
-  const session = resolveSessionToken(sessionToken);
-  if (!session) {
-    return new Response(
-      JSON.stringify({ error: "Invalid or expired session token" }),
-      { status: 401, headers: { "Content-Type": "application/json" } },
-    );
-  }
 
   const prompt = body?.prompt?.trim();
   if (!prompt) {
@@ -134,9 +131,67 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const tfApiKey = session.tfApiKey;
-  const vdbApiKey = session.vdbApiKey;
-  const apiKeyHash = session.apiKeyHash;
+  const sessionToken = request.headers.get("x-session-token");
+  let tfApiKey: string;
+  let vdbApiKey: string;
+  let apiKeyHash: string;
+
+  if (sessionToken) {
+    const session = resolveSessionToken(sessionToken);
+    if (!session) {
+      return new Response(
+        JSON.stringify({ error: "Invalid or expired session token" }),
+        { status: 401, headers: { "Content-Type": "application/json" } },
+      );
+    }
+    tfApiKey = session.tfApiKey;
+    vdbApiKey = session.vdbApiKey;
+    apiKeyHash = session.apiKeyHash;
+  } else {
+    const houseTf = process.env.HOUSE_TF_API_KEY;
+    const houseVdb = process.env.HOUSE_VDB_API_KEY;
+    if (!houseTf || !houseVdb) {
+      return new Response(
+        JSON.stringify({ error: "Free runs are not configured" }),
+        { status: 503, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    const ip = clientIP(request);
+    const ipHash = sha256(ip);
+
+    try {
+      const [result] = await db
+        .insert(freeRunCounts)
+        .values({ ipHash, count: 1 })
+        .onConflictDoUpdate({
+          target: freeRunCounts.ipHash,
+          set: {
+            count: sql`${freeRunCounts.count} + 1`,
+            updatedAt: new Date(),
+          },
+          setWhere: sql`${freeRunCounts.count} < ${FREE_RUN_LIMIT}`,
+        })
+        .returning({ count: freeRunCounts.count });
+
+      if (!result) {
+        return new Response(
+          JSON.stringify({ error: "free_runs_exhausted", remaining: 0, limit: FREE_RUN_LIMIT }),
+          { status: 403, headers: { "Content-Type": "application/json" } },
+        );
+      }
+    } catch (err) {
+      logger.error({ err }, "Failed to increment free-run count");
+      return new Response(
+        JSON.stringify({ error: "Unable to process free run" }),
+        { status: 500, headers: { "Content-Type": "application/json" } },
+      );
+    }
+
+    tfApiKey = houseTf;
+    vdbApiKey = houseVdb;
+    apiKeyHash = sha256(houseVdb);
+  }
   const modelName = process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat";
   const runId = crypto.randomUUID();
   const toolCalls: AgentToolCall[] = [];

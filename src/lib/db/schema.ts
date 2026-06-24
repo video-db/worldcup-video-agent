@@ -1,5 +1,6 @@
 import {
   boolean,
+  integer,
   jsonb,
   pgTable,
   text,
@@ -81,4 +82,11 @@ export const userKeys = pgTable("user_keys", {
   apiKeyHash: text("api_key_hash").primaryKey(),
   userId: text("user_id").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+});
+
+export const freeRunCounts = pgTable("free_run_counts", {
+  ipHash: text("ip_hash").primaryKey(),
+  count: integer("count").notNull().default(0),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
 });

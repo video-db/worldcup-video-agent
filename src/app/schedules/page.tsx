@@ -293,8 +293,7 @@ export default function SchedulesPage() {
             <button
               type="button"
               onClick={() => {
-                const btn = document.querySelector<HTMLButtonElement>("[data-header-add-keys]");
-                btn?.click();
+                window.dispatchEvent(new CustomEvent("open-key-modal"));
               }}
               className="ds-btn ds-btn--primary mt-9"
             >

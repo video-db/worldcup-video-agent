@@ -210,8 +210,7 @@ export default function BriefingPage() {
                 type="button"
                 onClick={() => {
                   if (typeof window !== "undefined") {
-                    const addKeysBtn = document.querySelector<HTMLButtonElement>("[data-header-add-keys]");
-                    addKeysBtn?.click();
+                    window.dispatchEvent(new CustomEvent("open-key-modal"));
                   }
                 }}
                 className="mt-[14px] inline-flex items-center rounded-[11px] bg-[#F24E1E] px-4 py-2.5 text-[13px] font-bold text-white shadow-[0_2px_10px_rgba(242,78,30,0.24)] hover:bg-[#D14016]"

@@ -1,6 +1,6 @@
 import { and, asc, eq, lte } from "drizzle-orm";
 import { NonRetriableError } from "inngest";
-import { createHash, randomUUID } from "crypto";
+import { randomUUID } from "crypto";
 import { connect } from "videodb";
 import { channels, db, runs, schedules, videoCache } from "@/lib/db";
 import { decrypt, decryptJson } from "@/lib/encrypt";
@@ -222,7 +222,6 @@ export const createReel = inngest.createFunction(
     });
 
     const vdbVideoId = uploadResult.vdbVideoId as string;
-    const title = uploadResult.title as string;
     const thumbnailUrl = uploadResult.thumbnailUrl as string | null;
 
     await step.run("say-upload-done", async () => { await say(pick(UPLOAD_DONE_MSGS)); });
@@ -344,7 +343,6 @@ export const createReel = inngest.createFunction(
       );
     });
 
-    const eventCount = result.events?.length || 0;
     await step.run("say-search-done", async () => { await say(pick(SEARCH_DONE_MSGS)); });
 
     await setStatus(`Generating title and match summary...`);
@@ -508,7 +506,7 @@ export const checkSchedules = inngest.createFunction(
 
         let selectedVideo: VideoCandidate | null =
           agentResult?.selectedVideo ?? null;
-        let knownEvents =
+        const knownEvents =
           agentResult?.knownEvents ?? [];
 
         if (!selectedVideo || (agentResult?.search && agentResult.search.results.length === 0)) {

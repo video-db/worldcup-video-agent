@@ -7,6 +7,8 @@ import Link from "next/link";
 import { getCommonTimezones } from "@/lib/timezone";
 import ConfirmModal from "@/components/ConfirmModal";
 import ChannelIcon from "@/components/ChannelIcon";
+import ModalShell from "@/components/ModalShell";
+import { ArrowLeftIcon, ArrowRightIcon, CloseIcon } from "@/components/Icons";
 import { DeliveryLoopIllustration, SchedulerStepStrip, PanelAskOnce, PanelPickTime, PanelAgentWorks, PanelDelivered } from "@/components/scheduler-illustrations";
 
 type ChannelItem = { id: string; name: string; type: string; isValidated: boolean };
@@ -151,7 +153,6 @@ export default function SchedulesPage() {
   async function deleteChannel(id: string) {
     const sessionToken = localStorage.getItem("session_token"); if (!sessionToken) return;
     const res = await fetch(`/api/channels/${id}`, { method: "DELETE", headers: { "x-session-token": sessionToken } });
-    const data = await res.json();
     if (res.ok) {
       setChannels((prev) => prev.filter((c) => c.id !== id));
     }
@@ -261,7 +262,7 @@ export default function SchedulesPage() {
       <div className="mx-auto w-full max-w-6xl px-4 pb-24">
         <header className="sticky top-0 z-20 -mx-4 flex h-14 items-center justify-between bg-[var(--c-bg)]/85 px-4 backdrop-blur-md">
           <Link href="/" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
-            ← Back
+            <ArrowLeftIcon className="size-4" /> Back
           </Link>
         </header>
 
@@ -296,7 +297,7 @@ export default function SchedulesPage() {
               }}
               className="ds-btn ds-btn--primary mt-9"
             >
-              Add API keys to start →
+              Add API keys to start <ArrowRightIcon className="size-4" />
             </button>
           </div>
         ) : (
@@ -345,7 +346,7 @@ export default function SchedulesPage() {
                     onClick={() => { setAddPanel(true); setAddError(""); }}
                     className="ds-btn ds-btn--primary mt-7"
                   >
-                    Add a channel first →
+                    Add a channel first <ArrowRightIcon className="size-4" />
                   </button>
                 ) : (
                   <button
@@ -353,7 +354,7 @@ export default function SchedulesPage() {
                     onClick={openNewSchedule}
                     className="ds-btn ds-btn--primary mt-7"
                   >
-                    Create your first schedule →
+                    Create your first schedule <ArrowRightIcon className="size-4" />
                   </button>
                 )}
               </section>
@@ -395,11 +396,9 @@ export default function SchedulesPage() {
                           type="button"
                           aria-label="Delete channel"
                           onClick={() => handleDeleteChannelClick(ch.id)}
-                          className="rounded-full p-1 text-[var(--c-text-subtle)] transition-colors hover:bg-[#E5484D]/10 hover:text-[#E5484D]"
+                          className="flex size-11 items-center justify-center rounded-full text-[var(--c-text-subtle)] transition-colors hover:bg-[#E5484D]/10 hover:text-[#E5484D]"
                         >
-                          <svg viewBox="0 0 16 16" className="size-3.5" fill="none">
-                            <path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                          </svg>
+                          <CloseIcon className="size-4" />
                         </button>
                       </div>
                     </div>
@@ -418,16 +417,15 @@ export default function SchedulesPage() {
               ) : (
                 <div className="space-y-3">
                   {schedules.map((s) => (
-                    <Link
+                    <div
                       key={s.id}
-                      href={`/schedules/${s.id}`}
-                      className="ds-card ds-card--dark is-interactive block p-4"
+                      className="ds-card ds-card--dark p-4"
                     >
                       <div className="flex items-start justify-between">
                         <div className="min-w-0 flex-1">
-                          <span className="text-[15px] font-medium text-[var(--c-text)] line-clamp-2">
+                          <Link href={`/schedules/${s.id}`} className="text-[15px] font-medium text-[var(--c-text)] line-clamp-2 hover:text-[#F24E1E]">
                             {s.query}
-                          </span>
+                          </Link>
                           <p className="mt-1 text-[13px] text-[var(--c-text-subtle)]">
                             Daily at {formatHourMinute(s.runTime)} {s.timezone}
                           </p>
@@ -449,15 +447,13 @@ export default function SchedulesPage() {
                             type="button"
                             aria-label="Delete schedule"
                             onClick={(e) => { e.preventDefault(); e.stopPropagation(); setDeleteScheduleId(s.id); }}
-                            className="rounded-full p-1 text-[var(--c-text-subtle)] transition-colors hover:bg-[#E5484D]/10 hover:text-[#E5484D]"
+                            className="flex size-11 items-center justify-center rounded-full text-[var(--c-text-subtle)] transition-colors hover:bg-[#E5484D]/10 hover:text-[#E5484D]"
                           >
-                            <svg viewBox="0 0 16 16" className="size-3.5" fill="none">
-                              <path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-                            </svg>
+                            <CloseIcon className="size-4" />
                           </button>
                         </div>
                       </div>
-                    </Link>
+                    </div>
                   ))}
                 </div>
               )}
@@ -467,16 +463,20 @@ export default function SchedulesPage() {
 
         {/* Add Channel Panel */}
         {addPanel ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => { if (!addTesting) closeAddPanel(); }}>
-            <div className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="add-channel-title" onClick={(e) => e.stopPropagation()}>
+          <ModalShell
+            labelledBy="add-channel-title"
+            onClose={closeAddPanel}
+            closeOnBackdrop={!addTesting}
+            className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
+          >
               <div className="mb-5 flex items-center justify-between">
                 <h2 id="add-channel-title" className="text-[16px] font-semibold text-[var(--c-text)]">Add Channel</h2>
                 <button type="button" aria-label="Close" onClick={() => { if (!addTesting) closeAddPanel(); }} disabled={addTesting} className="rounded-full p-1 text-[var(--c-text-subtle)] transition-colors hover:bg-[var(--c-hover-2)] hover:text-[var(--c-text-muted)] disabled:opacity-50">
-                  <svg viewBox="0 0 16 16" className="size-4" fill="none"><path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
+                  <CloseIcon className="size-4" />
                 </button>
               </div>
               {addError ? (
-                <div className="mb-5 rounded-xl border border-[#E5484D]/40 bg-[#E5484D]/10 px-4 py-3 text-[13px] text-[#E5484D]">{addError}</div>
+                <div role="alert" className="mb-5 rounded-xl border border-[#E5484D]/40 bg-[#E5484D]/10 px-4 py-3 text-[13px] text-[#E5484D]">{addError}</div>
               ) : null}
               <div className="space-y-4">
                 <div>
@@ -535,29 +535,34 @@ export default function SchedulesPage() {
                   {addTesting ? "Testing..." : "Add & Test"}
                 </button>
               </div>
-            </div>
-          </div>
+          </ModalShell>
         ) : null}
 
         {/* New Schedule Panel */}
         {schedulePanel ? (
           scheduleOk ? (
-            <div className="fixed inset-0 z-50 flex items-end justify-center bg-[#141413]/40 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
-              <div className="animate-rise w-full max-w-md rounded-t-2xl bg-white px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(32,32,31,0.18)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_1px_2px_rgba(32,32,31,0.06),0_20px_48px_rgba(32,32,31,0.18)]" role="dialog" aria-modal="true" aria-labelledby="schedule-ok-title" onClick={(e) => e.stopPropagation()}>
-                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[#1f1f1e] mb-4">{scheduleEditingId ? "Schedule Updated" : "Schedule Created"}</h2>
-                <p className="text-[14px] text-[#8a857c]">{scheduleEditingId ? "Your daily briefing has been updated." : "Your daily briefing has been scheduled."}</p>
+            <ModalShell
+              labelledBy="schedule-ok-title"
+              onClose={() => setSchedulePanel(false)}
+              className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
+            >
+                <h2 id="schedule-ok-title" className="text-[16px] font-semibold text-[var(--c-text)] mb-4">{scheduleEditingId ? "Schedule Updated" : "Schedule Created"}</h2>
+                <p className="text-[14px] text-[var(--c-text-muted)]">{scheduleEditingId ? "Your daily briefing has been updated." : "Your daily briefing has been scheduled."}</p>
                 <div className="mt-5">
                   <button type="button" onClick={() => setSchedulePanel(false)} className="ds-btn ds-btn--primary ds-btn--sm w-full">Done</button>
                 </div>
-              </div>
-            </div>
+            </ModalShell>
           ) : (
-            <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setSchedulePanel(false)}>
-              <div className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="schedule-panel-title" onClick={(e) => e.stopPropagation()}>
+            <ModalShell
+              labelledBy="schedule-panel-title"
+              onClose={() => setSchedulePanel(false)}
+              closeOnBackdrop={!isBusy}
+              className="animate-rise w-full max-w-md rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
+            >
                 <div className="mb-5 flex items-center justify-between">
                   <h2 id="schedule-panel-title" className="text-[16px] font-semibold text-[var(--c-text)]">{scheduleEditingId ? "Edit Schedule" : "New Schedule"}</h2>
                   <button type="button" aria-label="Close" onClick={() => { setSchedulePanel(false); setScheduleEditingId(null); }} disabled={isBusy} className="rounded-full p-1 text-[var(--c-text-subtle)] transition-colors hover:bg-[var(--c-hover-2)] hover:text-[var(--c-text-muted)] disabled:opacity-50">
-                    <svg viewBox="0 0 16 16" className="size-4" fill="none"><path d="M4.5 4.5l7 7m0-7l-7 7" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
+                    <CloseIcon className="size-4" />
                   </button>
                 </div>
                 <div className="mb-5 flex items-center gap-1 rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] p-1">
@@ -566,7 +571,7 @@ export default function SchedulesPage() {
                   ))}
                 </div>
                 {scheduleError ? (
-                  <div className="animate-rise mb-5 rounded-xl border border-[#E5484D]/40 bg-[#E5484D]/10 px-4 py-3 text-[13px] text-[#E5484D]">{scheduleError}</div>
+                  <div role="alert" className="animate-rise mb-5 rounded-xl border border-[#E5484D]/40 bg-[#E5484D]/10 px-4 py-3 text-[13px] text-[#E5484D]">{scheduleError}</div>
                 ) : null}
                 {scheduleStep === 1 ? (
                   <div className="space-y-4">
@@ -690,15 +695,17 @@ export default function SchedulesPage() {
                     <button type="button" onClick={() => { if (scheduleStep === 1) setScheduleTimeConfirmed(true); setScheduleStep((s) => s + 1); }} disabled={scheduleStep === 1 ? !scheduleQuery.trim() || !scheduleTime : selectedChannelIds.length === 0} className="ds-btn ds-btn--primary ds-btn--sm flex-1">Next</button>
                   ) : null}
                 </div>
-              </div>
-            </div>
+            </ModalShell>
           )
         ) : null}
 
         {/* Delete Channel Confirmation */}
         {deleteChannelId ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setDeleteChannelId(null)}>
-            <div className="animate-rise w-full max-w-sm rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="delete-channel-title" onClick={(e) => e.stopPropagation()}>
+          <ModalShell
+            labelledBy="delete-channel-title"
+            onClose={() => setDeleteChannelId(null)}
+            className="animate-rise w-full max-w-sm rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
+          >
               <h2 id="delete-channel-title" className="text-[16px] font-semibold text-[var(--c-text)]">Delete channel?</h2>
               {deleteAffected.length > 0 ? (
                 <p className="mt-2 text-[13px] text-[var(--c-text-subtle)]">This channel is used by {deleteAffected.length} active schedule{deleteAffected.length > 1 ? "s" : ""}. Removing it will affect those schedules.</p>
@@ -709,22 +716,23 @@ export default function SchedulesPage() {
                 <button type="button" onClick={() => setDeleteChannelId(null)} className="ds-btn ds-btn--ghost-dark ds-btn--sm">Cancel</button>
                 <button type="button" onClick={() => deleteChannel(deleteChannelId)} className="ds-btn ds-btn--danger ds-btn--sm flex-1">Delete</button>
               </div>
-            </div>
-          </div>
+          </ModalShell>
         ) : null}
 
         {/* Delete Schedule Confirmation */}
         {deleteScheduleId ? (
-          <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center" onClick={() => setDeleteScheduleId(null)}>
-            <div className="animate-rise w-full max-w-sm rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]" role="dialog" aria-modal="true" aria-labelledby="delete-schedule-title" onClick={(e) => e.stopPropagation()}>
+          <ModalShell
+            labelledBy="delete-schedule-title"
+            onClose={() => setDeleteScheduleId(null)}
+            className="animate-rise w-full max-w-sm rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-2xl sm:pb-6 sm:shadow-[0_20px_48px_rgba(0,0,0,0.5)]"
+          >
               <h2 id="delete-schedule-title" className="text-[16px] font-semibold text-[var(--c-text)]">Delete schedule?</h2>
               <p className="mt-2 text-[13px] text-[var(--c-text-subtle)]">This will permanently remove the schedule. Past runs are not affected.</p>
               <div className="mt-5 flex items-center gap-3">
                 <button type="button" onClick={() => setDeleteScheduleId(null)} className="ds-btn ds-btn--ghost-dark ds-btn--sm">Cancel</button>
                 <button type="button" onClick={() => deleteSchedule(deleteScheduleId)} className="ds-btn ds-btn--danger ds-btn--sm flex-1">Delete</button>
               </div>
-            </div>
-          </div>
+          </ModalShell>
         ) : null}
 
         <ConfirmModal

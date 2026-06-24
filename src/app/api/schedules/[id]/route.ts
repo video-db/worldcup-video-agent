@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { channels, db, runs, schedules } from "@/lib/db";
 import { decryptJson } from "@/lib/encrypt";
 import { notifyScheduleChange } from "@/lib/notify";
-import { getApiKeyHashes, resolveSessionToken } from "@/lib/session";
+import { getApiKeyHashes } from "@/lib/session";
 import { computeNextRunAt } from "@/lib/timezone";
 import { logger } from "@/lib/logger";
 

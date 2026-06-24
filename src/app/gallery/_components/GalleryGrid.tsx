@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import React from "react";
 import { useRouter } from "next/navigation";
@@ -30,7 +31,6 @@ function FallbackThumbnail({ label }: { label: string }) {
   const h = Math.abs(hash);
   const bg = colors[h % colors.length];
   const pattern = ["stripes-h", "circles", "stripes-v", "dots", "crosshatch"][(h >> 3) % 5];
-  const accent = patterns[pattern].accent;
 
   return (
     <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-b ${bg}`}>

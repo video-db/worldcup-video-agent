@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import ModalShell from "@/components/ModalShell";
 
 type ConfirmModalProps = {
   open: boolean;
@@ -26,17 +27,12 @@ export default function ConfirmModal({
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
-      onClick={onClose}
+    <ModalShell
+      labelledBy="confirm-modal-title"
+      onClose={onClose}
+      closeOnBackdrop={!loading}
+      className="animate-rise w-full max-w-[380px] rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-[18px] sm:pb-6 sm:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_20px_48px_rgba(0,0,0,0.5)]"
     >
-      <div
-        className="animate-rise w-full max-w-[380px] rounded-t-2xl border border-[var(--c-border)] bg-[var(--c-surface)] px-6 pt-6 pb-8 shadow-[0_-1px_48px_rgba(0,0,0,0.5)] sm:rounded-[18px] sm:pb-6 sm:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_20px_48px_rgba(0,0,0,0.5)]"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="confirm-modal-title"
-        onClick={(e) => e.stopPropagation()}
-      >
         <h3 id="confirm-modal-title" className="mb-3 text-[16px] font-semibold text-[var(--c-text)]">{title}</h3>
         <div className="mb-6 text-[13px] leading-relaxed text-[var(--c-text-muted)]">{children}</div>
         <div className="flex items-center gap-3">
@@ -59,7 +55,6 @@ export default function ConfirmModal({
             {loading ? "Please wait..." : confirmLabel}
           </button>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

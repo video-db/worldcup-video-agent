@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @next/next/no-img-element */
 
 import { useEffect, useState, use } from "react";
 import Link from "next/link";
@@ -6,6 +7,7 @@ import { useRouter } from "next/navigation";
 import type { GalleryRun } from "@/app/gallery/page";
 import ConfirmModal from "@/components/ConfirmModal";
 import { Pagination } from "@/components/Pagination";
+import { ArrowLeftIcon } from "@/components/Icons";
 
 type ScheduleDetail = {
   id: string;
@@ -151,7 +153,7 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
       <div className="flex-1 bg-[var(--c-bg)] text-[var(--c-text)]">
         <div className="mx-auto max-w-[1000px] px-[22px] pt-5 pb-24">
           <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
-            ← Schedules
+            <ArrowLeftIcon className="size-3.5" /> Schedules
           </Link>
           <div className="flex flex-col items-center justify-center py-24">
             <p className="text-[15px] text-[var(--c-text-subtle)]">{error}</p>
@@ -166,7 +168,7 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
       <div className="mx-auto max-w-[1000px] px-[22px] pt-5 pb-24">
         <div className="flex items-center justify-between gap-3">
           <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
-            ← Schedules
+            <ArrowLeftIcon className="size-3.5" /> Schedules
           </Link>
           {schedule ? (
             <div className="flex items-center gap-2">

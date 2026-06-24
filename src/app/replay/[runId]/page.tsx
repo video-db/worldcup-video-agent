@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import ReactMarkdown from "react-markdown";
+import { ArrowLeftIcon, ArrowRightIcon } from "@/components/Icons";
 
 type RawTimelineEvent = {
   type: string;
@@ -130,7 +131,6 @@ function buildSyntheticEvents(run: RunDetail): RawTimelineEvent[] {
 function buildStatusHistory(run: RunDetail): Array<{ ts: string; msg: string }> {
   if (run.statusHistory && run.statusHistory.length > 0) return run.statusHistory;
 
-  const seed = run.query || "default";
   const eventCount = run.events?.length || 0;
 
   return [
@@ -276,7 +276,8 @@ export default function ReplayPage() {
 
   useEffect(() => {
     if (scrollRef.current) {
-      scrollRef.current.scrollIntoView({ behavior: "smooth", block: "end" });
+      const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      scrollRef.current.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "end" });
     }
   }, [visibleCount, visibleStatusCount]);
 
@@ -302,14 +303,14 @@ export default function ReplayPage() {
             href="/"
             className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E]"
           >
-            ← Briefings
+            <ArrowLeftIcon className="size-3.5" /> Briefings
           </Link>
           <button
             type="button"
             onClick={() => router.push(`/b/${runId}`)}
             className="inline-flex items-center gap-[6px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
           >
-            Skip replay →
+            Skip replay <ArrowRightIcon className="size-3.5" />
           </button>
         </div>
 

@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { desc, inArray } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { channels, db, schedules } from "@/lib/db";
 import { decryptJson, encrypt } from "@/lib/encrypt";

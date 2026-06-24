@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import BriefingCard from "@/components/BriefingCard";
 import { SchedulerStory } from "@/components/scheduler-illustrations";
+import { ArrowRightIcon, CalendarIcon, SearchIcon, TargetIcon } from "@/components/Icons";
 
 const suggestions = [
   { text: "Manchester United Women Goals 2024", runId: "fec0a34a-d0df-410d-885f-cd4ed1bc82d1" },
@@ -66,6 +67,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [hasSession, setHasSession] = useState(false);
   const [selectedSuggestionRunId, setSelectedSuggestionRunId] = useState<string | null>(null);
+  const [suggestionFocusIdx, setSuggestionFocusIdx] = useState(-1);
   const inputRef = useRef<HTMLInputElement>(null);
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
@@ -250,6 +252,23 @@ export default function Home() {
     inputRef.current?.focus();
   }
 
+  function handleSuggestionKeyDown(e: React.KeyboardEvent) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setSuggestionFocusIdx((i) => Math.min(i + 1, suggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setSuggestionFocusIdx((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter" && suggestionFocusIdx >= 0) {
+      e.preventDefault();
+      const s = suggestions[suggestionFocusIdx];
+      selectSuggestion(s.text, s.runId);
+    } else if (e.key === "Escape") {
+      setShowSuggestions(false);
+      inputRef.current?.focus();
+    }
+  }
+
   function openKeysModal() {
     const addKeysBtn = document.querySelector<HTMLButtonElement>('[data-header-add-keys]');
     addKeysBtn?.click();
@@ -273,6 +292,7 @@ export default function Home() {
                 ref={inputRef}
                 type="text"
                 value={prompt}
+                aria-label="Search for match moments"
                 onChange={(e) => {
                   if (hasSession) setPrompt(e.target.value);
                 }}
@@ -291,31 +311,42 @@ export default function Home() {
                 disabled={hasSession ? (!prompt.trim() || isRunning) : isRunning}
                 className="flex items-center gap-2 rounded-full bg-[#F24E1E] px-5 py-[11px] text-[14px] font-medium text-white shadow-[0_2px_10px_rgba(242,78,30,0.3)] transition-all duration-200 hover:bg-[#D14016] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-[var(--c-hover-2)] disabled:text-[var(--c-text-faint)] disabled:shadow-none"
               >
-                {hasSession ? "Run" : "Add keys"}<span className="text-[14px]">↵</span>
+                {hasSession ? "Run" : "Add keys"}<ArrowRightIcon className="size-[14px]" />
               </button>
             </form>
 
             {showSuggestions ? (
               <div
                 ref={suggestionsRef}
+                role="listbox"
+                aria-label="Suggested briefings"
                 className="absolute inset-x-0 top-16 z-20 rounded-[16px] border border-[var(--c-border)] bg-[var(--c-surface)] p-2 text-left shadow-[0_14px_40px_rgba(0,0,0,0.5)] animate-rise"
+                onKeyDown={handleSuggestionKeyDown}
               >
                 <p className="mx-3 mb-1.5 mt-2 font-mono text-[10px] uppercase tracking-[0.16em] text-[var(--c-text-faint)]">
                   Try one of these
                 </p>
-                {suggestions.map((ex) => (
+                {suggestions.map((ex, idx) => (
                   <button
                     key={ex.runId}
                     type="button"
+                    role="option"
+                    aria-selected={idx === suggestionFocusIdx}
                     onMouseDown={() => selectSuggestion(ex.text, ex.runId)}
+                    onMouseEnter={() => setSuggestionFocusIdx(idx)}
+                    tabIndex={-1}
                     className={`flex w-full items-center gap-[11px] rounded-[11px] px-3 py-2.5 text-left transition-all duration-200 hover:bg-[var(--c-hover)] ${
                       selectedSuggestionRunId === ex.runId
                         ? "scale-[0.99] bg-[#F24E1E]/[0.12] shadow-[0_0_0_1px_rgba(242,78,30,0.35)]"
                         : ""
+                    } ${
+                      idx === suggestionFocusIdx && selectedSuggestionRunId !== ex.runId
+                        ? "bg-[var(--c-hover)]"
+                        : ""
                     }`}
                   >
                     <span className="flex size-6 flex-none items-center justify-center rounded-[7px] bg-[var(--c-hover-2)] text-[12px] text-[var(--c-text-subtle)]" aria-hidden="true">
-                      {selectedSuggestionRunId === ex.runId ? "→" : "⌕"}
+                      <SearchIcon className="size-3.5" />
                     </span>
                   <span className="text-[14px] text-[var(--c-text-muted)]">{ex.text}</span>
                   </button>
@@ -341,7 +372,7 @@ export default function Home() {
                 </p>
               </div>
               <Link href="/schedules" className="ds-btn ds-btn--ghost-dark ds-btn--sm">
-                Manage all →
+                Manage all <ArrowRightIcon className="size-3.5" />
               </Link>
             </div>
 
@@ -354,7 +385,7 @@ export default function Home() {
                 >
                   <div className="flex items-center gap-3 min-w-0">
                     <span className="inline-flex size-[34px] shrink-0 items-center justify-center rounded-[9px] border border-[var(--c-border)] bg-[var(--c-hover)] text-[#F24E1E]">
-                      <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      <CalendarIcon className="size-4" />
                     </span>
                     <div className="min-w-0">
                       <p className="truncate text-[14px] font-semibold text-[var(--c-text)]">
@@ -389,16 +420,17 @@ export default function Home() {
             </div>
             <div className="flex items-center gap-[10px]">
               <div className="flex items-center gap-2 rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-2 focus-within:border-[#F24E1E]/50 transition-colors">
-                <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--c-text-faint)] shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                <SearchIcon className="size-3.5 text-[var(--c-text-faint)] shrink-0" />
                 <input
+                  aria-label="Search briefings"
                   value={search}
                   onChange={(e) => handleSearch(e.target.value)}
                   placeholder="Search…"
-                  className="w-[120px] border-none bg-transparent text-[13.5px] text-[var(--c-text)] outline-none placeholder:text-[var(--c-text-faint)]"
+                  className="w-[120px] sm:w-[180px] border-none bg-transparent text-[13.5px] text-[var(--c-text)] outline-none placeholder:text-[var(--c-text-faint)]"
                 />
               </div>
               <Link href={previewType === "personal" ? "/me" : "/gallery"} className="ds-btn ds-btn--ghost-dark ds-btn--sm">
-                View all →
+                View all <ArrowRightIcon className="size-3.5" />
               </Link>
             </div>
           </div>
@@ -433,13 +465,15 @@ export default function Home() {
               className="mt-[18px] flex w-full items-center justify-between rounded-[14px] border border-[var(--c-border)] bg-[var(--c-hover)] px-5 py-4 hover:border-[#F24E1E]/50 transition-colors duration-200 active:scale-[0.98]"
             >
               <span className="flex items-center gap-3">
-                <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-[var(--c-border)] bg-[var(--c-surface)] text-[#F24E1E]"><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg></span>
+                <span className="inline-flex size-[34px] items-center justify-center rounded-[9px] border border-[var(--c-border)] bg-[var(--c-surface)] text-[#F24E1E]">
+                  <TargetIcon className="size-4" />
+                </span>
                 <span>
                   <span className="block text-[14px] font-semibold text-[var(--c-text)]">Explore the public gallery</span>
                   <span className="mt-px block text-[12.5px] text-[var(--c-text-faint)]">Curated World Cup reels from the community</span>
                 </span>
               </span>
-              <span className="text-[var(--c-text-faint)]">→</span>
+              <ArrowRightIcon className="size-4 text-[var(--c-text-faint)]" />
             </Link>
           ) : null}
         </section>
@@ -455,11 +489,11 @@ export default function Home() {
             </p>
             {hasSession ? (
               <Link href="/schedules" className="ds-btn ds-btn--primary mt-7 inline-flex">
-                Set up a schedule →
+                Set up a schedule <ArrowRightIcon className="size-4" />
               </Link>
             ) : (
               <button type="button" onClick={openKeysModal} className="ds-btn ds-btn--primary mt-7 inline-flex">
-                Add API keys to start →
+                Add API keys to start <ArrowRightIcon className="size-4" />
               </button>
             )}
           </section>

@@ -1,10 +1,12 @@
 "use client";
+/* eslint-disable react-hooks/set-state-in-effect */
 
 import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import BriefingCard from "@/components/BriefingCard";
 import { Pagination } from "@/components/Pagination";
+import { ArrowLeftIcon, ArrowRightIcon, SearchIcon } from "@/components/Icons";
 
 type RunItem = {
   id: string;
@@ -143,7 +145,7 @@ function MyBriefingsContent() {
             href="/"
             className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
           >
-            ← Home
+            <ArrowLeftIcon className="size-3.5" /> Home
           </Link>
           <div className="flex flex-col items-center justify-center py-16 text-center max-w-[480px] mx-auto">
             <span className="inline-flex size-[56px] items-center justify-center rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] text-[#F24E1E] shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
@@ -165,7 +167,7 @@ function MyBriefingsContent() {
               }}
               className="mt-8 inline-flex items-center gap-2 rounded-full bg-[#F24E1E] px-5 py-2.5 text-[14px] font-bold text-white shadow-[0_2px_10px_rgba(242,78,30,0.26)] transition-all duration-200 hover:bg-[#D14016] active:scale-[0.98]"
             >
-              Add API keys →
+              Add API keys <ArrowRightIcon className="size-3.5" />
             </button>
           </div>
         </div>
@@ -180,7 +182,7 @@ function MyBriefingsContent() {
           href="/"
           className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
         >
-          ← Home
+          <ArrowLeftIcon className="size-3.5" /> Home
         </Link>
 
         <div className="mt-[18px] flex items-end justify-between gap-4 flex-wrap">
@@ -196,13 +198,14 @@ function MyBriefingsContent() {
           </div>
           <div className="flex items-center gap-[9px]">
             <div className="flex items-center gap-[9px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[14px] py-[9px] shadow-[0_1px_2px_rgba(0,0,0,0.4)]">
-              <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-[var(--c-text-subtle)] shrink-0"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+              <SearchIcon className="size-[14px] text-[var(--c-text-subtle)] shrink-0" />
               <input
                 type="text"
+                aria-label="Search your briefings"
                 value={search}
                 onChange={(e) => onSearch(e.target.value)}
                 placeholder="Search your briefings…"
-                className="w-[180px] border-none bg-transparent text-[14px] text-[var(--c-text)] outline-none placeholder:text-[var(--c-text-subtle)] focus-visible:ring-2 focus-visible:ring-[#F24E1E]/40 focus-visible:ring-offset-1"
+                className="w-[140px] sm:w-[180px] border-none bg-transparent text-[14px] text-[var(--c-text)] outline-none placeholder:text-[var(--c-text-subtle)] focus-visible:ring-2 focus-visible:ring-[#F24E1E]/40 focus-visible:ring-offset-1"
               />
             </div>
             <Link
@@ -244,7 +247,7 @@ function MyBriefingsContent() {
             </p>
             {!showingFailed ? (
               <Link href="/" className="mt-3 text-[13px] font-bold text-[#F24E1E] hover:underline">
-                Create your first briefing →
+                Create your first briefing <ArrowRightIcon className="size-3.5 inline-block" />
               </Link>
             ) : null}
           </div>
@@ -270,7 +273,11 @@ function MyBriefingsContent() {
               className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[12.5px] font-medium text-[var(--c-text-subtle)] transition-colors hover:bg-[var(--c-hover)] hover:text-[var(--c-text-muted)]"
             >
               {showingFailed ? "Show completed runs" : "Show failed runs"}
-              <span aria-hidden="true">{showingFailed ? "↑" : "↓"}</span>
+              {showingFailed ? (
+                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+              ) : (
+                <svg aria-hidden="true" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+              )}
             </button>
           </div>
         ) : null}
@@ -298,7 +305,7 @@ export default function MyBriefings() {
           </div>
         </div>
       </div>
-    }>
+      }>
       <MyBriefingsContent />
     </Suspense>
   );

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowLeftIcon } from "@/components/Icons";
 import { and, desc, eq, or, sql, count, type SQL } from "drizzle-orm";
 import { db, runs } from "@/lib/db";
 import type { BriefingEvent, VideoCandidate } from "@/lib/demo-data";
@@ -96,7 +97,7 @@ export default async function GalleryPage({
           href="/"
           className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
         >
-          ← Home
+          <ArrowLeftIcon className="size-3.5" /> Home
         </Link>
 
         <div className="mt-[18px] flex items-end justify-between gap-4 flex-wrap">

@@ -1,5 +1,8 @@
 "use client";
 
+import ModalShell from "@/components/ModalShell";
+import { CloseIcon } from "@/components/Icons";
+
 type KeyModalProps = {
   tfKey: string;
   vdbKey: string;
@@ -22,22 +25,17 @@ export default function KeyModal({
   onClose,
 }: KeyModalProps) {
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-[18px] backdrop-blur-[4px]"
-      onClick={onClose}
+    <ModalShell
+      labelledBy="key-modal-title"
+      onClose={onClose}
+      closeOnBackdrop={!validating}
+      className="animate-rise w-full max-w-[430px] rounded-t-[20px] border border-[var(--c-border)] bg-[var(--c-surface)] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.5)] sm:rounded-[20px]"
     >
-      <div
-        className="animate-rise w-full max-w-[430px] rounded-[20px] border border-[var(--c-border)] bg-[var(--c-surface)] p-6 shadow-[0_24px_60px_rgba(0,0,0,0.5)]"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="key-modal-title"
-        onClick={(e) => e.stopPropagation()}
-      >
         <div className="flex items-start justify-between">
           <div>
             <h2 id="key-modal-title" className="text-[19px] font-bold tracking-[-0.01em] text-[var(--c-text)]">Add your API keys</h2>
             <p className="mt-[7px] text-[13px] leading-relaxed text-[var(--c-text-subtle)]">
-              Stored in your browser only. Never sent to our servers.
+              Your keys are sent once for validation, then stored encrypted and represented locally by a session token.
             </p>
           </div>
           <button
@@ -45,14 +43,14 @@ export default function KeyModal({
             onClick={onClose}
             disabled={validating}
             aria-label="Close"
-            className="flex size-[30px] shrink-0 items-center justify-center rounded-full border-0 bg-[var(--c-hover-2)] text-[15px] text-[var(--c-text-subtle)] hover:text-[var(--c-text-muted)] disabled:opacity-50"
+            className="flex size-11 shrink-0 items-center justify-center rounded-full border-0 bg-[var(--c-hover-2)] text-[var(--c-text-subtle)] hover:text-[var(--c-text-muted)] disabled:opacity-50"
           >
-            <svg aria-hidden="true" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6 6 18M6 6l12 12"/></svg>
+            <CloseIcon className="size-4" />
           </button>
         </div>
 
         {error ? (
-          <div className="animate-rise mt-4 rounded-[11px] border border-[#E5484D]/40 bg-[#E5484D]/10 px-[13px] py-[11px] text-[13px] text-[#E5484D]">
+          <div role="alert" className="animate-rise mt-4 rounded-[11px] border border-[#E5484D]/40 bg-[#E5484D]/10 px-[13px] py-[11px] text-[13px] text-[#E5484D]">
             {error}
           </div>
         ) : null}
@@ -77,6 +75,7 @@ export default function KeyModal({
               onChange={(e) => onTfKeyChange(e.target.value)}
               placeholder="tf-..."
               autoComplete="off"
+              aria-invalid={Boolean(error)}
               disabled={validating}
               className="ds-input ds-input--dark w-full disabled:opacity-50"
             />
@@ -100,6 +99,7 @@ export default function KeyModal({
               onChange={(e) => onVdbKeyChange(e.target.value)}
               placeholder="vdb-..."
               autoComplete="off"
+              aria-invalid={Boolean(error)}
               disabled={validating}
               className="ds-input ds-input--dark w-full disabled:opacity-50"
             />
@@ -124,7 +124,6 @@ export default function KeyModal({
             {validating ? "Checking keys..." : "Save keys"}
           </button>
         </div>
-      </div>
-    </div>
+    </ModalShell>
   );
 }

@@ -13,7 +13,6 @@ import { AGENT_SYSTEM_PROMPT, videoCandidateSchema } from "@/lib/agent-tools";
 import { db, runs } from "@/lib/db";
 import { inngest } from "@/inngest/client";
 import { resolveSessionToken } from "@/lib/session";
-import { logger } from "@/lib/logger";
 
 export const runtime = "nodejs";
 // Vercel Hobby plan caps Serverless Function duration at 300s.
@@ -105,34 +104,6 @@ function errorMessage(error: unknown): string {
   }
 }
 
-async function saveRunToDb(
-  briefing: BriefingPayload | null,
-  query: string,
-  error?: string,
-  apiKeyHash?: string,
-) {
-  try {
-    const isError = briefing?.mode === "live-error" || !!error;
-    await db.insert(runs).values({
-      query,
-      topic: briefing?.topic ?? null,
-      status: isError ? "failed" : "completed",
-      mode: briefing?.mode ?? null,
-      selectedVideo: briefing?.selectedVideo ?? null,
-      streamUrl: briefing?.streamUrl ?? null,
-      playerUrl: briefing?.playerUrl ?? null,
-      thumbnailUrl: null,
-      events: briefing?.events ?? null,
-      summary: briefing?.summary ?? null,
-      errorMessage: error ?? briefing?.error ?? null,
-      apiKeyHash: apiKeyHash ?? null,
-      completedAt: new Date(),
-    });
-  } catch (err) {
-    logger.error({ err }, "Failed to save run to database");
-  }
-}
-
 export async function POST(request: NextRequest) {
   const body = (await request.json().catch(() => null)) as {
     prompt?: string;
@@ -170,7 +141,7 @@ export async function POST(request: NextRequest) {
   const toolCalls: AgentToolCall[] = [];
   let search: SearchResponse | null = null;
   let selectedVideo: VideoCandidate | null = null;
-  let briefing: BriefingPayload | null = null;
+  const briefing: BriefingPayload | null = null;
   let reelRunId: string | null = null;
   const timeline: Record<string, unknown>[] = [];
 

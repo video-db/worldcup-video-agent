@@ -1,47 +1,40 @@
 "use client";
-/* eslint-disable react-hooks/set-state-in-effect */
 
+import { useCallback } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { SearchIcon } from "@/components/Icons";
 
-export function SearchField({ initialSearch }: { initialSearch: string }) {
+export function SearchField({ initialSearch = "" }: { initialSearch?: string }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [value, setValue] = useState(initialSearch);
-  const timerRef = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const value = searchParams.get("search") ?? initialSearch;
 
-  const pushSearch = useCallback(
+  const push = useCallback(
     (text: string) => {
       const params = new URLSearchParams(searchParams.toString());
-      params.delete("page");
       if (text) {
         params.set("search", text);
       } else {
         params.delete("search");
       }
-      const query = params.toString();
-      router.push(query ? `/gallery?${query}` : "/gallery", { scroll: false });
+      params.delete("page");
+      const q = params.toString();
+      router.push(q ? `/gallery?${q}` : "/gallery", { scroll: false });
     },
     [router, searchParams],
   );
 
-  useEffect(() => {
-    setValue(searchParams.get("search") ?? "");
-  }, [searchParams]);
-
-  function onChange(text: string) {
-    setValue(text);
-    clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => pushSearch(text), 300);
-  }
-
   return (
-    <div className="w-[280px]">
+    <div className="flex items-center gap-2 rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-5 py-3 w-full sm:w-[280px] transition-all duration-200 focus-within:border-[#F24E1E] focus-within:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_rgba(242,78,30,0.12)]">
+      <SearchIcon className="size-[14px] text-[var(--c-text-faint)] shrink-0" />
       <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
+        type="text"
+        aria-label="Search briefings"
+        defaultValue={value}
+        key={`search-${value}`}
+        onChange={(e) => push(e.target.value)}
         placeholder="Search briefings…"
-        className="w-full rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-5 py-3 text-[15px] text-[var(--c-text)] outline-none transition-all duration-200 placeholder:text-[var(--c-text-subtle)] focus:border-[#F24E1E] focus:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_rgba(242,78,30,0.12)]"
+        className="w-full border-none bg-transparent text-[15px] text-[var(--c-text)] outline-none placeholder:text-[var(--c-text-subtle)]"
       />
     </div>
   );

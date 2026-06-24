@@ -55,6 +55,20 @@ export default function BriefingPage() {
   const [showSendModal, setShowSendModal] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const stopAutoScrollRef = useRef(false);
+  const lastScrollYRef = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY < lastScrollYRef.current) {
+        stopAutoScrollRef.current = true;
+      }
+      lastScrollYRef.current = currentY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
   const prevStatusRef = useRef<string | undefined>(undefined);
 
   const fetchRun = useCallback(async () => {
@@ -95,7 +109,7 @@ export default function BriefingPage() {
     const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (run.status === "processing") {
-      if (scrollRef.current) {
+      if (scrollRef.current && !stopAutoScrollRef.current) {
         scrollRef.current.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "end" });
       }
     } else if (prev === "processing") {

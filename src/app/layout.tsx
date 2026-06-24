@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "World Cup Briefing — TinyFish × VideoDB",
   description: "Create soccer moment reels with TinyFish discovery and VideoDB video indexing.",
-  icons: { icon: "/brand/icon-football.png?v=2" },
+  icons: { icon: "/brand/icon-football.svg" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

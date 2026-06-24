@@ -156,10 +156,29 @@ export default function ReplayPage() {
   const runId = params.runId as string;
   const [run, setRun] = useState<RunDetail | null>(null);
   const [notFound, setNotFound] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   const [visibleCount, setVisibleCount] = useState(0);
   const [visibleStatusCount, setVisibleStatusCount] = useState(-1);
   const redirectedRef = useRef(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const stopAutoScrollRef = useRef(false);
+  const lastScrollYRef = useRef(0);
+
+  useEffect(() => {
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY < lastScrollYRef.current) {
+        stopAutoScrollRef.current = true;
+      }
+      lastScrollYRef.current = currentY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("theme-dark"));
+  }, []);
 
   const fullEvents = useMemo(() => {
     if (!run) return [];
@@ -275,7 +294,7 @@ export default function ReplayPage() {
   }, [notFound, fullEvents.length, fullStatusHistory.length, router, runId, visibleCount, visibleStatusCount]);
 
   useEffect(() => {
-    if (scrollRef.current) {
+    if (scrollRef.current && !stopAutoScrollRef.current) {
       const prefersReduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       scrollRef.current.scrollIntoView({ behavior: prefersReduced ? "auto" : "smooth", block: "end" });
     }
@@ -330,13 +349,13 @@ export default function ReplayPage() {
           <div className="space-y-[13px]">
             {visibleEvents.length > 0 ? (
               <>
-                <TimelineView events={visibleEvents} />
+                <TimelineView events={visibleEvents} isDark={isDark} />
                 {visibleStatus.length > 0 ? (
-                  <StatusHistory cards={visibleStatus} />
+                  <StatusHistory cards={visibleStatus} isDark={isDark} />
                 ) : null}
               </>
             ) : (
-              <StatusHistory cards={undefined} fallback={run?.statusMessage || "Creating your highlight..."} />
+              <StatusHistory cards={undefined} fallback={run?.statusMessage || "Creating your highlight..."} isDark={isDark} />
             )}
             <div ref={scrollRef} />
           </div>
@@ -357,7 +376,7 @@ type TimelineEvent = {
   };
 };
 
-function TimelineView({ events }: { events: TimelineEvent[] }) {
+function TimelineView({ events, isDark }: { events: TimelineEvent[]; isDark: boolean }) {
   const items: Array<{ type: "text"; text: string } | { type: "tool"; tc: TimelineEvent["toolCall"] }> = [];
   let textBuf = "";
 
@@ -392,7 +411,7 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
             {isTinyFish ? (
               <>
                 <div className="flex items-center gap-[10px] border-b border-[var(--c-border)] px-4 py-[13px]">
-                  <Image src="/brand/icon-tinyfish.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                  <Image src={isDark ? "/brand/icon-tinyfish-dark.png" : "/brand/icon-tinyfish.png"} alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                   <span className="text-[13.5px] font-bold text-[var(--c-text)]">TinyFish · {tc.summary}</span>
                 </div>
                 {tc.details && (tc.details as { results?: Array<{ title: string; url: string }> }).results?.[0] ? (
@@ -412,7 +431,7 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
             ) : (
               <div className="flex items-center gap-[10px] px-4 py-[13px]">
                 {tc.status === "done" ? (
-                  <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                  <Image src={isDark ? "/brand/icon-videodb-dark.png" : "/brand/icon-videodb.png"} alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 ) : (
                   <span className="size-[18px] rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 )}
@@ -426,7 +445,7 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
   );
 }
 
-function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: string }>; fallback?: string }) {
+function StatusHistory({ cards, fallback, isDark }: { cards?: Array<{ ts: string; msg: string }>; fallback?: string; isDark: boolean }) {
   if (cards && cards.length > 0) {
     return (
       <>
@@ -438,7 +457,7 @@ function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: s
                 {isLast ? (
                   <span className="size-[18px] flex-none rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 ) : (
-                  <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                  <Image src={isDark ? "/brand/icon-videodb-dark.png" : "/brand/icon-videodb.png"} alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 )}
                 <span className="text-[13.5px] font-bold text-[var(--c-text)]">{entry.msg}</span>
               </div>

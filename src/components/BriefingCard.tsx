@@ -31,7 +31,7 @@ function relativeTime(iso: string | undefined): string {
 function StatusBadge({ status }: { status?: string }) {
   if (!status || status === "completed") {
     return (
-      <span className="inline-flex items-center gap-[5px] rounded-full bg-[rgba(27,112,100,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white backdrop-blur">
+      <span className="inline-flex items-center gap-[5px] rounded-full bg-[rgba(27,112,100,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-[var(--c-text)] backdrop-blur">
         <span className="size-1.5 rounded-full bg-[#9fe6d6]" />
         READY
       </span>
@@ -39,14 +39,14 @@ function StatusBadge({ status }: { status?: string }) {
   }
   if (status === "processing") {
     return (
-      <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(185,119,42,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white">
+      <span className="inline-flex items-center gap-1.5 rounded-full bg-[rgba(185,119,42,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-[var(--c-text)]">
         <span className="status-dot-running size-1.5 rounded-full bg-[#f6d9aa]" />
         PROCESSING
       </span>
     );
   }
   return (
-    <span className="inline-flex items-center gap-[5px] rounded-full bg-[rgba(177,74,62,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-white">
+    <span className="inline-flex items-center gap-[5px] rounded-full bg-[rgba(177,74,62,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-[var(--c-text)]">
       FAILED
     </span>
   );
@@ -73,7 +73,7 @@ function FallbackThumbnail({ label }: { label: string }) {
       <svg viewBox="0 0 400 225" className="absolute inset-0 size-full">
         {patterns[pattern].draw()}
       </svg>
-      <span className="relative z-10 text-center text-[13px] font-semibold text-white/60 max-w-[80%] truncate px-3">
+      <span className="relative z-10 text-center text-[13px] font-semibold text-[var(--c-text-subtle)] max-w-[80%] truncate px-3">
         {label}
       </span>
     </div>
@@ -131,9 +131,9 @@ export default function BriefingCard({ run }: { run: BriefingCardRun }) {
         e.preventDefault();
         router.push(`/b/${run.id}`);
       }}
-      className="group block w-full text-left rounded-[16px] border border-[#ece9e1] bg-white shadow-[0_1px_2px_rgba(31,31,30,0.04)] transition-all duration-[180ms] hover:-translate-y-[3px] hover:border-[#fecb8b] hover:shadow-[0_10px_26px_rgba(255,103,0,0.12)] overflow-hidden"
+      className="group block w-full text-left rounded-[16px] border border-[var(--c-border)] bg-[var(--c-surface)] shadow-[0_1px_2px_rgba(0,0,0,0.4)] transition-all duration-[180ms] hover:-translate-y-[3px] hover:border-[#F24E1E] hover:shadow-[0_10px_26px_rgba(242,78,30,0.16)] overflow-hidden"
     >
-      <div className="relative aspect-video bg-[#1f1f1e] overflow-hidden">
+      <div className="relative aspect-video bg-black overflow-hidden">
         {run.thumbnail_url ? (
           <img
             src={run.thumbnail_url}
@@ -149,11 +149,11 @@ export default function BriefingCard({ run }: { run: BriefingCardRun }) {
         </div>
       </div>
       <div className="px-[15px] pt-[13px] pb-[15px]">
-        <p title={title} className="text-[14.5px] font-bold text-[#1f1f1e] line-clamp-1">{title}</p>
-        <p className="mt-[5px] text-[13px] text-[#7a756b] line-clamp-2 leading-[1.5]">{subtitle}</p>
-        <div className="mt-[11px] flex items-center gap-2 text-[12px] text-[#a8a399]">
+        <p title={title} className="text-[14.5px] font-bold text-[var(--c-text)] line-clamp-1">{title}</p>
+        <p className="mt-[5px] text-[13px] text-[var(--c-text-muted)] line-clamp-2 leading-[1.5]">{subtitle}</p>
+        <div className="mt-[11px] flex items-center gap-2 text-[12px] text-[var(--c-text-subtle)]">
           {momentsText ? <span>{momentsText}</span> : null}
-          {momentsText ? <span className="size-[3px] rounded-full bg-[#d8d3c8]" /> : null}
+          {momentsText ? <span className="size-[3px] rounded-full bg-[var(--c-text-faint)]" /> : null}
           <span>{relativeTime(run.created_at)}</span>
         </div>
       </div>

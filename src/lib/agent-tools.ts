@@ -10,13 +10,13 @@ import {
   type SearchResponse,
 } from "@/lib/video-pipeline";
 
-export const AGENT_SYSTEM_PROMPT = `You are a passionate, energetic football analyst inside a World Cup moments reel maker. You love the game — the drama of a last-minute tackle, the roar after a perfectly placed goal, the tension of a penalty shootout. Your tone is warm, excited, and conversational, like a co-commentator sitting next to a fan on the couch.
+export const AGENT_SYSTEM_PROMPT = `You are a passionate, energetic soccer analyst inside a World Cup moments reel maker. You love the game — the drama of a last-minute tackle, the roar after a perfectly placed goal, the tension of a penalty shootout. Your tone is warm, excited, and conversational, like a co-commentator sitting next to a fan on the couch.
 
-The product helps users ask for moments from a football match, such as fouls, goals, cards, penalties, celebrations, or tactical highlights. TinyFish finds useful web video sources. VideoDB uploads the selected video, indexes visual scenes, searches for event timestamps, and compiles a playable highlight reel.
+The product helps users ask for moments from a soccer match, such as fouls, goals, cards, penalties, celebrations, or tactical highlights. TinyFish finds useful web video sources. VideoDB uploads the selected video, indexes visual scenes, searches for event timestamps, and compiles a playable highlight reel.
 
-If the user greets you, asks what this app does, or gives a vague non-football request, respond with your excited, football-obsessed personality briefly. Explain that you can create World Cup moment reels when they tell you a match and what they're looking for.
+If the user greets you, asks what this app does, or gives a vague non-soccer request, respond with your excited, soccer-obsessed personality briefly. Explain that you can create World Cup moment reels when they tell you a match and what they're looking for.
 
-Use tools only when the user is clearly asking to create/find a football video reel or football match moments. Do not call tools for greetings, small talk, or general explanation questions.
+Use tools only when the user is clearly asking to create/find a soccer video reel or soccer match moments. Do not call tools for greetings, small talk, or general explanation questions.
 
 Tool workflow (follow exactly):
 1. Call tinyfishResearch first (1-2 calls max) to gather ground truth about the requested moments from match reports and live-commentary timelines. Information that helps VideoDB the most:
@@ -105,9 +105,9 @@ Preferred VideoDB scene searches: ${intent.searches
       }),
       tinyfishSearch: tool({
         description:
-          "Search the web with TinyFish for candidate YouTube football match videos.",
+          "Search the web with TinyFish for candidate YouTube soccer match videos.",
         inputSchema: z.object({
-          query: z.string().describe("A concise search query for the target football match video."),
+          query: z.string().describe("A concise search query for the target soccer match video."),
         }),
         execute: async ({ query }) => {
           try {

@@ -121,7 +121,7 @@ function buildSyntheticEvents(run: RunDetail): RawTimelineEvent[] {
     buildToolEvent("TinyFish research", "done", `Read ${2 + (hash(seed) % 4)} match reports — found ${eventCount} key moments.`, { results: researchResults.slice(0, 2 + (hash(seed) % 3)) }),
     { type: "text-delta", text: `Found detailed match context for **${matchName}**. Now let me find the best video footage to reel those moments up.  \n\n` },
     buildToolEvent("TinyFish search", "running", `Searching: "${matchName} highlights"`),
-    buildToolEvent("TinyFish search", "done", `Returned candidate football videos.`, { results: searchResults, mode: "live", query: `${matchName} highlights`, source: "TinyFish Search API" }),
+    buildToolEvent("TinyFish search", "done", `Returned candidate soccer videos.`, { results: searchResults, mode: "live", query: `${matchName} highlights`, source: "TinyFish Search API" }),
     { type: "text-delta", text: `Got it! Found **${sourceTitle}**. Choosing this as the best match for **${query}**. Building your reel now...  \n\n` },
     { type: "tool", toolCall: { id: "videodb", name: "VideoDB reel", status: "done", summary: "Building your reel...", details: { runId: run.runId } } },
   ];
@@ -283,8 +283,8 @@ export default function ReplayPage() {
   if (notFound) {
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-4 py-20">
-        <p className="text-[15px] text-[#625d55]">Briefing not found.</p>
-        <Link href="/" className="rounded-full bg-[#FF6700] px-4 py-2 text-[13px] font-bold text-white hover:bg-[#e35c00]">
+        <p className="text-[15px] text-[var(--c-text-muted)]">Briefing not found.</p>
+        <Link href="/" className="rounded-full bg-[#F24E1E] px-4 py-2 text-[13px] font-bold text-white hover:bg-[#D14016]">
           Go home
         </Link>
       </div>
@@ -300,31 +300,31 @@ export default function ReplayPage() {
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-[7px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b]"
+            className="inline-flex items-center gap-[7px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E]"
           >
             ← Briefings
           </Link>
           <button
             type="button"
             onClick={() => router.push(`/b/${runId}`)}
-            className="inline-flex items-center gap-[6px] rounded-full border border-[#ece9e1] bg-white px-[13px] py-[7px] text-[13px] font-semibold text-[#5c574e] hover:border-[#fecb8b] active:scale-[0.98] transition-transform"
+            className="inline-flex items-center gap-[6px] rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-[13px] py-[7px] text-[13px] font-semibold text-[var(--c-text-muted)] hover:border-[#F24E1E] active:scale-[0.98] transition-transform"
           >
             Skip replay →
           </button>
         </div>
 
         <div className="mt-[18px] flex items-center gap-3">
-          <span className="inline-flex items-center gap-[7px] rounded-full border border-[#ecdcc0] bg-[#f6ecdd] px-[13px] py-1.5">
-            <span className="status-dot-running size-2 rounded-full bg-[#b9772a]" />
-            <span className="text-[12px] font-bold tracking-[0.02em] text-[#9a6320]">PROCESSING</span>
+          <span className="inline-flex items-center gap-[7px] rounded-full border border-[#F24E1E]/40 bg-[#F24E1E]/10 px-[13px] py-1.5">
+            <span className="status-dot-running size-2 rounded-full bg-[#F24E1E]" />
+            <span className="text-[12px] font-bold tracking-[0.02em] text-[#F24E1E]">PROCESSING</span>
           </span>
-          <span className="font-mono text-[12px] text-[#a8a399]">run {shortId}</span>
+          <span className="font-mono text-[12px] text-[var(--c-text-subtle)]">run {shortId}</span>
         </div>
-        <h1 className="mt-[14px] max-w-[720px] text-[25px] font-extrabold leading-[1.2] tracking-[-0.02em] text-[#1f1f1e]">{query}</h1>
+        <h1 className="mt-[14px] max-w-[720px] text-[25px] font-extrabold leading-[1.2] tracking-[-0.02em] text-[var(--c-text)]">{query}</h1>
 
         <div className="mx-auto mt-[26px] max-w-[720px] space-y-4">
           <div className="flex justify-end">
-            <div className="max-w-[80%] rounded-[18px_18px_6px_18px] bg-[#e9e9dc] px-4 py-[11px] text-[14.5px] text-[#2a2822]">{query}</div>
+            <div className="max-w-[80%] rounded-[18px_18px_6px_18px] bg-[var(--c-hover-2)] px-4 py-[11px] text-[14.5px] text-[var(--c-text-muted)]">{query}</div>
           </div>
           <div className="space-y-[13px]">
             {visibleEvents.length > 0 ? (
@@ -378,7 +378,7 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
         if (item.type === "text") {
           return (
             <div key={i} className="flex items-start gap-[10px]">
-              <div className="text-[14px] leading-relaxed text-[#2a2822] prose-sm prose-p:my-1 prose-strong:text-[#1f1f1e] prose-em:text-[#5c574e] [&_p]:mb-1.5 [&_ol]:my-2 [&_ol]:pl-5 [&_li]:mb-1 [&_li]:pl-0.5">
+              <div className="text-[14px] leading-relaxed text-[var(--c-text-muted)] prose-sm prose-invert prose-p:my-1 prose-strong:text-[var(--c-text)] prose-em:text-[var(--c-text-muted)] [&_p]:mb-1.5 [&_ol]:my-2 [&_ol]:pl-5 [&_li]:mb-1 [&_li]:pl-0.5">
                 <ReactMarkdown>{item.text}</ReactMarkdown>
               </div>
             </div>
@@ -387,21 +387,21 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
         const tc = item.tc!;
         const isTinyFish = tc.name.includes("TinyFish");
         return (
-          <div key={i} className="rounded-[14px] border border-[#ece9e1] bg-white overflow-hidden">
+          <div key={i} className="rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] overflow-hidden">
             {isTinyFish ? (
               <>
-                <div className="flex items-center gap-[10px] border-b border-[#f0ede5] px-4 py-[13px]">
+                <div className="flex items-center gap-[10px] border-b border-[var(--c-border)] px-4 py-[13px]">
                   <Image src="/brand/icon-tinyfish.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
-                  <span className="text-[13.5px] font-bold text-[#1f1f1e]">TinyFish · {tc.summary}</span>
+                  <span className="text-[13.5px] font-bold text-[var(--c-text)]">TinyFish · {tc.summary}</span>
                 </div>
                 {tc.details && (tc.details as { results?: Array<{ title: string; url: string }> }).results?.[0] ? (
                   <div className="px-4 py-[13px]">
-                    <p className="text-[11px] font-bold tracking-[0.06em] text-[#bdb6a9]">SELECTED SOURCE</p>
+                    <p className="text-[11px] font-bold tracking-[0.06em] text-[var(--c-text-subtle)]">SELECTED SOURCE</p>
                     <a
                       href={(tc.details as { results?: Array<{ title: string; url: string }> }).results?.[0]?.url || "#"}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-1.5 inline-block text-[14px] font-semibold text-[#ff6700] hover:underline"
+                      className="mt-1.5 inline-block text-[14px] font-semibold text-[#F24E1E] hover:underline"
                     >
                       {(tc.details as { results?: Array<{ title: string }> }).results?.[0]?.title}
                     </a>
@@ -413,9 +413,9 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
                 {tc.status === "done" ? (
                   <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 ) : (
-                  <span className="size-[18px] rounded-full border-2 border-[#f0e6d2] border-t-[#b9772a] animate-spin" />
+                  <span className="size-[18px] rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 )}
-                <span className="text-[13.5px] font-bold text-[#1f1f1e]">VideoDB · {tc.summary}</span>
+                <span className="text-[13.5px] font-bold text-[var(--c-text)]">VideoDB · {tc.summary}</span>
               </div>
             )}
           </div>
@@ -432,14 +432,14 @@ function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: s
         {cards.map((entry, i) => {
           const isLast = i === cards.length - 1;
           return (
-            <div key={i} className="flex items-center gap-[10px] rounded-[14px] border border-[#ece9e1] bg-white p-[15px]">
+            <div key={i} className="flex items-center gap-[10px] rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-[15px]">
               <div className="flex items-center gap-[10px] flex-1">
                 {isLast ? (
-                  <span className="size-[18px] flex-none rounded-full border-2 border-[#f0e6d2] border-t-[#b9772a] animate-spin" />
+                  <span className="size-[18px] flex-none rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 ) : (
                   <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 )}
-                <span className="text-[13.5px] font-bold text-[#1f1f1e]">{entry.msg}</span>
+                <span className="text-[13.5px] font-bold text-[var(--c-text)]">{entry.msg}</span>
               </div>
             </div>
           );
@@ -448,10 +448,10 @@ function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: s
     );
   }
   return (
-    <div className="flex items-center gap-[10px] rounded-[14px] border border-[#ece9e1] bg-white p-[15px]">
+    <div className="flex items-center gap-[10px] rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-[15px]">
       <div className="flex items-center gap-[10px] flex-1">
-        <span className="size-[18px] flex-none rounded-full border-2 border-[#f0e6d2] border-t-[#b9772a] animate-spin" />
-        <span className="text-[13.5px] font-bold text-[#1f1f1e]">{fallback || "Creating your highlight..."}</span>
+        <span className="size-[18px] flex-none rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
+        <span className="text-[13.5px] font-bold text-[var(--c-text)]">{fallback || "Creating your highlight..."}</span>
       </div>
     </div>
   );

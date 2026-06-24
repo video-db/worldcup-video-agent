@@ -41,7 +41,7 @@ export function SearchField({ initialSearch }: { initialSearch: string }) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search briefings…"
-        className="w-full rounded-full border border-[#e8e4db] bg-white px-5 py-3 text-[15px] outline-none transition-all duration-200 placeholder:text-[#a8a399] focus:border-[#FECB8B] focus:shadow-[0_1px_2px_rgba(32,32,31,0.05),0_8px_24px_rgba(255,103,0,0.08)]"
+        className="w-full rounded-full border border-[var(--c-border)] bg-[var(--c-surface)] px-5 py-3 text-[15px] text-[var(--c-text)] outline-none transition-all duration-200 placeholder:text-[var(--c-text-subtle)] focus:border-[#F24E1E] focus:shadow-[0_1px_2px_rgba(0,0,0,0.4),0_8px_24px_rgba(242,78,30,0.12)]"
       />
     </div>
   );

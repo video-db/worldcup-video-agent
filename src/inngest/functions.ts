@@ -369,7 +369,7 @@ export const createReel = inngest.createFunction(
       const knownList = (knownEvents || []).map((ke) => `- ${ke.label}${ke.minute ? ` (${ke.minute}')` : ""}${ke.half ? `, ${ke.half} half` : ""}`).join("\n");
       const matchName = video.match || video.title || topic;
 
-      const llmPrompt = `You are a passionate, electric football analyst writing a match summary for a World Cup highlights reel. Your tone is that of an excited co-commentator — warm, dramatic, and gripping. You feel every tackle, every roar, every heart-stopping moment. You write like you're narrating the reel to a friend on the couch.
+      const llmPrompt = `You are a passionate, electric soccer analyst writing a match summary for a World Cup highlights reel. Your tone is that of an excited co-commentator — warm, dramatic, and gripping. You feel every tackle, every roar, every heart-stopping moment. You write like you're narrating the reel to a friend on the couch.
 
 Match: ${matchName}
 Request: "${topic}"

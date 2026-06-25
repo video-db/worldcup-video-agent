@@ -205,7 +205,7 @@ export async function PATCH(
       const action: "created" | "paused" | "resumed" | "updated" = hasToggle ? (body.isActive ? "resumed" : "paused") : "updated";
 
       if (newIds.length > 0) {
-        const notifyConfig: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string } } = {};
+        const notifyConfig: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string }; slack?: { webhookUrl: string } } = {};
         for (const cid of newIds) {
           const ch = allChannelRows.find((c) => c.id === cid);
           if (!ch) continue;
@@ -213,6 +213,7 @@ export async function PATCH(
           if (!c) continue;
           if (ch.type === "telegram" && c.botToken && c.chatId) notifyConfig.telegram = { botToken: c.botToken as string, chatId: c.chatId as string };
           if (ch.type === "discord" && c.webhookUrl) notifyConfig.discord = { webhookUrl: c.webhookUrl as string };
+          if (ch.type === "slack" && c.webhookUrl) notifyConfig.slack = { webhookUrl: c.webhookUrl as string };
         }
         notifyScheduleChange(notifyConfig, {
           query: (updateData.query as string) || existing.query,
@@ -227,9 +228,10 @@ export async function PATCH(
         if (!ch) continue;
         const c = channelCreds.get(removedId);
         if (!c) continue;
-        const removedConfig: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string } } = {};
+        const removedConfig: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string }; slack?: { webhookUrl: string } } = {};
         if (ch.type === "telegram" && c.botToken && c.chatId) removedConfig.telegram = { botToken: c.botToken as string, chatId: c.chatId as string };
         if (ch.type === "discord" && c.webhookUrl) removedConfig.discord = { webhookUrl: c.webhookUrl as string };
+        if (ch.type === "slack" && c.webhookUrl) removedConfig.slack = { webhookUrl: c.webhookUrl as string };
         notifyScheduleChange(removedConfig, {
           query: existing.query,
           runTime: effectiveRunTime,

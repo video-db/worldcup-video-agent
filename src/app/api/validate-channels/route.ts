@@ -3,7 +3,8 @@ import { resolveSessionToken } from "@/lib/session";
 
 function buildConfirmation(type: string, name?: string): string {
   const label = name ? `"${name}" ` : "";
-  return `✅ Your ${label}${type === "telegram" ? "Telegram" : "Discord"} channel is now connected to World Cup Briefing. Reels and notifications will arrive here.`;
+  const typeLabel = type === "telegram" ? "Telegram" : type === "discord" ? "Discord" : "Slack";
+  return `✅ Your ${label}${typeLabel} channel is now connected to World Cup Briefing. Reels and notifications will arrive here.`;
 }
 
 async function validateTelegram(botToken: string, chatId: string, message: string): Promise<{ valid: boolean; error?: string }> {
@@ -46,6 +47,29 @@ async function validateDiscord(webhookUrl: string, message: string): Promise<{ v
   }
 }
 
+async function validateSlack(webhookUrl: string, message: string): Promise<{ valid: boolean; error?: string }> {
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: message }),
+    });
+    if (res.status === 200) {
+      const body = await res.text();
+      if (body.trim() === "ok") return { valid: true };
+      return { valid: false, error: body || "Slack returned non-ok response" };
+    }
+    let errorText = `Slack returned status ${res.status}`;
+    try {
+      const data = await res.text();
+      if (data) errorText = data;
+    } catch {}
+    return { valid: false, error: errorText };
+  } catch (err) {
+    return { valid: false, error: err instanceof Error ? err.message : "Slack validation failed" };
+  }
+}
+
 export async function POST(request: NextRequest) {
   const session = resolveSessionToken(request.headers.get("x-session-token") || "");
   if (!session) {
@@ -56,6 +80,7 @@ export async function POST(request: NextRequest) {
 
   const telegram = body?.telegram as { botToken?: string; chatId?: string; _name?: string } | undefined;
   const discord = body?.discord as { webhookUrl?: string; _name?: string } | undefined;
+  const slack = body?.slack as { webhookUrl?: string; _name?: string } | undefined;
 
   const result: Record<string, { valid: boolean; error?: string }> = {};
 
@@ -67,6 +92,11 @@ export async function POST(request: NextRequest) {
   if (discord?.webhookUrl) {
     const msg = buildConfirmation("discord", discord._name);
     result.discord = await validateDiscord(discord.webhookUrl, msg);
+  }
+
+  if (slack?.webhookUrl) {
+    const msg = buildConfirmation("slack", slack._name);
+    result.slack = await validateSlack(slack.webhookUrl, msg);
   }
 
   return NextResponse.json(result);

@@ -184,10 +184,10 @@ export function PanelConnectKeys() {
   );
 }
 
-/* Panel 2 — Connect a Telegram or Discord inbox */
+/* Panel 2 — Connect a Telegram, Discord, or Slack inbox */
 export function PanelAddInbox() {
   return (
-    <SketchFrame label="Add your Telegram or Discord inbox">
+    <SketchFrame label="Add your Telegram, Discord, or Slack inbox">
       <rect x="52" y="42" width="82" height="58" rx="14" stroke={INK} strokeWidth="2.5" className="sketch-stroke" />
       <path d="M74 100 L62 118 L88 102" stroke={INK} strokeWidth="2.4" className="sketch-stroke" />
       <path d="M69 62 L117 62 M69 79 L103 79" stroke={INK} strokeWidth="2" opacity="0.55" className="sketch-stroke" />

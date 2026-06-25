@@ -19,7 +19,7 @@ type StepDef = {
 
 const STEPS: StepDef[] = [
   { id: "keys", number: 1, title: "Connect your keys", desc: "Link TinyFish and VideoDB so your agent can find and cut reels.", Panel: PanelConnectKeys },
-  { id: "inbox", number: 2, title: "Add an inbox", desc: "Connect Telegram or Discord where reels land.", Panel: PanelAddInbox },
+  { id: "inbox", number: 2, title: "Add an inbox", desc: "Connect Telegram, Discord, or Slack where reels land.", Panel: PanelAddInbox },
   { id: "schedule", number: 3, title: "Set the schedule", desc: "Pick a match query, time, and timezone — the agent handles the rest.", Panel: PanelSetSchedule },
   { id: "delivered", number: 4, title: "Delivered to you", desc: "A ready-to-watch reel lands in your inbox — no app, no refresh.", Panel: PanelDelivered },
 ];
@@ -49,10 +49,11 @@ export default function OnboardingStepper({
 
   /* ---- step 1: inbox ---- */
   const [addName, setAddName] = useState("");
-  const [addType, setAddType] = useState<"telegram" | "discord">("telegram");
+  const [addType, setAddType] = useState<"telegram" | "discord" | "slack">("telegram");
   const [addTgToken, setAddTgToken] = useState("");
   const [addTgChatId, setAddTgChatId] = useState("");
   const [addDcWebhook, setAddDcWebhook] = useState("");
+  const [addSlackWebhook, setAddSlackWebhook] = useState("");
   const [addTesting, setAddTesting] = useState(false);
   const [addError, setAddError] = useState("");
   const [savedChannel, setSavedChannel] = useState<ChannelItem | null>(null);
@@ -135,7 +136,9 @@ export default function OnboardingStepper({
       const credentials: Record<string, string> =
         addType === "telegram"
           ? { botToken: addTgToken, chatId: addTgChatId, _name: addName }
-          : { webhookUrl: addDcWebhook, _name: addName };
+          : addType === "discord"
+            ? { webhookUrl: addDcWebhook, _name: addName }
+            : { webhookUrl: addSlackWebhook, _name: addName };
 
       const validateBody: Record<string, unknown> = { [addType]: credentials };
       const vRes = await fetch("/api/validate-channels", {
@@ -161,6 +164,7 @@ export default function OnboardingStepper({
         setAddTgToken("");
         setAddTgChatId("");
         setAddDcWebhook("");
+        setAddSlackWebhook("");
         setCompleted((prev) => new Set([...prev, 1]));
       } else {
         setAddError(d.error || "Could not save this inbox. Try again.");
@@ -341,7 +345,7 @@ export default function OnboardingStepper({
                             </div>
                             <div className="rounded-[14px] border border-[rgba(0,0,0,0.08)] bg-[#fafafa] px-3 py-3">
                               <div className="flex items-center gap-2 text-[13px] font-semibold text-[#111111]"><ChannelIcon type="slack" size={15} /> Slack</div>
-                              <p className="mt-1 text-[11px] leading-relaxed text-[rgba(0,0,0,0.48)]">Coming next</p>
+                              <p className="mt-1 text-[11px] leading-relaxed text-[rgba(0,0,0,0.48)]">Incoming webhook</p>
                             </div>
                           </div>
                         </div>
@@ -455,7 +459,7 @@ export default function OnboardingStepper({
                             <label htmlFor="stepper-channel-name" className="mb-1.5 block text-[12px] font-medium text-[rgba(0,0,0,0.64)]">Inbox name</label>
                             <input id="stepper-channel-name" type="text" value={addName}
                               onChange={(e) => setAddName(e.target.value)}
-                              placeholder={addType === "telegram" ? "Personal Telegram" : "My Discord server"}
+                              placeholder={addType === "telegram" ? "Personal Telegram" : addType === "discord" ? "My Discord server" : "Team Slack channel"}
                               disabled={addTesting}
                               className="ds-input w-full disabled:cursor-not-allowed disabled:opacity-40" />
                           </div>
@@ -475,6 +479,13 @@ export default function OnboardingStepper({
                                   addType === "discord" ? "bg-[#F24E1E] !text-white" : "text-[#666] hover:text-[#333]"
                                 }`}>
                                 <ChannelIcon type="discord" size={14} mono={addType === "discord"} className={addType === "discord" ? "!text-white" : undefined} /> Discord
+                              </button>
+                              <button type="button" aria-pressed={addType === "slack"} onClick={() => { setAddType("slack"); setAddSlackWebhook(""); setAddError(""); }}
+                                disabled={addTesting}
+                                className={`flex flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-full px-3 py-2 text-[12px] font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+                                  addType === "slack" ? "bg-[#F24E1E] !text-white" : "text-[#666] hover:text-[#333]"
+                                }`}>
+                                <ChannelIcon type="slack" size={14} mono={addType === "slack"} className={addType === "slack" ? "!text-white" : undefined} /> Slack
                               </button>
                             </div>
                           </div>
@@ -501,7 +512,7 @@ export default function OnboardingStepper({
                                 className="ds-input w-full disabled:cursor-not-allowed disabled:opacity-40" />
                             </div>
                           </div>
-                        ) : (
+                        ) : addType === "discord" ? (
                           <div>
                             <div className="mb-1.5 flex items-center justify-between gap-3">
                               <label htmlFor="stepper-discord-webhook" className="text-[12px] font-medium text-[rgba(0,0,0,0.64)]">Webhook URL</label>
@@ -513,11 +524,23 @@ export default function OnboardingStepper({
                               placeholder="https://discord.com/api/webhooks/..." disabled={addTesting}
                               className="ds-input w-full disabled:cursor-not-allowed disabled:opacity-40" />
                           </div>
+                        ) : (
+                          <div>
+                            <div className="mb-1.5 flex items-center justify-between gap-3">
+                              <label htmlFor="stepper-slack-webhook" className="text-[12px] font-medium text-[rgba(0,0,0,0.64)]">Webhook URL</label>
+                              <a href="https://api.slack.com/messaging/webhooks" target="_blank" rel="noreferrer" className="text-[11px] font-semibold text-[#F24E1E] no-underline hover:underline">
+                                Get webhook URL →
+                              </a>
+                            </div>
+                            <input id="stepper-slack-webhook" type="text" value={addSlackWebhook} onChange={(e) => setAddSlackWebhook(e.target.value)}
+                              placeholder="https://hooks.slack.com/services/..." disabled={addTesting}
+                              className="ds-input w-full disabled:cursor-not-allowed disabled:opacity-40" />
+                          </div>
                         )}
                         <div className="flex flex-col gap-2 border-t border-[rgba(0,0,0,0.07)] pt-4 sm:flex-row sm:items-center sm:justify-between">
                           <p className="text-[12px] leading-relaxed text-[rgba(0,0,0,0.5)]">We send a test request, then save this inbox for the schedule.</p>
                           <button type="button" onClick={handleAddChannel}
-                            disabled={addTesting || !addName.trim() || (addType === "telegram" ? !addTgToken.trim() || !addTgChatId.trim() : !addDcWebhook.trim())}
+                            disabled={addTesting || !addName.trim() || (addType === "telegram" ? !addTgToken.trim() || !addTgChatId.trim() : addType === "discord" ? !addDcWebhook.trim() : !addSlackWebhook.trim())}
                             className="ds-btn ds-btn--primary ds-btn--sm justify-center disabled:cursor-not-allowed disabled:opacity-50">
                             {addTesting ? "Testing inbox..." : <span className="flex items-center gap-1.5">Test & save inbox <ArrowRightIcon className="size-3.5" /></span>}
                           </button>
@@ -664,7 +687,7 @@ export default function OnboardingStepper({
                             <p className="mt-2 text-[12px] font-semibold text-[#111111]">Cuts the reel</p>
                           </div>
                           <div className="rounded-[14px] border border-[rgba(0,0,0,0.08)] bg-[#fafafa] px-3 py-3">
-                            <ChannelIcon type="telegram" size={16} mono />
+                            <ChannelIcon type="telegram" size={16} mono className="text-[#F24E1E]" />
                             <p className="mt-2 text-[12px] font-semibold text-[#111111]">Pings your inbox</p>
                           </div>
                         </div>

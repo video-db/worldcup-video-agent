@@ -117,7 +117,7 @@ export async function POST(request: NextRequest) {
       })
       .returning({ id: schedules.id, nextRunAt: schedules.nextRunAt });
 
-    const notifyConfig: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string } } = {};
+    const notifyConfig: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string }; slack?: { webhookUrl: string } } = {};
     for (const cid of channelIds) {
       const c = channelCreds.get(cid);
       const chType = channelMap.get(cid);
@@ -127,6 +127,9 @@ export async function POST(request: NextRequest) {
       }
       if (chType === "discord" && c.webhookUrl) {
         notifyConfig.discord = { webhookUrl: c.webhookUrl as string };
+      }
+      if (chType === "slack" && c.webhookUrl) {
+        notifyConfig.slack = { webhookUrl: c.webhookUrl as string };
       }
     }
     notifyScheduleChange(notifyConfig, { query, runTime, timezone, action: "created" }).catch(() => {});

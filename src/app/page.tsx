@@ -312,7 +312,7 @@ export default function Home() {
             Your daily soccer briefing, on{"\u00A0"}demand
           </h1>
           <p className="mx-auto mt-4 max-w-[500px] text-[16px] leading-relaxed text-[var(--c-text-muted)]">
-            Search any match moment and get a playable reel — or set up a daily AI digest delivered to your Telegram or Discord.
+            Search any match moment and get a playable reel — or set up a daily AI digest delivered to your Telegram, Discord, or Slack.
           </p>
 
           <div className="relative mx-auto mt-[30px] max-w-[640px]">

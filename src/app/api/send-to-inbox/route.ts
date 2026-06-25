@@ -78,12 +78,14 @@ export async function POST(request: NextRequest) {
     try {
       const credentials = decryptJson<Record<string, unknown>>(ch.credentialsEnc);
 
-      const config: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string } } = {};
+      const config: { telegram?: { botToken: string; chatId: string }; discord?: { webhookUrl: string }; slack?: { webhookUrl: string } } = {};
 
       if (ch.type === "telegram" && typeof credentials.botToken === "string" && typeof credentials.chatId === "string") {
         config.telegram = { botToken: credentials.botToken, chatId: credentials.chatId };
       } else if (ch.type === "discord" && typeof credentials.webhookUrl === "string") {
         config.discord = { webhookUrl: credentials.webhookUrl };
+      } else if (ch.type === "slack" && typeof credentials.webhookUrl === "string") {
+        config.slack = { webhookUrl: credentials.webhookUrl };
       }
 
       await sendRunNotification(config, runData);

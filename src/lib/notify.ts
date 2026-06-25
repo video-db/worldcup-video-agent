@@ -4,6 +4,7 @@ import { logger } from "@/lib/logger";
 type NotifyConfig = {
   telegram?: { botToken: string; chatId: string };
   discord?: { webhookUrl: string };
+  slack?: { webhookUrl: string };
 };
 
 type RunInfo = {
@@ -114,6 +115,45 @@ export async function sendDiscordMessage(
   }
 }
 
+// ── Slack ──────────────────────────────────────────────────
+
+type SlackBlock = {
+  type: string;
+  text?: { type: string; text: string; emoji?: boolean };
+  accessory?: { type: string; image_url?: string; alt_text?: string; url?: string; text?: { type: string; text: string; emoji?: boolean } };
+  elements?: Array<{ type: string; text?: string | { type: string; text: string; emoji?: boolean }; url?: string; style?: string }>;
+  fields?: Array<{ type: string; text: string }>;
+  image_url?: string;
+  alt_text?: string;
+};
+
+export async function sendSlackMessage(
+  webhookUrl: string,
+  blocks: SlackBlock[],
+  textFallback?: string,
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const res = await fetch(webhookUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text: textFallback, blocks, unfurl_links: false, unfurl_media: false }),
+    });
+    if (res.status === 200) {
+      const body = await res.text();
+      if (body.trim() === "ok") return { success: true };
+      return { success: false, error: body || "Slack returned non-ok response" };
+    }
+    let errorText = `Slack returned status ${res.status}`;
+    try {
+      const data = await res.text();
+      if (data) errorText = data;
+    } catch {}
+    return { success: false, error: errorText };
+  } catch (err) {
+    return { success: false, error: err instanceof Error ? err.message : "Slack send failed" };
+  }
+}
+
 // ── Message builders ───────────────────────────────────────
 
 function buildTelegramMessage(run: RunInfo): string {
@@ -175,6 +215,65 @@ function buildDiscordEmbeds(run: RunInfo): DiscordEmbed[] {
   ];
 }
 
+function sanitizeMrkdwn(text: string): string {
+  return text
+    .replace(/\*/g, "＊")
+    .replace(/_/g, "＿")
+    .replace(/~/g, "～")
+    .replace(/`/g, "｀")
+    .replace(/^>/gm, "＞");
+}
+
+function buildSlackMessage(run: RunInfo): SlackBlock[] {
+  const url = briefUrl(run.runId);
+  const title = run.topic || run.query;
+  const blocks: SlackBlock[] = [];
+
+  blocks.push({
+    type: "header",
+    text: { type: "plain_text", text: `🏆  ${title}`, emoji: true },
+  });
+
+  blocks.push({
+    type: "section",
+    text: { type: "mrkdwn", text: `*${sanitizeMrkdwn(run.query)}*` },
+  });
+
+  blocks.push({
+    type: "section",
+    text: { type: "mrkdwn", text: `🎬  <${url}|Watch your briefing →>` },
+  });
+
+  if (run.events.length > 0) {
+    blocks.push({ type: "divider" });
+
+    const moments = run.events
+      .map((e) => `\`${sanitizeMrkdwn(e.timestamp)}\`  ${sanitizeMrkdwn(e.label)}`)
+      .join("\n");
+    blocks.push({
+      type: "section",
+      text: { type: "mrkdwn", text: `*🎯 Key Moments*\n${moments}` },
+    });
+  }
+
+  if (run.summary) {
+    blocks.push({ type: "divider" });
+    blocks.push({
+      type: "section",
+      text: { type: "mrkdwn", text: `*📋 Match Summary*\n${sanitizeMrkdwn(run.summary)}` },
+    });
+  }
+
+  blocks.push({ type: "divider" });
+
+  blocks.push({
+    type: "context",
+    elements: [{ type: "mrkdwn", text: "⚽  World Cup Briefing" }],
+  });
+
+  return blocks;
+}
+
 // ── Notifications ──────────────────────────────────────────
 
 export async function sendRunNotification(
@@ -211,6 +310,21 @@ export async function sendRunNotification(
     }
   }
 
+  if (notifyConfig.slack?.webhookUrl) {
+    const blocks = buildSlackMessage(run);
+    const textFallback = `🏆 ${run.topic || run.query}\n${run.query}\nWatch: ${briefUrl(run.runId)}`;
+    const result = await sendSlackMessage(
+      notifyConfig.slack.webhookUrl,
+      blocks,
+      textFallback,
+    );
+    if (!result.success) {
+      logger.error({ err: result.error }, "Slack notification failed");
+    } else {
+      results.push("slack");
+    }
+  }
+
   if (results.length > 0) {
     logger.info({ channels: results.length }, "Notifications sent to: %s", results.join(", "));
   }
@@ -227,31 +341,36 @@ export async function notifyScheduleChange(
   const ampm = h < 12 ? "AM" : "PM";
   const timeLabel = `${hour}:${String(m).padStart(2, "0")} ${ampm} ${schedule.timezone}`;
 
-  const actions: Record<string, { text: string; embedColor: number; embedTitle: string }> = {
+  const actions: Record<string, { text: string; embedColor: number; embedTitle: string; slackHeader: string }> = {
     created: {
       text: `⚽ <b>Daily briefing scheduled</b>\n\n<b>${escapeHtml(schedule.query)}</b>\n\nYour reel will arrive around ${escapeHtml(timeLabel)}.`,
       embedColor: 0x2ecc71,
       embedTitle: "Schedule Created",
+      slackHeader: "🟢  Schedule Created",
     },
     paused: {
       text: `⏸ <b>Briefing paused</b>\n\n<b>${escapeHtml(schedule.query)}</b>\n\nThe schedule is now inactive.`,
       embedColor: 0xf1c40f,
       embedTitle: "Schedule Paused",
+      slackHeader: "🟡  Schedule Paused",
     },
     resumed: {
       text: `▶ <b>Briefing resumed</b>\n\n<b>${escapeHtml(schedule.query)}</b>\n\nYour reel will arrive around ${escapeHtml(timeLabel)}.`,
       embedColor: 0x2ecc71,
       embedTitle: "Schedule Resumed",
+      slackHeader: "🟢  Schedule Resumed",
     },
     removed: {
       text: `📤 <b>Removed from briefing</b>\n\n<b>${escapeHtml(schedule.query)}</b>`,
       embedColor: 0xe74c3c,
       embedTitle: "Schedule Removed",
+      slackHeader: "🔴  Schedule Removed",
     },
     updated: {
       text: `✏ <b>Briefing updated</b>\n\n<b>${escapeHtml(schedule.query)}</b>\n\nYour reel will arrive around ${escapeHtml(timeLabel)}.`,
       embedColor: 0x3498db,
       embedTitle: "Schedule Updated",
+      slackHeader: "🔵  Schedule Updated",
     },
   };
 
@@ -274,6 +393,28 @@ export async function notifyScheduleChange(
     const result = await sendDiscordMessage(notifyConfig.discord.webhookUrl, null, [embed]);
     if (!result.success) logger.error({ err: result.error }, "Schedule Discord notify failed");
     else results.push("discord");
+  }
+
+  if (notifyConfig.slack?.webhookUrl) {
+    const q = sanitizeMrkdwn(schedule.query);
+    const slackBlocks: SlackBlock[] = [
+      {
+        type: "header",
+        text: { type: "plain_text", text: a.slackHeader, emoji: true },
+      },
+      {
+        type: "section",
+        text: { type: "mrkdwn", text: `*"${q}"*` },
+      },
+      {
+        type: "section",
+        text: { type: "mrkdwn", text: `🕐  Runs daily at ${timeLabel}` },
+      },
+    ];
+    const textFallback = `${schedule.action === "created" ? "🟢" : schedule.action === "paused" ? "🟡" : schedule.action === "resumed" ? "🟢" : schedule.action === "removed" ? "🔴" : "🔵"} ${schedule.action === "created" ? "Schedule Created" : schedule.action === "paused" ? "Schedule Paused" : schedule.action === "resumed" ? "Schedule Resumed" : schedule.action === "removed" ? "Schedule Removed" : "Schedule Updated"}\n"${schedule.query}"\nRuns daily at ${timeLabel}`;
+    const result = await sendSlackMessage(notifyConfig.slack.webhookUrl, slackBlocks, textFallback);
+    if (!result.success) logger.error({ err: result.error }, "Schedule Slack notify failed");
+    else results.push("slack");
   }
 
   if (results.length > 0) {

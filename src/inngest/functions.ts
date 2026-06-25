@@ -426,6 +426,7 @@ Return only valid JSON, no markdown fences.`;
       const config = payload.notifyConfig as {
         telegram?: { botToken: string; chatId: string };
         discord?: { webhookUrl: string };
+        slack?: { webhookUrl: string };
       } | undefined;
 
       if (!config) return { skipped: true };

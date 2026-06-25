@@ -55,10 +55,11 @@ export default function SchedulesPage() {
   // New channel form
   const [addPanel, setAddPanel] = useState(false);
   const [addName, setAddName] = useState("");
-  const [addType, setAddType] = useState<"telegram" | "discord">("telegram");
+  const [addType, setAddType] = useState<"telegram" | "discord" | "slack">("telegram");
   const [addTgToken, setAddTgToken] = useState("");
   const [addTgChatId, setAddTgChatId] = useState("");
   const [addDcWebhook, setAddDcWebhook] = useState("");
+  const [addSlackWebhook, setAddSlackWebhook] = useState("");
   const [addTesting, setAddTesting] = useState(false);
   const [addError, setAddError] = useState("");
 
@@ -180,6 +181,7 @@ export default function SchedulesPage() {
     setAddTgToken("");
     setAddTgChatId("");
     setAddDcWebhook("");
+    setAddSlackWebhook("");
     setAddError("");
   }
 
@@ -189,7 +191,9 @@ export default function SchedulesPage() {
     const sessionToken = localStorage.getItem("session_token"); if (!sessionToken) return;
     const credentials: Record<string, string> = addType === "telegram"
       ? { botToken: addTgToken, chatId: addTgChatId, _name: addName }
-      : { webhookUrl: addDcWebhook, _name: addName };
+      : addType === "discord"
+        ? { webhookUrl: addDcWebhook, _name: addName }
+        : { webhookUrl: addSlackWebhook, _name: addName };
 
     const validateBody: Record<string, unknown> = { [addType]: credentials };
     const vRes = await fetch("/api/validate-channels", { method: "POST", headers: { "Content-Type": "application/json", "x-session-token": sessionToken }, body: JSON.stringify(validateBody) });
@@ -286,7 +290,7 @@ export default function SchedulesPage() {
             </h1>
             <p className="mt-3 text-[14px] leading-relaxed text-[var(--c-text-muted)] max-w-[440px]">
               Set a match query, a time and an inbox <span className="font-semibold text-[var(--c-text)]">once</span>. Every day the agent
-              finds the match, cuts your reel and drops it straight into Telegram or Discord. No app to open.
+              finds the match, cuts your reel and drops it straight into Telegram, Discord, or Slack. No app to open.
             </p>
 
             <OnboardingStepper
@@ -447,14 +451,15 @@ export default function SchedulesPage() {
               <div className="space-y-4">
                 <div>
                   <label htmlFor="channel-name" className="ds-field-label ds-field-label--on-dark mb-1.5 block">Inbox name</label>
-                   <input id="channel-name" type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addType === "telegram" ? "Personal Telegram" : "My Discord server"} disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
+                   <input id="channel-name" type="text" value={addName} onChange={(e) => setAddName(e.target.value)} placeholder={addType === "telegram" ? "Personal Telegram" : addType === "discord" ? "My Discord server" : "Team Slack channel"} disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                 </div>
                 <div>
                   <label className="ds-field-label ds-field-label--on-dark mb-1.5 block">Type</label>
-                  <div className="flex gap-1 rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] p-1">
-                    <button type="button" onClick={() => { setAddType("telegram"); setAddTgToken(""); setAddTgChatId(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "telegram" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="telegram" size={15} mono={addType === "telegram"} className={addType === "telegram" ? "!text-white" : undefined} />Telegram</button>
-                    <button type="button" onClick={() => { setAddType("discord"); setAddDcWebhook(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "discord" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="discord" size={15} mono={addType === "discord"} className={addType === "discord" ? "!text-white" : undefined} />Discord</button>
-                  </div>
+                   <div className="flex gap-1 rounded-full border border-[var(--c-border)] bg-[var(--c-hover)] p-1">
+                     <button type="button" onClick={() => { setAddType("telegram"); setAddTgToken(""); setAddTgChatId(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "telegram" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="telegram" size={15} mono={addType === "telegram"} className={addType === "telegram" ? "!text-white" : undefined} />Telegram</button>
+                     <button type="button" onClick={() => { setAddType("discord"); setAddDcWebhook(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "discord" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="discord" size={15} mono={addType === "discord"} className={addType === "discord" ? "!text-white" : undefined} />Discord</button>
+                     <button type="button" onClick={() => { setAddType("slack"); setAddSlackWebhook(""); setAddError(""); }} className={`flex flex-1 items-center justify-center gap-1.5 rounded-full px-4 py-1.5 text-[13px] font-medium transition-all duration-200 ${addType === "slack" ? "bg-[#F24E1E] !text-white" : "text-[var(--c-text-subtle)] hover:text-[var(--c-text)]"}`}><ChannelIcon type="slack" size={15} mono={addType === "slack"} className={addType === "slack" ? "!text-white" : undefined} />Slack</button>
+                   </div>
                 </div>
                 {addType === "telegram" ? (
                   <>
@@ -478,7 +483,7 @@ export default function SchedulesPage() {
                       <input id="tg-chat-id" type="text" value={addTgChatId} onChange={(e) => setAddTgChatId(e.target.value)} placeholder="123456789" disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                     </div>
                   </>
-                ) : (
+                ) : addType === "discord" ? (
                   <div>
                     <div className="mb-2 flex items-center justify-between">
                       <label className="ds-field-label ds-field-label--on-dark">Webhook URL</label>
@@ -493,11 +498,26 @@ export default function SchedulesPage() {
                     </div>
                     <input type="text" value={addDcWebhook} onChange={(e) => setAddDcWebhook(e.target.value)} placeholder="https://discord.com/api/webhooks/..." disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
                   </div>
+                ) : (
+                  <div>
+                    <div className="mb-2 flex items-center justify-between">
+                      <label className="ds-field-label ds-field-label--on-dark">Webhook URL</label>
+                      <a
+                        href="https://api.slack.com/messaging/webhooks"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[12px] font-semibold text-[#F24E1E] no-underline hover:underline"
+                      >
+                        Get webhook URL →
+                      </a>
+                    </div>
+                    <input type="text" value={addSlackWebhook} onChange={(e) => setAddSlackWebhook(e.target.value)} placeholder="https://hooks.slack.com/services/..." disabled={addTesting} className="ds-input ds-input--dark w-full disabled:opacity-50" />
+                  </div>
                 )}
               </div>
               <div className="mt-6 flex items-center gap-3">
                 <button type="button" onClick={() => { closeAddPanel(); }} disabled={addTesting} className="ds-btn ds-btn--ghost-dark ds-btn--sm disabled:opacity-50">Cancel</button>
-                <button type="button" onClick={handleAddChannel} disabled={addTesting || !addName.trim() || (addType === "telegram" ? !addTgToken.trim() || !addTgChatId.trim() : !addDcWebhook.trim())} className="ds-btn ds-btn--primary ds-btn--sm flex-1">
+                <button type="button" onClick={handleAddChannel} disabled={addTesting || !addName.trim() || (addType === "telegram" ? !addTgToken.trim() || !addTgChatId.trim() : addType === "discord" ? !addDcWebhook.trim() : !addSlackWebhook.trim())} className="ds-btn ds-btn--primary ds-btn--sm flex-1">
                   {addTesting ? "Testing..." : "Add & Test"}
                 </button>
               </div>

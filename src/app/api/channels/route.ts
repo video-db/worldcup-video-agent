@@ -56,7 +56,7 @@ export async function POST(request: NextRequest) {
     ? body.credentials as Record<string, unknown>
     : null;
 
-  if (!name || (type !== "telegram" && type !== "discord") || !credentials) {
+  if (!name || (type !== "telegram" && type !== "discord" && type !== "slack") || !credentials) {
     return NextResponse.json({ error: "Missing required fields: name, type, credentials" }, { status: 400 });
   }
 

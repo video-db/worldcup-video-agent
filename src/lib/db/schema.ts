@@ -54,7 +54,7 @@ export const videoCache = pgTable(
 export const channels = pgTable("channels", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: text("name").notNull(),
-  type: text("type").notNull(), // "telegram" | "discord"
+  type: text("type").notNull(), // "telegram" | "discord" | "slack"
   credentialsEnc: text("credentials_enc").notNull(),
   apiKeyHash: text("api_key_hash").notNull(),
   isValidated: boolean("is_validated").notNull().default(false),

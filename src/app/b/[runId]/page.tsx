@@ -8,6 +8,7 @@ import Link from "next/link";
 import { ArrowLeftIcon, CheckIcon, ExternalLinkIcon } from "@/components/Icons";
 import SendToInboxModal from "@/components/SendToInboxModal";
 import type { BriefingEvent } from "@/lib/demo-data";
+import { relativeTimeAgo } from "@/lib/time";
 
 type TimelineEvent = { type: string; text?: string; toolCall?: { name: string; status: string; summary: string; details?: unknown }; error?: string; runId?: string };
 
@@ -30,19 +31,6 @@ type RunDetail = {
   createdAt?: string;
   completedAt?: string;
 };
-
-function relativeTime(iso: string | undefined): string {
-  if (!iso) return "";
-  const diff = Date.now() - new Date(iso).getTime();
-  const mins = Math.floor(diff / 60000);
-  if (mins < 1) return "just now";
-  if (mins < 60) return `${mins}m ago`;
-  const hrs = Math.floor(mins / 60);
-  if (hrs < 24) return `${hrs}h ago`;
-  const days = Math.floor(hrs / 24);
-  if (days < 30) return `${days}d ago`;
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric" });
-}
 
 export default function BriefingPage() {
   const params = useParams();
@@ -301,8 +289,8 @@ export default function BriefingPage() {
                 <div className="space-y-2">
                   <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Mode</span><span className="font-semibold text-[#F24E1E]">{run.mode || "live"}</span></div>
                   <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Status</span><span className="font-semibold text-[var(--c-text)]">{run.status}</span></div>
-                  {run.createdAt ? <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Created</span><span className="font-semibold text-[var(--c-text)]">{relativeTime(run.createdAt)}</span></div> : null}
-                  {run.completedAt ? <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Completed</span><span className="font-semibold text-[var(--c-text)]">{relativeTime(run.completedAt)}</span></div> : null}
+                  {run.createdAt ? <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Created</span><span className="font-semibold text-[var(--c-text)]">{relativeTimeAgo(run.createdAt)}</span></div> : null}
+                  {run.completedAt ? <div className="flex justify-between text-[12.5px]"><span className="text-[var(--c-text-subtle)]">Completed</span><span className="font-semibold text-[var(--c-text)]">{relativeTimeAgo(run.completedAt)}</span></div> : null}
                 </div>
               </div>
               <div ref={scrollRef} />

@@ -218,8 +218,7 @@ function MyBriefingsContent() {
 
         {loading ? (
           <div
-            className="mt-[22px] grid gap-[18px]"
-            style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}
+            className="mt-[22px] grid gap-[18px] min-w-0 ds-briefing-grid"
           >
             {Array.from({ length: 6 }).map((_, i) => (
               <div
@@ -253,7 +252,7 @@ function MyBriefingsContent() {
         ) : (
           <>
             <div
-              className="mt-[22px] grid gap-[18px]"
+              className="mt-[22px] grid gap-[18px] min-w-0"
               style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}
             >
               {runs.map((run) => (

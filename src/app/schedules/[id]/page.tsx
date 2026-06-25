@@ -8,6 +8,8 @@ import type { GalleryRun } from "@/app/gallery/page";
 import ConfirmModal from "@/components/ConfirmModal";
 import { Pagination } from "@/components/Pagination";
 import { ArrowLeftIcon } from "@/components/Icons";
+import StatusBadge from "@/components/StatusBadge";
+import { formatHourMinute, relativeTimeUntil } from "@/lib/time";
 
 type ScheduleDetail = {
   id: string;
@@ -35,41 +37,6 @@ type RunItem = {
   created_at: string | null;
   completed_at: string | null;
 };
-
-function relativeTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  if (isNaN(date.getTime())) return "";
-  const now = new Date();
-  const diffMs = date.getTime() - now.getTime();
-  if (diffMs > 0) {
-    const diffSec = Math.floor(diffMs / 1000);
-    const diffMin = Math.floor(diffSec / 60);
-    const diffHr = Math.floor(diffMin / 60);
-    const diffDay = Math.floor(diffHr / 24);
-    if (diffDay > 30) { const months = Math.floor(diffDay / 30); return `in ${months} month${months === 1 ? "" : "s"}`; }
-    if (diffDay > 0) return `in ${diffDay} day${diffDay === 1 ? "" : "s"}`;
-    if (diffHr > 0) return `in ${diffHr} hour${diffHr === 1 ? "" : "s"}`;
-    if (diffMin > 0) return `in ${diffMin} minute${diffMin === 1 ? "" : "s"}`;
-    return "in a moment";
-  }
-  const pastMs = now.getTime() - date.getTime();
-  const pastSec = Math.floor(pastMs / 1000);
-  const pastMin = Math.floor(pastSec / 60);
-  const pastHr = Math.floor(pastMin / 60);
-  const pastDay = Math.floor(pastHr / 24);
-  if (pastDay > 30) { const months = Math.floor(pastDay / 30); return months === 1 ? "1 month ago" : `${months} months ago`; }
-  if (pastDay > 0) return pastDay === 1 ? "1 day ago" : `${pastDay} days ago`;
-  if (pastHr > 0) return pastHr === 1 ? "1 hour ago" : `${pastHr} hours ago`;
-  if (pastMin > 0) return pastMin === 1 ? "1 minute ago" : `${pastMin} minutes ago`;
-  return "just now";
-}
-
-function formatTime(time: string): string {
-  const [h, m] = time.split(":").map(Number);
-  const hour = h % 12 || 12;
-  const ampm = h < 12 ? "AM" : "PM";
-  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
-}
 
 export default function ScheduleDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -181,10 +148,10 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
         <div className="mt-[18px] flex items-start justify-between gap-4 flex-wrap ds-card ds-card--dark p-6">
           <div className="min-w-[240px]">
             <h1 className="text-[21px] font-extrabold leading-[1.3] tracking-[-0.015em] text-[var(--c-text)]">{schedule?.query}</h1>
-            <p className="mt-2 text-[14px] text-[var(--c-text-muted)]">Daily at {schedule ? formatTime(schedule.runTime) : ""} ({schedule?.timezone})</p>
+            <p className="mt-2 text-[14px] text-[var(--c-text-muted)]">Daily at {schedule ? formatHourMinute(schedule.runTime) : ""} ({schedule?.timezone})</p>
             <p className="mt-1 text-[13.5px] text-[var(--c-text-subtle)]">
               via {schedule?.channel?.split(",").map((c: string) => c.charAt(0).toUpperCase() + c.slice(1)).join(" & ")}
-              {schedule?.nextRunAt ? ` · next run ${relativeTime(schedule.nextRunAt)}` : ""}
+              {schedule?.nextRunAt ? ` · next run ${relativeTimeUntil(schedule.nextRunAt)}` : ""}
             </p>
           </div>
           {schedule ? (
@@ -205,7 +172,7 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
             <p className="mt-1 text-[13px] text-[var(--c-text-subtle)]">Runs will appear here when the schedule executes.</p>
           </div>
         ) : (
-          <div className="grid gap-[18px]" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(248px, 1fr))" }}>
+          <div className="grid gap-[18px] min-w-0 ds-briefing-grid">
             {runs.map((run) => {
               const title = run.topic || run.query;
               const eventCount = Array.isArray(run.events) ? run.events.length : 0;
@@ -215,6 +182,7 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
                   key={run.id}
                   type="button"
                   onClick={(e) => { e.preventDefault(); router.push(`/b/${run.id}`); }}
+                  aria-label={title ? `Open briefing: ${title}` : "Open briefing"}
                   className="ds-card ds-card--dark is-interactive group block w-full text-left overflow-hidden"
                 >
                   <div className="relative aspect-video bg-black overflow-hidden">
@@ -227,16 +195,12 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
                     )}
                     {run.status === "completed" ? (
                       <>
-                        <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-[5px] rounded-full bg-[rgba(242,78,30,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-[var(--c-text)] backdrop-blur">
-                          <span className="size-1.5 rounded-full bg-white/80" />READY
-                        </span>
+                        <span className="absolute top-[10px] left-[10px]"><StatusBadge status="completed" /></span>
                       </>
                     ) : run.status === "processing" ? (
-                      <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-1.5 rounded-full bg-[rgba(185,119,42,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-[var(--c-text)]">
-                        <span className="status-dot-running size-1.5 rounded-full bg-[#f6d9aa]" />PROCESSING
-                      </span>
+                      <span className="absolute top-[10px] left-[10px]"><StatusBadge status="processing" /></span>
                     ) : (
-                      <span className="absolute top-[10px] left-[10px] inline-flex items-center gap-[5px] rounded-full bg-[rgba(177,74,62,0.92)] px-[9px] py-1 text-[10.5px] font-bold tracking-[0.03em] text-[var(--c-text)]">FAILED</span>
+                      <span className="absolute top-[10px] left-[10px]"><StatusBadge status="failed" /></span>
                     )}
                   </div>
                   <div className="px-[15px] pt-[13px] pb-[15px]">
@@ -244,7 +208,7 @@ export default function ScheduleDetailPage({ params }: { params: Promise<{ id: s
                     <div className="mt-[9px] flex items-center gap-2 text-[12px] text-[var(--c-text-subtle)]">
                       {momentsText ? <span>{momentsText}</span> : null}
                       {momentsText ? <span className="size-[3px] rounded-full bg-[var(--c-text-faint)]" /> : null}
-                      <span>{relativeTime(run.created_at || "")}</span>
+                      <span>{relativeTimeUntil(run.created_at || "")}</span>
                     </div>
                   </div>
                 </button>

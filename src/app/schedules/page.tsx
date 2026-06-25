@@ -12,6 +12,7 @@ import LowCreditsBanner from "@/components/LowCreditsBanner";
 import { ArrowLeftIcon, CalendarIcon, CheckIcon, CloseIcon } from "@/components/Icons";
 import { DeliveryLoopIllustration } from "@/components/scheduler-illustrations";
 import OnboardingStepper from "@/components/onboarding-stepper";
+import { formatHourMinute, relativeTimeUntil } from "@/lib/time";
 
 type ChannelItem = { id: string; name: string; type: string; isValidated: boolean };
 type ScheduleItem = {
@@ -19,28 +20,6 @@ type ScheduleItem = {
   channelConfig: { channelIds?: string[] }; isActive: boolean;
   nextRunAt: string | null; lastRunAt: string | null; createdAt: string | null;
 };
-
-function formatHourMinute(time: string): string {
-  const [h, m] = time.split(":").map(Number);
-  const hour = h % 12 || 12;
-  const ampm = h < 12 ? "AM" : "PM";
-  return `${hour}:${m.toString().padStart(2, "0")} ${ampm}`;
-}
-
-function relativeTime(dateStr: string): string {
-  const date = new Date(dateStr);
-  const now = new Date();
-  const diffMs = date.getTime() - now.getTime();
-  const diffSec = Math.floor(diffMs / 1000);
-  const diffMin = Math.floor(diffSec / 60);
-  const diffHr = Math.floor(diffMin / 60);
-  const diffDay = Math.floor(diffHr / 24);
-  if (diffMs < 0) return "now";
-  if (diffDay > 0) return diffDay === 1 ? "in 1 day" : `in ${diffDay} days`;
-  if (diffHr > 0) return diffHr === 1 ? "in 1 hour" : `in ${diffHr} hours`;
-  if (diffMin > 0) return diffMin === 1 ? "in 1 minute" : `in ${diffMin} minutes`;
-  return "in less than a minute";
-}
 
 export default function SchedulesPage() {
   const [schedules, setSchedules] = useState<ScheduleItem[]>([]);
@@ -399,7 +378,7 @@ export default function SchedulesPage() {
                           </p>
                           <p className="mt-0.5 text-[12px] text-[var(--c-text-subtle)]">
                             via {s.channel.split(",").map((c: string) => c.charAt(0).toUpperCase() + c.slice(1)).join(" & ")}
-                            {s.nextRunAt ? ` · ${relativeTime(s.nextRunAt)}` : ""}
+                            {s.nextRunAt ? ` · ${relativeTimeUntil(s.nextRunAt)}` : ""}
                           </p>
                         </div>
                         <div className="ml-3 flex shrink-0 items-center gap-1.5">

@@ -178,7 +178,7 @@ export default function Header() {
                     <button
                       type="button"
                       onClick={() => setClearConfirm(true)}
-                      className="flex w-full items-center rounded-[10px] px-3 py-[9px] text-[13px] font-semibold text-[#b14a3e] hover:bg-[var(--c-hover)]"
+                      className="flex w-full items-center rounded-[10px] px-3 py-[9px] text-[13px] font-semibold text-[var(--color-error)] hover:bg-[var(--c-hover)]"
                     >
                       Clear keys
                     </button>

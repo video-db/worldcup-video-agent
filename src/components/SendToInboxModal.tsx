@@ -199,11 +199,11 @@ export default function SendToInboxModal({ runId, open, onClose }: Props) {
                 <ChannelIcon type={inbox.type} size={16} />
                 <span className="flex-1 text-[13px] font-semibold text-[var(--c-text)]">{inbox.name}</span>
                 {checked ? (
-                  <span className="inline-flex size-[18px] items-center justify-center rounded-full bg-[#F24E1E]">
+                  <span className="inline-flex size-[18px] items-center justify-center rounded-full bg-[#F24E1E]" aria-hidden="true">
                     <CheckIcon className="size-3 text-white" />
                   </span>
                 ) : (
-                  <span className="size-[18px] rounded-full border-2 border-[var(--c-border)]" />
+                  <span className="size-[18px] rounded-full border-2 border-[var(--c-border)]" aria-hidden="true" />
                 )}
               </label>
             );

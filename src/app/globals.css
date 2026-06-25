@@ -11,6 +11,7 @@
   --color-primary: var(--orange-500);
   --color-accent: var(--orange-600);
   --color-error: #E5484D;
+  --color-success: #059669;
 
   /* Scrims */
   --scrim-hover-on-dark: rgba(255, 255, 255, 0.04);
@@ -74,8 +75,6 @@
   /* Sizing */
   --touch-target-min: 44px;
   --ds-header-h: 60px;
-  --ds-content-max: 860px;
-
   /* ── Semantic app surface tokens (theme-switchable) ──
      Default = dark. `.theme-light` on <html> flips these. Components and
      utilities read these so a single class set works in both themes. */
@@ -91,7 +90,7 @@
   --c-border-strong: rgba(255,255,255,0.18);
   --c-hover: rgba(255,255,255,0.04);
   --c-hover-2: rgba(255,255,255,0.07);
-  --c-input-bg: rgba(255,255,255,0.04);
+  --c-input-bg: rgba(255,255,255,0.06);
   --c-chrome: rgba(10,10,10,0.80);
   --c-select-chevron: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='none' stroke='rgba(255,255,255,0.65)' stroke-width='1.5'%3E%3Cpolyline points='4 6 8 10 12 6'/%3E%3C/svg%3E");
 }
@@ -104,7 +103,7 @@
   --c-text: #111111;
   --c-text-muted: rgba(0,0,0,0.72);
   --c-text-subtle: rgba(0,0,0,0.55);
-  --c-text-faint: rgba(0,0,0,0.40);
+  --c-text-faint: rgba(0,0,0,0.48);
   --c-border: rgba(0,0,0,0.10);
   --c-border-strong: rgba(0,0,0,0.14);
   --c-hover: rgba(0,0,0,0.04);
@@ -128,6 +127,8 @@
   --color-charcoal: var(--charcoal);
   --color-neutral-dark: var(--neutral-dark);
   --color-surface-light: var(--surface-light);
+  --color-error: var(--color-error);
+  --color-success: var(--color-success);
   --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 }
@@ -293,6 +294,7 @@ pre::-webkit-scrollbar-track { background: transparent; }
 }
 .ds-select option { color: #111; background: #fff; }
 .ds-select--dark option { color: #111; background: #fff; }
+.ds-briefing-grid { grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); }
 .ds-field-label {
   display: block; font-family: 'Geist', sans-serif; font-size: 12px; font-weight: 500;
   letter-spacing: -0.005em; margin-bottom: 8px;
@@ -315,7 +317,7 @@ pre::-webkit-scrollbar-track { background: transparent; }
 }
 .ds-radio { border-radius: var(--r-control); }
 .ds-checkbox { border-radius: var(--r-subtle); }
-.ds-checkbox--dark, .ds-radio--dark { background: var(--c-surface); border-color: var(--c-border-strong); }
+.ds-checkbox--dark, .ds-radio--dark { background: var(--c-surface-2); border-color: var(--c-border-strong); }
 .ds-checkbox--light, .ds-radio--light { background: #fff; border-color: var(--grey-400); }
 .ds-checkbox:checked, .ds-radio:checked { background: var(--orange-500); border-color: var(--orange-500); }
 .ds-checkbox:checked::after {
@@ -394,6 +396,11 @@ pre::-webkit-scrollbar-track { background: transparent; }
 .deliver-buzz { animation: deliver-buzz 1.6s var(--ease-ui) infinite; transform-origin: center; }
 @keyframes float-bob { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 .float-bob { animation: float-bob 3s ease-in-out infinite; }
+
+@media (hover: hover) {
+  .hover-lift { transition: transform 180ms var(--ease-ui); }
+  .hover-lift:hover { transform: translateY(-3px); }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .ds-reveal, .ds-reveal.is-revealed, .animate-message, .animate-rise,

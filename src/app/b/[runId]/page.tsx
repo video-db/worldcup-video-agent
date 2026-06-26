@@ -42,10 +42,15 @@ export default function BriefingPage() {
   const [copied, setCopied] = useState(false);
   const [reelError, setReelError] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [isDark, setIsDark] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const stopAutoScrollRef = useRef(false);
   const lastScrollYRef = useRef(0);
+
+  useEffect(() => {
+    setIsDark(document.documentElement.classList.contains("theme-dark"));
+  }, []);
 
   useEffect(() => {
     const onScroll = () => {
@@ -239,11 +244,11 @@ export default function BriefingPage() {
               <div className="space-y-[13px]">
                 {run.timeline && run.timeline.length > 0 ? (
                   <>
-                    <TimelineView events={run.timeline} />
-                    <StatusHistory cards={run.statusHistory} />
+                    <TimelineView events={run.timeline} isDark={isDark} />
+                    <StatusHistory cards={run.statusHistory} isDark={isDark} />
                   </>
                 ) : (
-                  <StatusHistory cards={run.statusHistory} fallback={run.statusMessage} />
+                  <StatusHistory cards={run.statusHistory} fallback={run.statusMessage} isDark={isDark} />
                 )}
                 <div ref={scrollRef} />
               </div>
@@ -293,7 +298,7 @@ export default function BriefingPage() {
                 <div className="mt-6 rounded-[14px] border border-[var(--c-border)] bg-[var(--c-surface)] p-[18px]">
                   <h2 className="mb-3 text-[12px] font-bold uppercase tracking-[0.08em] text-[var(--c-text-subtle)]">Source video</h2>
                   <div className="flex items-center gap-[10px]">
-                    <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                    <Image src={isDark ? "/brand/icon-videodb-dark.png" : "/brand/icon-videodb.png"} alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                     <a
                       href={run.selectedVideo?.url || "#"}
                       target="_blank"
@@ -331,7 +336,7 @@ export default function BriefingPage() {
   );
 }
 
-function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: string }>; fallback?: string }) {
+function StatusHistory({ cards, fallback, isDark }: { cards?: Array<{ ts: string; msg: string }>; fallback?: string; isDark: boolean }) {
   if (cards && cards.length > 0) {
     return (
       <>
@@ -343,7 +348,7 @@ function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: s
                 {isActive ? (
                   <span className="size-[18px] flex-none rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 ) : (
-                  <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                  <Image src={isDark ? "/brand/icon-videodb-dark.png" : "/brand/icon-videodb.png"} alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 )}
                 <span className="text-[13.5px] font-bold text-[var(--c-text)]">{entry.msg}</span>
               </div>
@@ -363,7 +368,7 @@ function StatusHistory({ cards, fallback }: { cards?: Array<{ ts: string; msg: s
   );
 }
 
-function TimelineView({ events }: { events: TimelineEvent[] }) {
+function TimelineView({ events, isDark }: { events: TimelineEvent[]; isDark: boolean }) {
   const items: Array<{ type: "text"; text: string } | { type: "tool"; tc: TimelineEvent["toolCall"] }> = [];
   let textBuf = "";
 
@@ -398,7 +403,7 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
             {isTinyFish ? (
               <>
                 <div className="flex items-center gap-[10px] border-b border-[var(--c-border)] px-4 py-[13px]">
-                  <Image src="/brand/icon-tinyfish.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                  <Image src={isDark ? "/brand/icon-tinyfish-dark.png" : "/brand/icon-tinyfish.png"} alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                   <span className="text-[13.5px] font-bold text-[var(--c-text)]">TinyFish · {tc.summary}</span>
                 </div>
                 {tc.details && (tc.details as { results?: Array<{ title: string; url: string }> }).results?.[0] ? (
@@ -418,7 +423,7 @@ function TimelineView({ events }: { events: TimelineEvent[] }) {
             ) : (
               <div className="flex items-center gap-[10px] px-4 py-[13px]">
                 {tc.status === "done" ? (
-                  <Image src="/brand/icon-videodb.png" alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
+                  <Image src={isDark ? "/brand/icon-videodb-dark.png" : "/brand/icon-videodb.png"} alt="" width={18} height={18} className="size-[18px] rounded-[4px] flex-none" />
                 ) : (
                   <span className="size-[18px] rounded-full border-2 border-[var(--c-border)] border-t-[#F24E1E] animate-spin" />
                 )}

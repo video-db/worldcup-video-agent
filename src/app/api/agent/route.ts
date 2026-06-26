@@ -226,11 +226,13 @@ export async function POST(request: NextRequest) {
   }
 
   try {
+    const isFreeRun = !sessionToken;
     await db.insert(runs).values({
       id: runId,
       query: prompt,
       status: "processing",
       apiKeyHash,
+      mode: isFreeRun ? "free" : null,
       statusMessage: "Got it! Cooking up your soccer reel...",
     });
   } catch (err) {

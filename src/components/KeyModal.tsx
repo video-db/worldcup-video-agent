@@ -73,7 +73,7 @@ export default function KeyModal({
               type="password"
               value={tfKey}
               onChange={(e) => onTfKeyChange(e.target.value)}
-              placeholder="tf-..."
+              placeholder="sk-..."
               autoComplete="off"
               aria-invalid={Boolean(error)}
               disabled={validating}
@@ -97,7 +97,7 @@ export default function KeyModal({
               type="password"
               value={vdbKey}
               onChange={(e) => onVdbKeyChange(e.target.value)}
-              placeholder="vdb-..."
+              placeholder="sk-..."
               autoComplete="off"
               aria-invalid={Boolean(error)}
               disabled={validating}

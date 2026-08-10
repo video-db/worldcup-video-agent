@@ -58,6 +58,11 @@ OPEN_ROUTER_API_KEY=sk-or-...
 ENCRYPTION_SECRET=$(openssl rand -hex 32)
 ADMIN_SECRET=your-admin-secret
 NEXT_PUBLIC_BASE_URL=http://localhost:3000   # set to Vercel URL in production
+INNGEST_MODE=self-hosted
+INNGEST_DEV=1
+INNGEST_BASE_URL=http://localhost:8288
+INNGEST_SERVE_ORIGIN=http://localhost:3000
+INNGEST_SERVE_PATH=/api/inngest
 ```
 
 Run the dev server:
@@ -215,8 +220,35 @@ inngest/
 | `OPENROUTER_MODEL` | No | `deepseek/deepseek-chat` | Model for the agent |
 | `LOG_LEVEL` | No | `info` | Pino log level (debug, info, warn, error) |
 | `NEXT_PUBLIC_BASE_URL` | Production | Auto-detected from `VERCEL_URL` | Base URL for notification links |
-| `INNGEST_EVENT_KEY` | Optional | — | Inngest Cloud event key |
-| `INNGEST_DEV` | Optional | `0` | Set to `1` to use Inngest dev server locally |
+| `INNGEST_MODE` | Production | `self-hosted` | Must be exactly `self-hosted`; Cloud fallback is disabled |
+| `INNGEST_BASE_URL` | Production | — | Must be exactly `https://ca-inngest-dev.ashyfield-21cb2f83.centralindia.azurecontainerapps.io` |
+| `INNGEST_EVENT_KEY` | Production | — | Nonempty Azure Inngest event key with no whitespace |
+| `INNGEST_SIGNING_KEY` | Production | — | Azure signing key: at least 64 hexadecimal characters, even length, no whitespace |
+| `INNGEST_DEV` | Production | unset / `0` / `false` | Local mode is `1` and is restricted to `http://localhost:8288` |
+| `INNGEST_SERVE_ORIGIN` | Production | — | Must exactly equal `https://$VERCEL_PROJECT_PRODUCTION_URL` |
+| `INNGEST_SERVE_PATH` | Production | `/api/inngest` | Must be exactly `/api/inngest` |
+| `INNGEST_WORKFLOW_CONCURRENCY` | No | `2` | Bounded to `1` or `2` for paid reel generation |
+
+### Azure-only Inngest production contract
+
+This application uses only the shared Azure self-hosted Inngest service. Its
+unique registration is `world-cup-briefing-v3`; the legacy
+`world-cup-briefing` Inngest Cloud app must remain archived. Never configure an
+Inngest Cloud URL or `INNGEST_SIGNING_KEY_FALLBACK`.
+
+In Vercel Production, set the variables in the table above, ensure
+`VERCEL_PROJECT_PRODUCTION_URL` is the project's canonical hostname, and set
+`INNGEST_SERVE_ORIGIN` byte-for-byte to `https://$VERCEL_PROJECT_PRODUCTION_URL`.
+Azure must sync this app's exact SDK endpoint:
+
+```text
+https://$VERCEL_PROJECT_PRODUCTION_URL/api/inngest
+```
+
+`GET /api/health` reports only boolean configuration checks and returns `503`
+until this contract is complete. Existing `Create Reel` and `Check Schedules`
+triggers are unchanged; their execution is now bounded to prevent retry or
+concurrency bursts during the cutover.
 
 ---
 

@@ -20,6 +20,7 @@ import { createAgentPipeline } from "@/lib/agent-tools";
 import type { BriefingEvent } from "@/lib/demo-data";
 import { sendRunNotification } from "@/lib/notify";
 import { inngest } from "./client";
+import { worldCupWorkflowConcurrency } from "./safety";
 
 type ReelEvent = {
   runId: string;
@@ -39,6 +40,8 @@ export const createReel = inngest.createFunction(
     id: "create-reel",
     name: "Create Reel",
     triggers: [{ event: "app/reel.create" }],
+    concurrency: worldCupWorkflowConcurrency,
+    retries: 0,
     onFailure: async ({ event, error }) => {
       logger.error({ err: error.message }, "createReel onFailure");
       try {
@@ -469,6 +472,8 @@ export const checkSchedules = inngest.createFunction(
     id: "check-schedules",
     name: "Check Schedules",
     triggers: [{ cron: "* * * * *" }],
+    concurrency: 1,
+    retries: 0,
   },
   async ({ step }) => {
     const due = await step.run("query-due-schedules", async () => {

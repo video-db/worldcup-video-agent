@@ -1,9 +1,17 @@
 import { Inngest } from "inngest";
+import {
+  resolveInngestRuntime,
+  WORLD_CUP_BRIEFING_INNGEST_APP_ID,
+} from "./safety";
 
-const isDev = process.env.INNGEST_DEV === "1";
+const runtime = resolveInngestRuntime();
 
 export const inngest = new Inngest({
-  id: "world-cup-briefing",
-  baseUrl: isDev ? "http://localhost:8288" : undefined,
-  eventKey: isDev ? "test-key" : process.env.INNGEST_EVENT_KEY,
+  id: WORLD_CUP_BRIEFING_INNGEST_APP_ID,
+  baseUrl: runtime.baseUrl,
+  eventKey: runtime.eventKey,
+  checkpointing: {
+    maxRuntime: "10m",
+    bufferedSteps: 1,
+  },
 });

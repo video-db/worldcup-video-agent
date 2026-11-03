@@ -40,7 +40,7 @@ World Cup Briefing turns natural language requests into playable football highli
 - PostgreSQL database (we use [Azure Database for PostgreSQL](https://azure.microsoft.com/products/postgresql))
 - [TinyFish API key](https://tinyfish.ai) — for web video search
 - [VideoDB API key](https://console.videodb.io) — for video indexing and reel compilation
-- [OpenRouter API key](https://openrouter.ai) — for the AI agent
+- [OpenAI API key](https://platform.openai.com/api-keys) — for the AI agent
 
 ### Setup
 
@@ -54,7 +54,7 @@ Create a `.env.local` file:
 
 ```env
 DATABASE_URL=postgres://...
-OPEN_ROUTER_API_KEY=sk-or-...
+OPENAI_API_KEY=replace-with-your-openai-key
 ENCRYPTION_SECRET=$(openssl rand -hex 32)
 ADMIN_SECRET=your-admin-secret
 NEXT_PUBLIC_BASE_URL=http://localhost:3000   # set to Vercel URL in production
@@ -105,7 +105,7 @@ Open [http://localhost:3000](http://localhost:3000). Click **Add API keys** in t
 User types: "all red cards from Argentina vs France"
        │
        ▼
-  AI Agent (OpenRouter / DeepSeek)
+  AI Agent (OpenAI / GPT-4.1 mini)
        │
        ├─→ tinyfishResearch: searches match reports for event facts (minute, player, half)
        │
@@ -137,7 +137,7 @@ For **scheduled briefings**, an Inngest cron function runs every minute, picks u
 | Framework | Next.js 16 (App Router) |
 | Language | TypeScript |
 | Styling | Tailwind CSS 4 |
-| AI Agent | OpenRouter + Vercel AI SDK (`streamText` + `tool`) |
+| AI Agent | OpenAI + Vercel AI SDK (`streamText` + `tool`) |
 | Database | PostgreSQL (Azure Database for PostgreSQL) + Drizzle ORM |
 | Video Indexing | VideoDB |
 | Web Search | TinyFish |
@@ -212,12 +212,12 @@ inngest/
 | Variable | Required | Default | Description |
 |---|---|---|---|
 | `DATABASE_URL` | Yes | — | PostgreSQL connection string (Azure) |
-| `OPEN_ROUTER_API_KEY` | Yes | — | OpenRouter API key for the AI agent |
+| `OPENAI_API_KEY` | Yes | — | OpenAI API key for the AI agent |
 | `ENCRYPTION_SECRET` | Yes | — | 32-byte hex key for encrypting stored credentials |
 | `ADMIN_SECRET` | Yes | — | Secret for admin endpoints (seed/unseed gallery runs) |
 | `TINYFISH_API_KEY` | Optional | — | Default TinyFish key (users can override with their own via UI) |
 | `VIDEO_DB_API_KEY` | Optional | — | Default VideoDB key (users can override with their own via UI) |
-| `OPENROUTER_MODEL` | No | `deepseek/deepseek-chat` | Model for the agent |
+| `OPENAI_MODEL` | No | `gpt-4.1-mini` | Model for the agent |
 | `LOG_LEVEL` | No | `info` | Pino log level (debug, info, warn, error) |
 | `NEXT_PUBLIC_BASE_URL` | Production | Auto-detected from `VERCEL_URL` | Base URL for notification links |
 | `INNGEST_MODE` | Production | `self-hosted` | Must be exactly `self-hosted`; Cloud fallback is disabled |
@@ -277,3 +277,11 @@ npm run db:studio    # Open Drizzle Studio
 [react-url]: https://reactjs.org/
 [website-shield]: https://img.shields.io/website?url=https%3A%2F%2Fvideodb.io%2F&style=for-the-badge&label=videodb.io
 [website-url]: https://videodb.io/
+
+## Direct OpenAI configuration
+
+Set the server-only `OPENAI_API_KEY` in the local environment and separately
+in each deployed environment before merging/deploying this migration.
+`OPENAI_MODEL` is optional; use a direct OpenAI model ID without an
+`openai/` prefix. OpenRouter credentials and model settings are no longer read.
+Existing VideoDB credentials, queue configuration and stored results stay intact.

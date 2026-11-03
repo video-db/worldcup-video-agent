@@ -1,12 +1,16 @@
 import { createOpenAI } from "@ai-sdk/openai";
 import { generateText } from "ai";
-import { logger } from "@/lib/logger";
+import { logger } from "./logger";
+
+export function getModelName() {
+  return process.env.OPENAI_MODEL || "gpt-4.1-mini";
+}
 
 export function getModel() {
-  const apiKey = process.env.OPEN_ROUTER_API_KEY;
-  if (!apiKey) throw new Error("OPEN_ROUTER_API_KEY is not configured");
-  const llm = createOpenAI({ apiKey, baseURL: "https://openrouter.ai/api/v1" });
-  return llm.chat(process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat");
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) throw new Error("OPENAI_API_KEY is not configured");
+  const llm = createOpenAI({ apiKey, baseURL: "https://api.openai.com/v1" });
+  return llm.chat(getModelName());
 }
 
 export async function llmGenerateJson(

@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@ai-sdk/openai": "^3.0.73",
-    "@openrouter/ai-sdk-provider": "^2.9.0",
     "@tiny-fish/sdk": "^0.0.8",
     "ai": "^6.0.198",
     "date-fns-tz": "^3.2.0",

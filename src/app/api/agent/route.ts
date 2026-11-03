@@ -60,7 +60,7 @@ type StreamEvent =
       };
     };
 
-import { getModel } from "@/lib/llm";
+import { getModel, getModelName } from "@/lib/llm";
 
 function summarizeSearch(search: SearchResponse) {
   return {
@@ -86,7 +86,7 @@ function writeEvent(controller: ReadableStreamDefaultController<Uint8Array>, eve
   }
 }
 
-// AI SDK stream error parts carry `unknown`, and OpenRouter failures are often
+// AI SDK stream error parts carry `unknown`, and provider failures are often
 // plain objects — extract something readable instead of "Agent run failed".
 function errorMessage(error: unknown): string {
   if (error instanceof Error) return error.message;
@@ -192,7 +192,7 @@ export async function POST(request: NextRequest) {
     vdbApiKey = houseVdb;
     apiKeyHash = sha256(houseVdb);
   }
-  const modelName = process.env.OPENROUTER_MODEL || "deepseek/deepseek-chat";
+  const modelName = getModelName();
   const runId = crypto.randomUUID();
   const toolCalls: AgentToolCall[] = [];
   let search: SearchResponse | null = null;
@@ -249,7 +249,7 @@ export async function POST(request: NextRequest) {
     const result = streamText({
       model: getModel(),
       stopWhen: stepCountIs(7),
-      // DeepSeek (via OpenRouter) intermittently returns tool arguments as a
+      // Some model responses return tool arguments as a
       // JSON-encoded *string* instead of an object, so schema validation fails
       // at the root ("expected object"). Re-parse the stringified payload and
       // hand the model's intended object back to the SDK.

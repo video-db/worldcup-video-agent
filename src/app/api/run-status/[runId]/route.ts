@@ -1,11 +1,9 @@
-import { eq, sql } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 import { NextRequest, NextResponse } from "next/server";
 import { db, runs } from "@/lib/db";
 import { getApiKeyHashes, resolveSessionToken } from "@/lib/session";
 import { logger } from "@/lib/logger";
 import type { BriefingEvent } from "@/lib/demo-data";
-
-const TIMEOUT_MINUTES = 15;
 
 export async function GET(
   request: NextRequest,
@@ -61,37 +59,9 @@ export async function GET(
       }
     }
 
-    if (row.status === "processing" && row.createdAt) {
-      const elapsed = Date.now() - row.createdAt.getTime();
-      if (elapsed > TIMEOUT_MINUTES * 60 * 1000) {
-        await db.update(runs).set({
-          status: "failed",
-          errorMessage: `Timed out after ${TIMEOUT_MINUTES} minutes`,
-          statusMessage: "Timed out",
-          completedAt: new Date(),
-        }).where(eq(runs.id, runId));
-        return NextResponse.json({
-          runId: row.id,
-          query: row.query,
-          topic: row.topic ?? undefined,
-          status: "failed",
-          mode: row.mode ?? undefined,
-          selectedVideo: row.selectedVideo ?? undefined,
-          playerUrl: row.playerUrl ?? undefined,
-          streamUrl: row.streamUrl ?? undefined,
-          thumbnailUrl: row.thumbnailUrl ?? undefined,
-          events: (row.events as BriefingEvent[]) ?? undefined,
-      timeline: (row.timeline as Record<string, unknown>[]) ?? undefined,
-      summary: row.summary ?? undefined,
-      statusMessage: "Timed out",
-      statusHistory: (row.statusHistory as Array<{ ts: string; msg: string }>) ?? undefined,
-      errorMessage: `Timed out after ${TIMEOUT_MINUTES} minutes`,
-          createdAt: row.createdAt?.toISOString() ?? undefined,
-          completedAt: new Date().toISOString(),
-        });
-      }
-    }
-
+    // The Inngest workflow owns completion and failure, including its bounded
+    // provider polling. Queue time and indexing can exceed 15 minutes; reading
+    // progress must not fail an active run or overwrite a concurrent completion.
     return NextResponse.json({
       runId: row.id,
       query: row.query,
